@@ -7,10 +7,13 @@
 /*
 /******************************************************************************/
 
+#include <stdio.h>      // standard input / output functions
 #include <stdlib.h>
 #include <argp.h>
 #include <string.h>
 #include <signal.h>
+#include <fcntl.h>      // File control definitions
+#include <errno.h>      // Error number definitions
 
 #include "main.h"
 
