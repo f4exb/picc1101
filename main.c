@@ -232,7 +232,7 @@ static struct argp argp = {options, parse_opt, args_doc, doc};
 static void set_serial_parameters(arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    SERIAL_TNC = open(arguments->serial-device, O_RDWR | O_NOCTTY);
+    SERIAL_TNC = open(arguments->serial_device, O_RDWR | O_NOCTTY);
 
     memset (&tty, 0, sizeof tty);
 
@@ -268,7 +268,7 @@ static void set_serial_parameters(arguments_t *arguments)
 
     if ( tcsetattr ( SERIAL_TNC, TCSANOW, &tty ) != 0) 
     {
-       std::cout << "Error " << errno << " from tcsetattr" << std::endl;
+        printf("Error %d from tcsetattr: %s\n", errno, strerror(errno));
     }    
 }
 
@@ -289,7 +289,7 @@ static int read_serial(char *buf, int buflen)
 {
     int bytes_read = 0;
     bytes_read = read(SERIAL_TNC, buf, buflen);
-    return byteS_read;
+    return bytes_read;
 } 
 
 // ------------------------------------------------------------------------------------------------
