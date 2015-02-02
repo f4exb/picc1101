@@ -280,9 +280,9 @@ static void set_serial_parameters(arguments_t *arguments)
 static int write_serial(char *msg, int msglen)
 // ------------------------------------------------------------------------------------------------
 {
-    int n_written = 0, spot = 0;
-    n_written = write(SERIAL_TNC, msg, msglen);
-    return msglen - n_written;
+    int bytes_written = 0;
+    bytes_written = write(SERIAL_TNC, msg, msglen);
+    return msglen - bytes_written;
 }
 
 // ------------------------------------------------------------------------------------------------
