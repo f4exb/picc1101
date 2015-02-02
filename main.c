@@ -15,6 +15,9 @@
 #include "main.h"
 
 int verbose_level;
+int SERIAL_TNC;
+struct termios tty;
+struct termios tty_old;
 
 /***** Argp configuration start *****/
 
@@ -225,12 +228,81 @@ static struct argp argp = {options, parse_opt, args_doc, doc};
 /***** ARGP configuration stop *****/
 
 // ------------------------------------------------------------------------------------------------
+// Init serial interface (TNC)
+static void set_serial_parameters(arguments_t *arguments)
+// ------------------------------------------------------------------------------------------------
+{
+    SERIAL_TNC = open(arguments->serial-device, O_RDWR | O_NOCTTY);
+
+    memset (&tty, 0, sizeof tty);
+
+    // Error Handling 
+    if ( tcgetattr ( SERIAL_TNC, &tty ) != 0 ) 
+    {
+        printf("Error %d from tcgetattr: %s\n", errno, strerror(errno));
+    }
+
+    // Save old tty parameters 
+    tty_old = tty;
+
+    // Set Baud Rate 
+    cfsetospeed (&tty, arguments->serial_speed);
+    cfsetispeed (&tty, arguments->serial_speed);
+
+    // Setting other Port Stuff 
+    tty.c_cflag     &=  ~PARENB;            // Make 8n1
+    tty.c_cflag     &=  ~CSTOPB;
+    tty.c_cflag     &=  ~CSIZE;
+    tty.c_cflag     |=  CS8;
+
+    tty.c_cflag     &=  ~CRTSCTS;           // no flow control
+    tty.c_cc[VMIN]   =  1;                  // read doesn't block
+    tty.c_cc[VTIME]  =  5;                  // 0.5 seconds read timeout
+    tty.c_cflag     |=  CREAD | CLOCAL;     // turn on READ & ignore ctrl lines
+
+    // Make raw 
+    cfmakeraw(&tty);
+
+    // Flush Port, then applies attributes 
+    tcflush( SERIAL_TNC, TCIFLUSH );
+
+    if ( tcsetattr ( SERIAL_TNC, TCSANOW, &tty ) != 0) 
+    {
+       std::cout << "Error " << errno << " from tcsetattr" << std::endl;
+    }    
+}
+
+// ------------------------------------------------------------------------------------------------
+// Write to serial interface
+static int write_serial(char *msg, int msglen)
+// ------------------------------------------------------------------------------------------------
+{
+    int n_written = 0, spot = 0;
+    n_written = write(SERIAL_TNC, msg, msglen);
+    return msglen - n_written;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Read from serial interface
+static int read_serial(char *buf, int buflen)
+// ------------------------------------------------------------------------------------------------
+{
+    int bytes_read = 0;
+    bytes_read = read(SERIAL_TNC, buf, buflen);
+    return byteS_read;
+} 
+
+// ------------------------------------------------------------------------------------------------
 int main (int argc, char **argv)
 // ------------------------------------------------------------------------------------------------
 {
     arguments_t arguments;
-    int i;
+    int i, ser_read;
     
+    // Whole response
+    char response[1<<12];
+    memset(response, '\0', sizeof(response));
+
     // unsolicited termination handling
     struct sigaction sa;
     // Catch all signals possible on process exit!
@@ -263,6 +335,22 @@ int main (int argc, char **argv)
     }
 
     print_args(&arguments);
+    set_serial_parameters(&arguments);
+
+    while (1)
+    {
+        ser_read = read_serial(response, sizeof(response));
+        
+        if (ser_read > 0)
+        {
+            response[ser_read] = '\0';
+            printf("%s\n", response);
+        }
+        else
+        {
+            usleep(100000);
+        }
+    }
 
     return 0;
 }
