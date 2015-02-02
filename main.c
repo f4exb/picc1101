@@ -229,6 +229,7 @@ int main (int argc, char **argv)
 // ------------------------------------------------------------------------------------------------
 {
     arguments_t arguments;
+    int i;
     
     // unsolicited termination handling
     struct sigaction sa;
