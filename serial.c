@@ -99,10 +99,10 @@ speed_t get_serial_speed(uint32_t speed, uint32_t *speed_n)
 
 // ------------------------------------------------------------------------------------------------
 // Init serial interface (TNC)
-void set_serial_parameters(arguments_t *arguments)
+void set_serial_parameters(arguments_t *arguments, serial_t *serial_parameters)
 // ------------------------------------------------------------------------------------------------
 {
-    SERIAL_TNC = open(arguments->serial_device, O_RDWR | O_NOCTTY);
+    serial_parameters->SERIAL_TNC = open(arguments->serial_device, O_RDWR | O_NOCTTY);
 
     memset (&tty, 0, sizeof tty);
 
@@ -113,30 +113,30 @@ void set_serial_parameters(arguments_t *arguments)
     }
 
     // Save old tty parameters 
-    tty_old = tty;
+    serial_parameters->tty_old = serial_parameters->tty;
 
     // Set Baud Rate 
-    cfsetospeed (&tty, arguments->serial_speed);
-    cfsetispeed (&tty, arguments->serial_speed);
+    cfsetospeed (&serial_parameters->tty, arguments->serial_speed);
+    cfsetispeed (&serial_parameters->tty, arguments->serial_speed);
 
     // Setting other Port Stuff 
-    tty.c_cflag     &=  ~PARENB;            // Make 8n1
-    tty.c_cflag     &=  ~CSTOPB;
-    tty.c_cflag     &=  ~CSIZE;
-    tty.c_cflag     |=  CS8;
+    serial_parameters->tty.c_cflag     &=  ~PARENB;            // Make 8n1
+    serial_parameters->tty.c_cflag     &=  ~CSTOPB;
+    serial_parameters->tty.c_cflag     &=  ~CSIZE;
+    serial_parameters->tty.c_cflag     |=  CS8;
 
-    tty.c_cflag     &=  ~CRTSCTS;           // no flow control
-    tty.c_cc[VMIN]   =  1;                  // read doesn't block
-    tty.c_cc[VTIME]  =  5;                  // 0.5 seconds read timeout
-    tty.c_cflag     |=  CREAD | CLOCAL;     // turn on READ & ignore ctrl lines
+    serial_parameters->tty.c_cflag     &=  ~CRTSCTS;           // no flow control
+    serial_parameters->tty.c_cc[VMIN]   =  1;                  // read doesn't block
+    serial_parameters->tty.c_cc[VTIME]  =  5;                  // 0.5 seconds read timeout
+    serial_parameters->tty.c_cflag     |=  CREAD | CLOCAL;     // turn on READ & ignore ctrl lines
 
     // Make raw 
-    cfmakeraw(&tty);
+    cfmakeraw(&serial_parameters->tty);
 
     // Flush Port, then applies attributes 
-    tcflush( SERIAL_TNC, TCIFLUSH );
+    tcflush(serial_parameters->SERIAL_TNC, TCIFLUSH );
 
-    if ( tcsetattr ( SERIAL_TNC, TCSANOW, &tty ) != 0) 
+    if ( tcsetattr (serial_parameters->SERIAL_TNC, TCSANOW, &serial_parameters->tty ) != 0) 
     {
         printf("Error %d from tcsetattr: %s\n", errno, strerror(errno));
     }    
@@ -144,21 +144,21 @@ void set_serial_parameters(arguments_t *arguments)
 
 // ------------------------------------------------------------------------------------------------
 // Write to serial interface
-int write_serial(char *msg, int msglen)
+int write_serial(char *msg, int msglen, serial_t *serial_parameters)
 // ------------------------------------------------------------------------------------------------
 {
     int bytes_written = 0;
-    bytes_written = write(SERIAL_TNC, msg, msglen);
+    bytes_written = write(serial_parameters->SERIAL_TNC, msg, msglen);
     return msglen - bytes_written;
 }
 
 // ------------------------------------------------------------------------------------------------
 // Read from serial interface
-int read_serial(char *buf, int buflen)
+int read_serial(char *buf, int buflen, serial_t *serial_parameters)
 // ------------------------------------------------------------------------------------------------
 {
     int bytes_read = 0;
-    bytes_read = read(SERIAL_TNC, buf, buflen);
+    bytes_read = read(serial_parameters->SERIAL_TNC, buf, buflen);
     return bytes_read;
 } 
 
