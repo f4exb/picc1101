@@ -9,6 +9,7 @@
 
 #include <fcntl.h>      // File control definitions
 #include <errno.h>      // Error number definitions
+#include <string.h>
 
 #include "main.h"
 #include "serial.h"
@@ -107,10 +108,10 @@ void set_serial_parameters(arguments_t *arguments, serial_t *serial_parameters)
 {
     serial_parameters->SERIAL_TNC = open(arguments->serial_device, O_RDWR | O_NOCTTY);
 
-    memset (&tty, 0, sizeof tty);
+    memset (&serial_parameters->tty, 0, sizeof serial_parameters->tty);
 
     // Error Handling 
-    if ( tcgetattr ( SERIAL_TNC, &tty ) != 0 ) 
+    if ( tcgetattr (serial_parameters->SERIAL_TNC, &serial_parameters->tty ) != 0 ) 
     {
         printf("Error %d from tcgetattr: %s\n", errno, strerror(errno));
     }
