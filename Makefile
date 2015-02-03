@@ -1,4 +1,4 @@
-all: picc1101
+all: picc1101 serial.o
 
 
 clean:
@@ -11,3 +11,5 @@ picc1101: main.o
 main.o: main.h main.c
 	$(CCPREFIX)gcc $(CFLAGS) -c -o main.o main.c
 
+serial.o: serial.h serial.c
+	$(CCPREFIX)gcc $(CFLAGS) -c -o serial.o serial.c
