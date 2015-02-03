@@ -21,8 +21,8 @@ typedef struct serial_s
 } serial_t;
 
 speed_t get_serial_speed(uint32_t speed, uint32_t *speed_n);
-void set_serial_parameters(arguments_t *arguments, serial_t *serial_parameters);
-int write_serial(char *msg, int msglen, serial_t *serial_parameters);
-int read_serial(char *buf, int buflen, serial_t *serial_parameters);
+void set_serial_parameters(serial_t *serial_parameters, arguments_t *arguments);
+int write_serial(serial_t *serial_parameters, char *msg, int msglen);
+int read_serial(serial_t *serial_parameters, char *buf, int buflen);
 
 #endif

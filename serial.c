@@ -104,7 +104,7 @@ speed_t get_serial_speed(uint32_t speed, uint32_t *speed_n)
 
 // ------------------------------------------------------------------------------------------------
 // Init serial interface (TNC)
-void set_serial_parameters(arguments_t *arguments, serial_t *serial_parameters)
+void set_serial_parameters(serial_t *serial_parameters, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
     serial_parameters->SERIAL_TNC = open(arguments->serial_device, O_RDWR | O_NOCTTY);
@@ -149,7 +149,7 @@ void set_serial_parameters(arguments_t *arguments, serial_t *serial_parameters)
 
 // ------------------------------------------------------------------------------------------------
 // Write to serial interface
-int write_serial(char *msg, int msglen, serial_t *serial_parameters)
+int write_serial(serial_t *serial_parameters, char *msg, int msglen)
 // ------------------------------------------------------------------------------------------------
 {
     int bytes_written = 0;
@@ -159,7 +159,7 @@ int write_serial(char *msg, int msglen, serial_t *serial_parameters)
 
 // ------------------------------------------------------------------------------------------------
 // Read from serial interface
-int read_serial(char *buf, int buflen, serial_t *serial_parameters)
+int read_serial(serial_t *serial_parameters, char *buf, int buflen)
 // ------------------------------------------------------------------------------------------------
 {
     int bytes_read = 0;
