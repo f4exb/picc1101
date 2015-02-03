@@ -10,6 +10,7 @@
 #include <fcntl.h>      // File control definitions
 #include <errno.h>      // Error number definitions
 #include <string.h>
+#include <stdio.h>
 
 #include "main.h"
 #include "serial.h"
