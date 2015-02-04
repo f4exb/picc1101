@@ -52,6 +52,7 @@
 // Comments: Initial Release Version
 //------------------------------------------------------------------------------
 
+#include <fcntl.h>
 #include "pi_cc_spi.h"
 #include "pi_cc_cc1100-cc2500.h"
 
@@ -112,8 +113,8 @@ void PI_CC_SPIParmsDefaults(spi_parms_t *spi_parms)
     spi_parms->delay  = 0;
     spi_parms->fd     = 0;
     spi_parms->ret    = 0;
-    spi_parms->tr.tx            = (unsigned long) spi_parms->tx;
-    spi_parms->tr.rx            = (unsigned long) spi_parms->rx;
+    spi_parms->tr.tx_buf        = (uint64_t) spi_parms->tx;
+    spi_parms->tr.rx_buf        = (uint64_t) spi_parms->rx;
     spi_parms->tr.len           = 0;
     spi_parms->tr.delay_usecs   = 0;
     spi_parms->tr.speed_hz      = 500000;
@@ -132,7 +133,7 @@ void PI_CC_Wait(unsigned int cycles)
 }
 
 // ------------------------------------------------------------------------------------------------
-int PI_CC_SPISetup(spi_parms_t *spi_parms, arguments_t *argments)
+int PI_CC_SPISetup(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
     spi_parms->ret = 0;
