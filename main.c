@@ -48,7 +48,7 @@ static void terminate(const int signal_) {
 static void init_args(arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    arguments->verbose = 0;
+    arguments->verbose_level = 0;
     arguments->serial_device = 0;
     arguments->modulation = MOD_FSK2;
     arguments->serial_speed = B38400;
@@ -112,7 +112,7 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
     switch (key){
         // Verbosity 
         case 'v':
-            arguments->verbose = strtol(arg, &end, 10);
+            arguments->verbose_level = strtol(arg, &end, 10);
             if (*end)
                 argp_usage(state);
             break; 
