@@ -53,6 +53,9 @@
 //------------------------------------------------------------------------------
 
 #include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "pi_cc_spi.h"
 #include "pi_cc_cc1100-cc2500.h"
 
@@ -113,8 +116,8 @@ void PI_CC_SPIParmsDefaults(spi_parms_t *spi_parms)
     spi_parms->delay  = 0;
     spi_parms->fd     = 0;
     spi_parms->ret    = 0;
-    spi_parms->tr.tx_buf        = (uint64_t) spi_parms->tx;
-    spi_parms->tr.rx_buf        = (uint64_t) spi_parms->rx;
+    spi_parms->tr.tx_buf        = (unsigned long) spi_parms->tx;
+    spi_parms->tr.rx_buf        = (unsigned long) spi_parms->rx;
     spi_parms->tr.len           = 0;
     spi_parms->tr.delay_usecs   = 0;
     spi_parms->tr.speed_hz      = 500000;
@@ -140,8 +143,8 @@ int PI_CC_SPISetup(spi_parms_t *spi_parms, arguments_t *arguments)
 
     do
     {
-        spi_parms->fd = open(arguments->device, O_RDWR);
-        if (fd < 0)
+        spi_parms->fd = open(arguments->spi_device, O_RDWR);
+        if (spi_parms->fd < 0)
         {
             fprintf(stderr, "can't open device");
             spi_parms->ret = -1;
