@@ -59,6 +59,9 @@
 #ifndef _PI_CC_SPI_H_
 #define _PI_CC_SPI_H_
 
+
+#include <stdint.h>
+#include <linux/types.h>
 #include <linux/spi/spidev.h>
 #include "main.h"
 

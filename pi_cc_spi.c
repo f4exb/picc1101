@@ -55,7 +55,6 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <linux/types.h>
 
 
 #include "pi_cc_spi.h"
