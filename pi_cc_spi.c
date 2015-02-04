@@ -101,9 +101,6 @@
 //  to the strobe at address "addr".
 //------------------------------------------------------------------------------
 
-#include "pi_cc_cc11000-cc2500.h"
-#include "pi_cc_spi.h"
-
 // ------------------------------------------------------------------------------------------------
 // Initialize defauklt parameters
 void PI_CC_SPIParmsDefaults(spi_parms_t *spi_parms)
