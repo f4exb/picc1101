@@ -300,7 +300,7 @@ int PI_CC_SPIReadBurstReg(spi_parms_t *spi_parms, uint8_t addr, const uint8_t *b
         return 1;
     }
 
-    buffer = spi_parms->tr.rx;
+    buffer = spi_parms->rx;
     return 0;
 }
 
@@ -348,6 +348,6 @@ int PI_CC_SPIStrobe(spi_parms_t *spi_parms, uint8_t strobe)
 int PI_CC_PowerupResetCCxxxx(spi_parms_t *spi_parms)
 // ------------------------------------------------------------------------------------------------
 {
-    return PI_CC_SPIStrobe(spi_parms, TI_CCxxx0_SRES);
+    return PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRES);
 }
 
