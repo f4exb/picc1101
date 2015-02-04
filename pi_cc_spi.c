@@ -55,6 +55,8 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <linux/types.h>
+
 
 #include "pi_cc_spi.h"
 #include "pi_cc_cc1100-cc2500.h"
@@ -152,7 +154,7 @@ int PI_CC_SPISetup(spi_parms_t *spi_parms, arguments_t *arguments)
         }
 
         // spi mode
-        spi_parms->ret = ioctl(spi_parms->fd, SPI_IOC_WR_MODE, &spi_parms->mode);
+        spi_parms->ret = ioctl(spi_parms->fd, +SPI_IOC_WR_MODE, &spi_parms->mode);
         if (spi_parms->ret == -1)
         {
             fprintf(stderr, "can't set spi mode");
