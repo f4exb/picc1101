@@ -77,7 +77,7 @@ static void print_args(arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
     fprintf(stderr, "-- options --\n");
-    fprintf(stderr, "Verbosiity ..........: %d\n", verbose_level);
+    fprintf(stderr, "Verbosiity ..........: %d\n", arguments->verbose_level);
     fprintf(stderr, "Modulation # ........: %d\n", (int) arguments->modulation);
     fprintf(stderr, "TNC device ..........: %s\n", arguments->serial_device);
     fprintf(stderr, "TNC speed ...........: %d Baud\n", arguments->serial_speed_n);
@@ -200,7 +200,7 @@ int main (int argc, char **argv)
 
     while (1)
     {
-        ser_read = read_serial(,&serial_parameters, response, sizeof(response));
+        ser_read = read_serial(&serial_parameters, response, sizeof(response));
         
         if (ser_read > 0)
         {
