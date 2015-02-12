@@ -103,9 +103,11 @@ static void get_rate_words(rate_t rate_code, modulation_t modulation_code, radio
 void init_radio_parms(radio_parms_t *radio_parms)
 // ------------------------------------------------------------------------------------------------
 {
-	radio_parms->f_xtal   = 26000000;        // 26 MHz Xtal
-	radio_parms->f_if     = 310000;          // 304.6875 kHz (lowest point below 310 kHz)
-	radio_parms->sync_ctl = SYNC_30_over_32; // 30/32 sync word bits detected
+	radio_parms->f_xtal    = 26000000;        // 26 MHz Xtal
+	radio_parms->f_if      = 310000;          // 304.6875 kHz (lowest point below 310 kHz)
+	radio_parms->sync_ctl  = SYNC_30_over_32; // 30/32 sync word bits detected
+        radio_parms->chanspc_m = 0;               // Do not use channel spacing for the moment defaulting to 0
+        radio_parms->chanspc_e = 0;               // Do not use channel spacing for the moment defaulting to 0
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -114,7 +116,6 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
 // ------------------------------------------------------------------------------------------------
 {
     int ret = 0;
-    uint32_t freq_word;
     uint8_t  reg_word;
 
     // open SPI link
@@ -185,8 +186,8 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     // FSCTRL1: The desired IF frequency to employ in RX. Subtracted from FS base frequency
     // in RX and controls the digital complex mixer in the demodulator. Multiplied by Fxtal/2^10
     // Here 0.3046875 MHz (lowest point below 310 kHz)
-	freq_word = get_if_word(radio_parms->f_xtal, radio_parms->f_if);    
-    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_FSCTRL1, (freq_word & 0xFF)); // Freq synthesizer control.
+	radio_parms->if_word = get_if_word(radio_parms->f_xtal, radio_parms->f_if);    
+    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_FSCTRL1, (radio_parms->if_word & 0x1F)); // Freq synthesizer control.
 
     // FREQ2..0: Base frequency for the frequency sythesizer
     // Fo = (Fxosc / 2^16) * FREQ[23..0]
@@ -194,10 +195,10 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     // FREQ1 is FREQ[15..8]
     // FREQ0 is FREQ[7..0]
     // Fxtal = 26 MHz and FREQ = 0x10A762 => Fo = 432.99981689453125 MHz
-    freq_word = get_freq_word(radio_parms->f_xtal, arguments->freq_hz);
-    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_FREQ2,    ((freq_word>>16) & 0xFF)); // Freq control word, high byte
-    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_FREQ1,    ((freq_word>>8)  & 0xFF)); // Freq control word, mid byte.
-    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_FREQ0,    (freq_word & 0xFF));       // Freq control word, low byte.
+    radio_parms->freq_word = get_freq_word(radio_parms->f_xtal, arguments->freq_hz);
+    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_FREQ2,    ((radio_parms->freq_word>>16) & 0xFF)); // Freq control word, high byte
+    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_FREQ1,    ((radio_parms->freq_word>>8)  & 0xFF)); // Freq control word, mid byte.
+    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_FREQ0,    (radio_parms->freq_word & 0xFF));       // Freq control word, low byte.
 
     // MODCFG4 Modem configuration - bandwidth and data rate exponent
     // High nibble: Sets the decimation ratio for the delta-sigma ADC input stream hence the channel bandwidth
@@ -505,4 +506,29 @@ int  print_radio_status(spi_parms_t *spi_parms)
     fprintf(stderr, "RC CRTL1 ..............: %d\n", (regs[13] & 0x7F));
 
     return ret;
+}
+
+
+// ------------------------------------------------------------------------------------------------
+// Print actual radio link parameters once initialized
+//   o Operating frequency ..: Fo   = (Fxosc / 2^16) * FREQ[23..0]
+//   o Channel spacing ......: Df   = (Fxosc / 2^18) * (256 + CHANSPC_M) * 2^CHANSPC_E
+//   o Channel bandwidth ....: BW   = Fxosc / (8 * (4+CHANBW_M) * 2^CHANBW_E)
+//   o Data rate (Baud) .....: Rate = (Fxosc / 2^28) * (256 + DRATE_M) * 2^DRATE_E
+//   o Deviation ............: Df   = (Fxosc / 2^17) * (8 + DEVIATION_M) * 2^DEVIATION_E
+
+void print_radio_parms(radio_parms_t *radio_parms)
+// ------------------------------------------------------------------------------------------------
+{
+    fprintf(stderr, "--- Actual radio channel parameters ---\n");
+    fprintf(stderr, "Operating frequency ..: %.3f MHz\n", 
+        ((radio_parms->f_xtal/1e6) / (1<<16))*radio_parms->freq_word);
+    fprintf(stderr, "Channel spacing ......: %.3f kHz\n", 
+        ((radio_parms->f_xtal/1e3) / (1<<18))*(256+radio_parms->chanspc_m)*(1<<radio_parms->chanspc_e));
+    fprintf(stderr, "Channel bandwidth.....: %.3f kHz\n",
+        (radio_parms->f_xtal/1e3) / (8*(4+radio_parms->chanbw_m)*(1<<radio_parms->chanbw_e)));
+    fprintf(stderr, "Data rate ............: %.0f Baud\n",
+        ((radio_parms->f_xtal/1e3) / (1<<28)) * (256 + radio_parms->drate_m) * (1<<radio_parms->drate_e));
+    fprintf(stderr, "Deviation ............: %.3f kHz\n",
+        ((radio_parms->f_xtal/1e3) / (1<<28)) * (8 + radio_parms->deviat_m) * (1<<radio_parms->deviat_e));
 }

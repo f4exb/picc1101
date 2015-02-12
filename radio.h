@@ -31,6 +31,10 @@ typedef struct radio_parms_s
 	uint8_t     packet_length;
 	sync_word_t sync_ctl;      // Sync word control
 	float       deviat_factor; // FSK-2 deviation is +/- data rate divised by this factor
+	uint32_t    freq_word;     // Frequency 24 bit word FREQ[23..0]
+        uint8_t     chanspc_m;     // Channel spacing mantissa 
+        uint8_t     chanspc_e;     // Channel spacing exponent
+	uint8_t     if_word;       // Intermediate frequency 5 bit word FREQ_IF[4:0] 
 	uint8_t     drate_m;       // Data rate mantissa
 	uint8_t     drate_e;       // Data rate exponent
 	uint8_t     chanbw_m;      // Channel bandwidth mantissa
@@ -42,6 +46,7 @@ typedef struct radio_parms_s
 
 void init_radio_parms(radio_parms_t *radio_parms);
 int  init_radio(radio_parms_t *radio_parms,  spi_parms_t *spi_parms, arguments_t *arguments);
+void print_radio_parms(radio_parms_t *radio_parms);
 int  print_radio_status(spi_parms_t *spi_parms);
 
 #endif
