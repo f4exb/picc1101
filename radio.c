@@ -10,6 +10,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "main.h"
 #include "radio.h"
@@ -444,6 +445,8 @@ int  print_radio_status(spi_parms_t *spi_parms)
 {
     uint8_t regs[14];
     int ret;
+
+    memset(regs, 0, 14);
 
     ret = PI_CC_SPIReadBurstReg(spi_parms, PI_CCxxx0_SRES, regs, 14);
 
