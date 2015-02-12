@@ -8,6 +8,8 @@
 /******************************************************************************/
 
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "main.h"
 #include "radio.h"
@@ -163,8 +165,8 @@ int init_radio(radio_parms_t *radio_parms,  spi_parms_t *spi_parms, arguments_t 
     // FSCTRL1: The desired IF frequency to employ in RX. Subtracted from FS base frequency
     // in RX and controls the digital complex mixer in the demodulator. Multiplied by Fxtal/2^10
     // Here 0.3046875 MHz (lowest point below 310 kHz)
-	freq_word = get_if_word(radio_parms->freq_xtal, radio_parms->f_if);    
-    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_FSCTRL1, (freq_word & 0xFF); // Freq synthesizer control.
+	freq_word = get_if_word(radio_parms->f_xtal, radio_parms->f_if);    
+    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_FSCTRL1, (freq_word & 0xFF)); // Freq synthesizer control.
 
     // FREQ2..0: Base frequency for the frequency sythesizer
     // Fo = (Fxosc / 2^16) * FREQ[23..0]
@@ -436,7 +438,7 @@ int  print_radio_status(spi_parms_t *spi_parms)
 
     if (ret != 0)
     {
-        fprintf(stderr, "Cannot read status registers\n")
+        fprintf(stderr, "Cannot read status registers\n");
         return ret;
     }
 
