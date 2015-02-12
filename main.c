@@ -253,9 +253,9 @@ int main (int argc, char **argv)
     init_radio_parms(&radio_parameters);
     ret = init_radio(&radio_parameters, &spi_parameters, &arguments);
 
-    if (!ret)
+    if (ret != 0)
     {
-        fprintf(stderr, "PICC: Cannot initialize radio link\n");
+        fprintf(stderr, "PICC: Cannot initialize radio link, RC=%d\n", ret);
         return ret;
     }
 
