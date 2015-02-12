@@ -457,7 +457,7 @@ int  print_radio_status(spi_parms_t *spi_parms)
 
     memset(regs, 0, 14);
 
-    while ((ret == 0) && (reg_index <= PI_CCxxx0_RXBYTES)
+    while ((ret == 0) && (reg_index <= PI_CCxxx0_RXBYTES))
     {
         ret = PI_CC_SPIReadStatus(spi_parms, reg_index, &regs[reg_index - PI_CCxxx0_PARTNUM]);
         reg_index++;
