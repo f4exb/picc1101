@@ -61,7 +61,7 @@ static void init_args(arguments_t *arguments)
     arguments->print_radio_status = 0;
     arguments->modulation = MOD_FSK2;
     arguments->rate = RATE_9600;
-    arguments->frequency = 433600000;
+    arguments->freq_hz = 433600000;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -118,7 +118,7 @@ static rate_t get_rate(uint8_t rate_index)
 {
     if (rate_index < sizeof(rate_t))
     {
-        return (rate_t) modulation_index;
+        return (rate_t) rate_index;
     }
     else
     {
@@ -186,7 +186,7 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
             arguments->spi_device = strdup(arg);
             break;
         // Print radio status and exit
-        case 'd':
+        case 's':
             arguments->print_radio_status = 1;
             break;
         default:
@@ -248,7 +248,7 @@ int main (int argc, char **argv)
 
     if (arguments.print_radio_status)
     {
-        
+
         return 0;
     }
 
