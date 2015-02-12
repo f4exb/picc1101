@@ -451,34 +451,24 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
 int  print_radio_status(spi_parms_t *spi_parms)
 // ------------------------------------------------------------------------------------------------
 {
-    uint8_t status_byte;
-    int     ret;
+    uint8_t regs[14];
+    uint8_t reg_index = PI_CCxxx0_PARTNUM;
+    int ret = 0;
 
-    ret = PI_CC_SPIReadStatus(spi_parms, PI_CCxxx0_PARTNUM, &status_byte);
+    memset(regs, 0, 14);
 
-    if (ret == 0)
+    while ((ret == 0) && (reg_index <= PI_CCxxx0_RXBYTES)
     {
-        fprintf(stderr, "Part number ...........: %d\n", status_byte);
+        ret = PI_CC_SPIReadStatus(spi_parms, reg_index, &regs[reg_index - PI_CCxxx0_PARTNUM]);
+        reg_index++;
     }
-    else
+
+    if (ret != 0)
     {
-        fprintf(stderr, "RADIO: cannot read PARTNUM register\n");
+        fprintf(stderr, "RADIO: read status register %02X failed\n", reg_index-1);
         return ret;
     }
 
-    ret =  PI_CC_SPIReadStatus(spi_parms, PI_CCxxx0_VERSION, &status_byte);
-
-    if (ret == 0)
-    {
-        fprintf(stderr, "Version ...............: %d\n", status_byte);
-    }
-    else
-    {
-        fprintf(stderr, "RADIO: cannot read VERsION register\n");
-        return ret;
-    }
-
-    /*
     fprintf(stderr, "Part number ...........: %d\n", regs[0]);
     fprintf(stderr, "Version ...............: %d\n", regs[1]);
     fprintf(stderr, "Freq offset estimate ..: %d\n", regs[2]);
@@ -500,6 +490,6 @@ int  print_radio_status(spi_parms_t *spi_parms)
     fprintf(stderr, "FIFO Rx bytes .........: %d\n", regs[11] & 0x7F);
     fprintf(stderr, "RC CRTL0 ..............: %d\n", (regs[12] & 0x7F));
     fprintf(stderr, "RC CRTL1 ..............: %d\n", (regs[13] & 0x7F));
-    */
+
     return ret;
 }
