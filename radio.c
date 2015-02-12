@@ -446,7 +446,7 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
 
     if (arguments->verbose_level > 0)
     {
-        print_radio_params(radio_parms);
+        print_radio_parms(radio_parms);
     }
 }
 
