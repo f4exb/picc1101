@@ -30,6 +30,7 @@ typedef struct radio_parms_s
 	uint32_t    f_if;          // IF frequency (Hz)
 	uint8_t     packet_length;
 	sync_word_t sync_ctl;      // Sync word control
+	float       deviat_factor; // FSK-2 deviation is +/- data rate divised by this factor
 	uint8_t     drate_m;       // Data rate mantissa
 	uint8_t     drate_e;       // Data rate exponent
 	uint8_t     chanbw_m;      // Channel bandwidth mantissa

@@ -7,9 +7,19 @@
 /*                                                                            */
 /******************************************************************************/
 
+#include <math.h>
+
 #include "main.h"
 #include "radio.h"
 #include "pi_cc_spi.h"
+
+// ------------------------------------------------------------------------------------------------
+// Base 2 logarithm
+static float log2(float x)
+// ------------------------------------------------------------------------------------------------
+{
+    return log(x) / log(2.0);
+}
 
 // ------------------------------------------------------------------------------------------------
 // Calculate frequency word FREQ[23..0]
@@ -58,22 +68,38 @@ static uint8_t get_mod_word(modulation_t modulation_code)
 
 // ------------------------------------------------------------------------------------------------
 // Calculate data rate, channel bandwidth and deviation words. Assumes 26 MHz crystal.
-//   o DRATE = (256 + DRATE_M).2^DRATE_E.Fxosc / 2^28 
-//   o CHANBW = Fxosc / 8(4+CHANBW_M).2^CHANBW_E
+//   o DRATE = (Fxosc / 2^28) * (256 + DRATE_M) * 2^DRATE_E
+//   o CHANBW = Fxosc / (8(4+CHANBW_M) * 2^CHANBW_E)
 //   o DEVIATION = (Fxosc / 2^17) * (8 + DEVIATION_M) * 2^DEVIATION_E
-static void get_rate_words(rate_t rate_code, radio_parms_t *radio_parms)
+static void get_rate_words(rate_t rate_code, modulation_t modulation_code, radio_parms_t *radio_parms)
 // ------------------------------------------------------------------------------------------------
 {
-    uint32_t drate;
+    float drate, deviat;
     switch (rate_code)
     {
         case RATE_600:
-            drate = 600;
+            drate = 600.0;
             radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
             radio_parms->chanbw_e = 3;
-            radio_parms->deviat_m = 
-            radio_parms->deviat_e = 
+            break;
+        default:
+            drate = 600.0;
+            radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
+            radio_parms->chanbw_e = 3;
     }
+
+    deviat = drate / 2.4;
+
+    if (modulation_code == MOD_FSK4)
+    {
+        deviat *=2;
+    }
+
+    radio_parms->drate_e = (uint8_t) (floor(log2( drate*(1<<20)) / radio_parms->freq_xtal ));
+    radio_parms->drate_m = (uint8_t) (((drate*(1<<28)) / (radio_parms->freq_xtal * (1<<radio_parms->drate_e))) - 256);
+
+    radio_parms->deviat_e = (uint8_t) (floor(log2( deviat*(1<<13)) / radio_parms->freq_xtal ));
+    radio_parms->deviat_m = (uint8_t) (((deviat*(1<<17)) / (radio_parms->freq_xtal * (1<<deviat_e))) - 8);
 }
 
 // ------------------------------------------------------------------------------------------------
