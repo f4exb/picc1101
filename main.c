@@ -261,6 +261,7 @@ int main (int argc, char **argv)
 
     if (arguments.print_radio_status)
     {
+        fprintf(stderr, "\n--- Radio state ---\n");
         print_radio_status(&spi_parameters);
         return 0;
     }
