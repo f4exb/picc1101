@@ -250,7 +250,8 @@ int main (int argc, char **argv)
 
     print_args(&arguments);
 
-    ret = init_radio_parms(&radio_parameters, &spi_parameters, &arguments);
+    init_radio_parms(&radio_parameters);
+    ret = init_radio(&radio_parameters, &spi_parameters, &arguments);
 
     if (!ret)
     {
