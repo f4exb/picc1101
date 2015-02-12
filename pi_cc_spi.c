@@ -147,7 +147,7 @@ int PI_CC_SPISetup(spi_parms_t *spi_parms, arguments_t *arguments)
         spi_parms->fd = open(arguments->spi_device, O_RDWR);
         if (spi_parms->fd < 0)
         {
-            perror("SPI: can't open device\n");
+            perror("SPI: can't open device");
             spi_parms->ret = -1;
             break;
         }
