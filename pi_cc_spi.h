@@ -75,8 +75,8 @@ typedef struct spi_parms_s
     int      fd;
     int      ret;
     struct   spi_ioc_transfer tr;
-    uint8_t  tx[64];
-    uint8_t  rx[64];
+    uint8_t  tx[65]; // max 1 command byte + 64 bytes FIFO
+    uint8_t  rx[65]; // max 1 status byte + 64 bytes FIFO
 } spi_parms_t;
 
 void PI_CC_SPIParmsDefaults(spi_parms_t *spi_parms);

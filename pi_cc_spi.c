@@ -273,7 +273,7 @@ int PI_CC_SPIReadReg(spi_parms_t *spi_parms, uint8_t addr, uint8_t *byte)
         return 1;
     }
 
-    *byte = spi_parms->rx[0];
+    *byte = spi_parms->rx[1];
     return 0;
 }
 
@@ -311,7 +311,8 @@ int PI_CC_SPIReadStatus(spi_parms_t *spi_parms, uint8_t addr, uint8_t *status)
 // ------------------------------------------------------------------------------------------------
 {
     spi_parms->tx[0] = addr | PI_CCxxx0_READ_BURST;   // Send address
-    spi_parms->tr.len = 1;
+    spi_parms->tx[1] = 0; // Dummy write so we can read data
+    spi_parms->tr.len = 2;
 
     spi_parms->ret = ioctl(spi_parms->fd, SPI_IOC_MESSAGE(1), &spi_parms->tr);
 
@@ -321,7 +322,7 @@ int PI_CC_SPIReadStatus(spi_parms_t *spi_parms, uint8_t addr, uint8_t *status)
         return 1;
     }
 
-    *status = spi_parms->rx[0];
+    *status = spi_parms->rx[1];
     return 0;
 }
 
