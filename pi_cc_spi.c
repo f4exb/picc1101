@@ -147,7 +147,7 @@ int PI_CC_SPISetup(spi_parms_t *spi_parms, arguments_t *arguments)
         spi_parms->fd = open(arguments->spi_device, O_RDWR);
         if (spi_parms->fd < 0)
         {
-            fprintf(stderr, "can't open device");
+            fprintf(stderr, "can't open device\n");
             spi_parms->ret = -1;
             break;
         }
@@ -156,14 +156,14 @@ int PI_CC_SPISetup(spi_parms_t *spi_parms, arguments_t *arguments)
         spi_parms->ret = ioctl(spi_parms->fd, +SPI_IOC_WR_MODE, &spi_parms->mode);
         if (spi_parms->ret == -1)
         {
-            fprintf(stderr, "can't set spi mode");
+            fprintf(stderr, "can't set spi mode\n");
             break;
         }
 
         spi_parms->ret = ioctl(spi_parms->fd, SPI_IOC_RD_MODE, &spi_parms->mode);
         if (spi_parms->ret == -1)
         {
-            fprintf(stderr, "can't get spi mode");
+            fprintf(stderr, "can't get spi mode\n");
             break;
         }
 
@@ -171,14 +171,14 @@ int PI_CC_SPISetup(spi_parms_t *spi_parms, arguments_t *arguments)
         spi_parms->ret = ioctl(spi_parms->fd, SPI_IOC_WR_BITS_PER_WORD, &spi_parms->bits);
         if (spi_parms->ret == -1)
         {
-            fprintf(stderr, "can't set bits per word");
+            fprintf(stderr, "can't set bits per word\n");
             break;
         }
 
         spi_parms->ret = ioctl(spi_parms->fd, SPI_IOC_RD_BITS_PER_WORD, &spi_parms->bits);
         if (spi_parms->ret == -1)
         {
-            fprintf(stderr, "can't get bits per word");
+            fprintf(stderr, "can't get bits per word\n");
             break;
         }
 
@@ -186,14 +186,14 @@ int PI_CC_SPISetup(spi_parms_t *spi_parms, arguments_t *arguments)
         spi_parms->ret = ioctl(spi_parms->fd, SPI_IOC_WR_MAX_SPEED_HZ, &spi_parms->speed);
         if (spi_parms->ret == -1)
         {
-            fprintf(stderr, "can't set max speed hz");
+            fprintf(stderr, "can't set max speed hz\n");
             break;
         }
 
         spi_parms->ret = ioctl(spi_parms->fd, SPI_IOC_RD_MAX_SPEED_HZ, &spi_parms->speed);
         if (spi_parms->ret == -1)
         {
-            fprintf(stderr, "can't get max speed hz");
+            fprintf(stderr, "can't get max speed hz\n");
             break;
         }
 
@@ -226,7 +226,7 @@ int PI_CC_SPIWriteReg(spi_parms_t *spi_parms, uint8_t addr, uint8_t value)
 
     if (spi_parms->ret < 1)
     {
-        fprintf(stderr, "can't send write register");
+        fprintf(stderr, "can't send write register\n");
         return 1;
     }
 
@@ -252,7 +252,7 @@ int PI_CC_SPIWriteBurstReg(spi_parms_t *spi_parms, uint8_t addr, uint8_t *buffer
 
     if (spi_parms->ret < 1)
     {
-        fprintf(stderr, "can't send write burst register");
+        fprintf(stderr, "can't send write burst register\n");
         return 1;
     }
 }
@@ -269,7 +269,7 @@ int PI_CC_SPIReadReg(spi_parms_t *spi_parms, uint8_t addr, uint8_t *byte)
 
     if (spi_parms->ret < 1)
     {
-        fprintf(stderr, "can't send read register");
+        fprintf(stderr, "can't send read register\n");
         return 1;
     }
 
@@ -296,7 +296,7 @@ int PI_CC_SPIReadBurstReg(spi_parms_t *spi_parms, uint8_t addr, const uint8_t *b
 
     if (spi_parms->ret < 1)
     {
-        fprintf(stderr, "can't send read burst register");
+        fprintf(stderr, "can't send read burst register\n");
         return 1;
     }
 
@@ -317,7 +317,7 @@ int PI_CC_SPIReadStatus(spi_parms_t *spi_parms, uint8_t addr, uint8_t *status)
 
     if (spi_parms->ret < 1)
     {
-        fprintf(stderr, "can't send read status register");
+        fprintf(stderr, "can't send read status register\n");
         return 1;
     }
 
