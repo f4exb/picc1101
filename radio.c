@@ -453,7 +453,9 @@ int  print_radio_status(spi_parms_t *spi_parms)
 {
     uint8_t regs[14];
     uint8_t reg_index = PI_CCxxx0_PARTNUM;
+    uint8_t rssi_dec;
     int ret = 0;
+    float rssi_dbm;
 
     memset(regs, 0, 14);
 
@@ -469,12 +471,23 @@ int  print_radio_status(spi_parms_t *spi_parms)
         return ret;
     }
 
+    rssi_dec = regs[4];
+
+    if (rssi_dec < 128)
+    {
+        rssi_dbm = rssi_dec / 2.0;
+    }
+    else
+    {
+        rssi_dbm = ((rssi_dec - 256) / 2.0) - 74.0;
+    }
+
     fprintf(stderr, "Part number ...........: %d\n", regs[0]);
     fprintf(stderr, "Version ...............: %d\n", regs[1]);
     fprintf(stderr, "Freq offset estimate ..: %d\n", regs[2]);
     fprintf(stderr, "CRC OK ................: %d\n", ((regs[3] & 0x80)>>7));
     fprintf(stderr, "LQI ...................: %d\n", regs[3] & 0x7F);
-    fprintf(stderr, "RSSI ..................: %d\n", regs[4]);
+    fprintf(stderr, "RSSI ..................: %.1f dBm\n", rssi_dbm);
     fprintf(stderr, "Radio FSM state # .....: %d\n", regs[5] & 0x1F);
     fprintf(stderr, "WOR time ..............: %d\n", ((regs[6] << 8) + regs[7]));
     fprintf(stderr, "Carrier Sense .........: %d\n", ((regs[8] & 0x40)>>6));
