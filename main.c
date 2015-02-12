@@ -32,14 +32,14 @@ static char args_doc[] = "";
 
 static struct argp_option options[] = {
     {"verbose",  'v', "VERBOSITY_LEVEL", 0, "Verbosiity level: 0 quiet else verbose level (default : quiet)"},
-    {"long-help",  'H', "", 0, "Print a long help and exit"},
+    {"long-help",  'H', 0, 0, "Print a long help and exit"},
     {"serial-device",  'D', "SERIAL_DEVICE", 0, "TNC Serial device, (default : /var/ax25/axp2)"},
     {"serial-speed",  'B', "SERIAL_SPEED", 0, "TNC Serial speed in Bauds (default : 9600)"},
     {"spi-device",  'd', "SPI_DEVICE", 0, "SPI device, (default : /dev/spidev0.0)"},
     {"modulation",  'M', "MODULATION_SCHEME", 0, "Radio modulation scheme, See long help (-H) option"},
     {"rate",  'R', "DATA_RATE_INDEX", 0, "Data rate index, See long help (-H) option"},
     {"frequency",  'f', "FREQUENCY_HZ", 0, "Frequency in Hz (default: 433600000)"},
-    {"radio-status",  's', "", 0, "Print radio status and exit"},
+    {"radio-status",  's', 0, 0, "Print radio status and exit"},
     {0}
 };
 
