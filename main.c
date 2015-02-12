@@ -18,10 +18,10 @@
 #include "pi_cc_spi.h"
 #include "radio.h"
 
-arguments_t arguments;
-serial_t    serial_parameters;
-spi_parms_t spi_parameters;
-radio_t     radio_parameters;
+arguments_t   arguments;
+serial_t      serial_parameters;
+spi_parms_t   spi_parameters;
+radio_parms_t radio_parameters;
 
 /***** Argp configuration start *****/
 
