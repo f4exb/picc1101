@@ -122,7 +122,7 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
 
     if (!ret)
     {
-        fprintf(stderr, "Cannot open SPI link\n");
+        fprintf(stderr, "RADIO: cannot open SPI link, RC=%d\n", ret);
         return ret;
     }
 
@@ -449,7 +449,7 @@ int  print_radio_status(spi_parms_t *spi_parms)
 
     if (ret != 0)
     {
-        fprintf(stderr, "Cannot read status registers\n");
+        fprintf(stderr, "RADIO: cannot read status registers\n");
         return ret;
     }
 
