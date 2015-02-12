@@ -444,7 +444,10 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     // TEST0: Various test settings. The value to write in this field is given by the SmartRF Studio software.
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_TEST0,    0x0B); // Various test settings.
 
-
+    if (arguments->verbose_level > 0)
+    {
+        print_radio_params(radio_parms);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
