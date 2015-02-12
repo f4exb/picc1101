@@ -321,7 +321,7 @@ int PI_CC_SPIReadStatus(spi_parms_t *spi_parms, uint8_t addr, uint8_t *status)
         return 1;
     }
 
-    status = spi_parms->rx;
+    *status = spi_parms->rx[0];
     return 0;
 }
 
