@@ -109,13 +109,24 @@ void init_radio_parms(radio_parms_t *radio_parms)
 
 // ------------------------------------------------------------------------------------------------
 // Initialize the radio link interface
-int init_radio(radio_parms_t *radio_parms,  spi_parms_t *spi_parms, arguments_t *arguments)
+int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    // Write register settings
     int ret = 0;
     uint32_t freq_word;
     uint8_t  reg_word;
+
+    // open SPI link
+    PI_CC_SPIParmsDefaults(&spi_parms);
+    ret = PI_CC_SPISetup(spi_parms, arguments);
+
+    if (!ret)
+    {
+        fprintf(stderr, "Cannot open SPI link\n");
+        return ret;
+    }
+
+    // Write register settings
 
     // IOCFG2 = 0x00: Set in Rx mode (0x02 for Tx mode)
     // o 0x00: Asserts when RX FIFO is filled at or above the RX FIFO threshold. 

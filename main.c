@@ -15,9 +15,13 @@
 
 #include "main.h"
 #include "serial.h"
+#include "pi_cc_spi.h"
+#include "radio.h"
 
 arguments_t arguments;
 serial_t    serial_parameters;
+spi_parms_t spi_parameters;
+radio_t     radio_parameters;
 
 /***** Argp configuration start *****/
 
@@ -205,7 +209,7 @@ static struct argp argp = {options, parse_opt, args_doc, doc};
 int main (int argc, char **argv)
 // ------------------------------------------------------------------------------------------------
 {
-    int i, ser_read;
+    int i, ret, ser_read;
     
     // Whole response
     char response[1<<12];
@@ -246,9 +250,17 @@ int main (int argc, char **argv)
 
     print_args(&arguments);
 
+    ret = init_radio_parms(&radio_parameters, &spi_parameters, &arguments);
+
+    if (!ret)
+    {
+        fprintf(stderr, "Cannot initialize radio link\n");
+        return ret;
+    }
+
     if (arguments.print_radio_status)
     {
-
+        print_radio_status(&spi_parameters);
         return 0;
     }
 
