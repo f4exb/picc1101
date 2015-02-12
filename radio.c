@@ -12,7 +12,7 @@
 #include "main.h"
 #include "radio.h"
 #include "pi_cc_spi.h"
-#include "pi_cc_cc1100_cc2500.h"
+#include "pi_cc_cc1100-cc2500.h"
 
 // ------------------------------------------------------------------------------------------------
 // Calculate frequency word FREQ[23..0]
