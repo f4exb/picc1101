@@ -1,4 +1,4 @@
-all: picc1101 pi_cc_spi.o
+all: picc1101 pi_cc_spi.o radio.o
 
 
 clean:
@@ -16,3 +16,6 @@ serial.o: serial.h serial.c
 
 pi_cc_spi.o: pi_cc_spi.h pi_cc_spi.c
 	$(CCPREFIX)gcc $(CFLAGS) -c -o pi_cc_spi.o pi_cc_spi.c
+
+radio.o: radio.h radio.c
+	$(CCPREFIX)gcc $(CFLAGS) -c -o radio.o radio.c

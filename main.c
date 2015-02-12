@@ -28,10 +28,14 @@ static char args_doc[] = "";
 
 static struct argp_option options[] = {
     {"verbose",  'v', "VERBOSITY_LEVEL", 0, "Verbosiity level: 0 quiet else verbose level (default : quiet)"},
+    {"long-help",  'H', "", 0, "Print a long help and exit"},
     {"serial-device",  'D', "SERIAL_DEVICE", 0, "TNC Serial device, (default : /var/ax25/axp2)"},
     {"serial-speed",  'B', "SERIAL_SPEED", 0, "TNC Serial speed in Bauds (default : 9600)"},
-    {"modulation",  'M', "MODULATION_SCHEME", 0, "Radio modulation scheme, 0: OOK, 1: FSK-2, 2: FSK-4, 3: MSK, 4: GMSK (default: 1)"},
     {"spi-device",  'd', "SPI_DEVICE", 0, "SPI device, (default : /dev/spidev0.0)"},
+    {"modulation",  'M', "MODULATION_SCHEME", 0, "Radio modulation scheme, See long help (-H) option"},
+    {"rate",  'R', "DATA_RATE_INDEX", 0, "Data rate index, See long help (-H) option"},
+    {"frequency",  'f', "FREQUENCY_HZ", 0, "Frequency in Hz (default: 433600000)"},
+    {"radio-status",  's', "", 0, "Print radio status and exit"},
     {0}
 };
 
@@ -49,11 +53,15 @@ static void init_args(arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
     arguments->verbose_level = 0;
+    arguments->print_long_help = 0;
     arguments->serial_device = 0;
-    arguments->modulation = MOD_FSK2;
     arguments->serial_speed = B38400;
     arguments->serial_speed_n = 38400;
     arguments->spi_device = 0;
+    arguments->print_radio_status = 0;
+    arguments->modulation = MOD_FSK2;
+    arguments->rate = RATE_9600;
+    arguments->frequency = 433600000;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -77,11 +85,15 @@ static void print_args(arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
     fprintf(stderr, "-- options --\n");
-    fprintf(stderr, "Verbosiity ..........: %d\n", arguments->verbose_level);
+    fprintf(stderr, "Verbosity ...........: %d\n", arguments->verbose_level);
+    fprintf(stderr, "--- radio ---\n");
     fprintf(stderr, "Modulation # ........: %d\n", (int) arguments->modulation);
+    fprintf(stderr, "Rate # ..............: %d\n", (int) arguments->rate);
+    fprintf(stderr, "Frequency ...........: %d Hz\n", arguments->freq_hz);
+    fprintf(stderr, "SPI device ..........: %s\n", arguments->spi_device);
+    fprintf(stderr, "--- serial ---\n");
     fprintf(stderr, "TNC device ..........: %s\n", arguments->serial_device);
     fprintf(stderr, "TNC speed ...........: %d Baud\n", arguments->serial_speed_n);
-    fprintf(stderr, "SPI device ..........: %s\n", arguments->spi_device);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -96,6 +108,21 @@ static modulation_t get_modulation_scheme(uint8_t modulation_index)
     else
     {
         return MOD_FSK2;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Get rate from index     
+static rate_t get_rate(uint8_t rate_index)
+// ------------------------------------------------------------------------------------------------
+{
+    if (rate_index < sizeof(rate_t))
+    {
+        return (rate_t) modulation_index;
+    }
+    else
+    {
+        return RATE_9600;
     }
 }
 
@@ -116,6 +143,10 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
             if (*end)
                 argp_usage(state);
             break; 
+        // Print long help and exit
+        case 'H':
+            arguments->print_long_help = 1;
+            break;
         // Modulation scheme 
         case 'M':
             i8 = strtol(arg, &end, 10); 
@@ -124,6 +155,20 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
             else
                 arguments->modulation = get_modulation_scheme(i8);
             break;
+        // Radio data rate 
+        case 'R':
+            i8 = strtol(arg, &end, 10); 
+            if (*end)
+                argp_usage(state);
+            else
+                arguments->rate = get_rate(i8);
+            break;
+        // Radio link frequency
+        case 'f':
+            arguments->freq_hz = strtol(arg, &end, 10);
+            if (*end)
+                argp_usage(state);
+            break; 
         // Serial device
         case 'D':
             arguments->serial_device = strdup(arg);
@@ -139,6 +184,10 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
         // SPI device
         case 'd':
             arguments->spi_device = strdup(arg);
+            break;
+        // Print radio status and exit
+        case 'd':
+            arguments->print_radio_status = 1;
             break;
         default:
             return ARGP_ERR_UNKNOWN;
@@ -196,6 +245,13 @@ int main (int argc, char **argv)
     }
 
     print_args(&arguments);
+
+    if (arguments.print_radio_status)
+    {
+        
+        return 0;
+    }
+
     set_serial_parameters(&serial_parameters, &arguments);
 
     while (1)

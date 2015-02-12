@@ -9,16 +9,36 @@ typedef enum modulation_e {
     MOD_FSK2,
     MOD_FSK4,
     MOD_MSK,
-    MOD_GMSK
+    MOD_GFSK
 } modulation_t;
 
+typedef enum rate_e {
+    RATE_600,
+    RATE_1200,
+    RATE_2400,
+    RATE_4800,
+    RATE_9600,
+    RATE_19200,
+    RATE_38400,
+    RATE_57600,
+    RATE_115200,
+    RATE_250K,
+    RATE_500K
+} rate_t;
+
 typedef struct arguments_s {
-    uint8_t      verbose_level;   // Verbose level
-    char         *serial_device;  // TNC serial device
-    char         *spi_device;     // CC1101 SPI device
-    modulation_t modulation;      // Radio modulation scheme
-    speed_t      serial_speed;    // TNC serial speed (Baud)
-    uint32_t     serial_speed_n;  // TNC serial speed as a number
+    uint8_t      verbose_level;      // Verbose level
+    uint8_t      print_long_help;    // Print a long help and exit
+    // --- serial link virtual TNC ---
+    char         *serial_device;     // TNC serial device
+    speed_t      serial_speed;       // TNC serial speed (Baud)
+    uint32_t     serial_speed_n;     // TNC serial speed as a number
+    // --- spi link radio ---
+    char         *spi_device;        // CC1101 SPI device
+    uint8_t      print_radio_status; // Print radio status and exit
+    modulation_t modulation;         // Radio modulation scheme
+    rate_t       rate;               // Data rate (Baud)
+    uint32_t     freq_hz;            // Frequency in Hz
 } arguments_t;
 
 #endif
