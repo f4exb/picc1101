@@ -174,7 +174,7 @@ int init_radio(radio_parms_t *radio_parms,  spi_parms_t *spi_parms, arguments_t 
     // FREQ1 is FREQ[15..8]
     // FREQ0 is FREQ[7..0]
     // Fxtal = 26 MHz and FREQ = 0x10A762 => Fo = 432.99981689453125 MHz
-    freq_word = get_freq_word(radio_parms->freq_xtal, arguments->freq_hz);
+    freq_word = get_freq_word(radio_parms->f_xtal, arguments->freq_hz);
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_FREQ2,    ((freq_word>>16) & 0xFF)); // Freq control word, high byte
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_FREQ1,    ((freq_word>>8)  & 0xFF)); // Freq control word, mid byte.
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_FREQ0,    (freq_word & 0xFF));       // Freq control word, low byte.
