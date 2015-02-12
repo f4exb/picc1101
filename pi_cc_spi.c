@@ -204,9 +204,9 @@ int PI_CC_SPISetup(spi_parms_t *spi_parms, arguments_t *arguments)
         if (!spi_parms->ret)
         {
             fprintf(stderr, "-- SPI --\n");
-            fprintf(stderr, "SPI mode .......: %d\n", spi_parms->mode);
-            fprintf(stderr, "Bits per word ..: %d\n", spi_parms->bits);
-            fprintf(stderr, "Max speed ......: %d Hz (%d KHz)\n", spi_parms->speed, spi_parms->speed/1000);
+            fprintf(stderr, "SPI mode ............: %d\n", spi_parms->mode);
+            fprintf(stderr, "Bits per word .......: %d\n", spi_parms->bits);
+            fprintf(stderr, "Max speed ...........: %d Hz (%d KHz)\n", spi_parms->speed, spi_parms->speed/1000);
         }
     }
     while(0);

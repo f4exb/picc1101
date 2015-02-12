@@ -127,6 +127,14 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
         return ret;
     }
 
+    ret = PI_CC_PowerupResetCCxxxx(spi_parms); // reset chip
+
+    if (ret != 0)
+    {
+        fprintf(stderr, "RADIO: cannot reset CC1101 chip, RC=%d\n", ret);
+        return ret;
+    }
+
     // Write register settings
 
     // IOCFG2 = 0x00: Set in Rx mode (0x02 for Tx mode)
