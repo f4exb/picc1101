@@ -47,7 +47,7 @@ static struct argp_option options[] = {
 // Terminator
 static void terminate(const int signal_) {
 // ------------------------------------------------------------------------------------------------
-    printf("Terminating with signal %d\n", signal_);
+    printf("PICC: Terminating with signal %d\n", signal_);
     exit(1);
 }
 
@@ -255,7 +255,7 @@ int main (int argc, char **argv)
 
     if (!ret)
     {
-        fprintf(stderr, "Cannot initialize radio link\n");
+        fprintf(stderr, "PICC: Cannot initialize radio link\n");
         return ret;
     }
 

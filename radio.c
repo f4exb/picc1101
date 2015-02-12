@@ -120,7 +120,7 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     PI_CC_SPIParmsDefaults(spi_parms);
     ret = PI_CC_SPISetup(spi_parms, arguments);
 
-    if (!ret)
+    if (ret != 0)
     {
         fprintf(stderr, "RADIO: cannot open SPI link, RC=%d\n", ret);
         return ret;
