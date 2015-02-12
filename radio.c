@@ -117,7 +117,7 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     uint8_t  reg_word;
 
     // open SPI link
-    PI_CC_SPIParmsDefaults(&spi_parms);
+    PI_CC_SPIParmsDefaults(spi_parms);
     ret = PI_CC_SPISetup(spi_parms, arguments);
 
     if (!ret)
