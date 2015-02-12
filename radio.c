@@ -531,7 +531,7 @@ void print_radio_parms(radio_parms_t *radio_parms)
     fprintf(stderr, "Channel bandwidth.....: %.3f kHz (M=%d, E=%d)\n",
         (radio_parms->f_xtal/1e3) / (8*(4+radio_parms->chanbw_m)*(1<<radio_parms->chanbw_e)), radio_parms->chanbw_m, radio_parms->chanbw_e);
     fprintf(stderr, "Data rate ............: %.1f Baud (M=%d, E=%d)\n",
-        /*((radio_parms->f_xtal/1e3) / (1<<28))*/ (256 + radio_parms->drate_m) * (1<<radio_parms->drate_e), radio_parms->drate_m, radio_parms->drate_e);
+        /*((radio_parms->f_xtal/1e3) / (1<<28))*/ (256 + radio_parms->drate_m), radio_parms->drate_m, radio_parms->drate_e);
     fprintf(stderr, "Deviation ............: %.3f kHz (M=%d, E=%d)\n",
         ((radio_parms->f_xtal/1e3) / (1<<17)) * (8 + radio_parms->deviat_m) * (1<<radio_parms->deviat_e), radio_parms->deviat_m, radio_parms->deviat_e);
 }
