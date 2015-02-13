@@ -77,7 +77,7 @@ static uint8_t get_mod_word(modulation_t modulation_code)
 static void get_rate_words(rate_t rate_code, modulation_t modulation_code, radio_parms_t *radio_parms)
 // ------------------------------------------------------------------------------------------------
 {
-    float drate, deviat;
+    double drate, deviat, f_xtal;
     switch (rate_code)
     {
         case RATE_600:
@@ -148,15 +148,17 @@ static void get_rate_words(rate_t rate_code, modulation_t modulation_code, radio
         deviat *=2;
     }
 
-    radio_parms->drate_e = (uint8_t) (floor(my_log2f( drate*(1<<20) / (float)radio_parms->f_xtal )));
-    radio_parms->drate_m = (uint8_t) (((drate*(1<<28)) / ((float)radio_parms->f_xtal * (1<<radio_parms->drate_e))) - 256);
+    f_xtal = (double) radio_parms->f_xtal;
 
-    printf("%u\n", radio_parms->f_xtal * (1<<radio_parms->drate_e));
+    radio_parms->drate_e = (uint8_t) (floor(log2( drate*(1<<20) / f_xtal )));
+    radio_parms->drate_m = (uint8_t) (((drate*(1<<28)) / (f_xtal * (1<<radio_parms->drate_e))) - 256);
 
-    radio_parms->deviat_e = (uint8_t) (floor(my_log2f( deviat*(1<<14) / (float)radio_parms->f_xtal )));
-    radio_parms->deviat_m = (uint8_t) (((deviat*(1<<17)) / ((float)radio_parms->f_xtal * (1<<radio_parms->deviat_e))) - 8);
+    printf("%llu\n", f_xtal * (1<<radio_parms->drate_e));
 
-    printf("%u\n", radio_parms->f_xtal * (1<<radio_parms->deviat_e));
+    radio_parms->deviat_e = (uint8_t) (floor(log2( deviat*(1<<14) / f_xtal )));
+    radio_parms->deviat_m = (uint8_t) (((deviat*(1<<17)) / (f_xtal * (1<<radio_parms->deviat_e))) - 8);
+
+    printf("%llu\n", f_xtal * (1<<radio_parms->deviat_e));
 }
 
 // ------------------------------------------------------------------------------------------------
