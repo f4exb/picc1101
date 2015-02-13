@@ -78,8 +78,58 @@ static void get_rate_words(rate_t rate_code, modulation_t modulation_code, radio
             radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
             radio_parms->chanbw_e = 3;
             break;
+        case RATE_1200:
+            drate = 1200.0;
+            radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
+            radio_parms->chanbw_e = 3;
+            break;
+        case RATE_2400:
+            drate = 2400.0;
+            radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
+            radio_parms->chanbw_e = 3;
+            break;
+        case RATE_4800:
+            drate = 4800.0;
+            radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
+            radio_parms->chanbw_e = 3;
+            break;
+        case RATE_9600:
+            drate = 9600.0;
+            radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
+            radio_parms->chanbw_e = 3;
+            break;
+        case RATE_19200:
+            drate = 19200.0;
+            radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
+            radio_parms->chanbw_e = 3;
+            break;
+        case RATE_38400:
+            drate = 38400.0;
+            radio_parms->chanbw_m = 1; // 81 kHz 
+            radio_parms->chanbw_e = 3;
+            break;
+        case RATE_57600:
+            drate = 38400.0;
+            radio_parms->chanbw_m = 3; // 116 kHz 
+            radio_parms->chanbw_e = 1;
+            break;
+        case RATE_115200:
+            drate = 115200.0;
+            radio_parms->chanbw_m = 3; // 232 kHz 
+            radio_parms->chanbw_e = 2;
+            break;
+        case RATE_250K:
+            drate = 250000.0;
+            radio_parms->chanbw_m = 2; // 541 kHz 
+            radio_parms->chanbw_e = 0;
+            break;
+        case RATE_500K:
+            drate = 500000.0;
+            radio_parms->chanbw_m = 0; // 812 kHz (maximum available) 
+            radio_parms->chanbw_e = 0;
+            break;
         default:
-            drate = 600.0;
+            drate = 9600.0;
             radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
             radio_parms->chanbw_e = 3;
     }
@@ -108,6 +158,7 @@ void init_radio_parms(radio_parms_t *radio_parms)
 	radio_parms->sync_ctl  = SYNC_30_over_32; // 30/32 sync word bits detected
     radio_parms->chanspc_m = 0;               // Do not use channel spacing for the moment defaulting to 0
     radio_parms->chanspc_e = 0;               // Do not use channel spacing for the moment defaulting to 0
+    radio_parms->packet_length = 260;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -525,7 +576,7 @@ int  print_radio_status(spi_parms_t *spi_parms)
 void print_radio_parms(radio_parms_t *radio_parms)
 // ------------------------------------------------------------------------------------------------
 {
-    fprintf(stderr, "--- Actual radio channel parameters ---\n");
+    fprintf(stderr, "\n--- Actual radio channel parameters ---\n");
     fprintf(stderr, "Operating frequency ....: %.3f MHz (W=%d)\n", 
         ((radio_parms->f_xtal/1e6) / (1<<16))*radio_parms->freq_word, radio_parms->freq_word);
     fprintf(stderr, "Intermediate frequency .: %.3f kHz (W=%d)\n", 
@@ -538,4 +589,6 @@ void print_radio_parms(radio_parms_t *radio_parms)
         ((float) (radio_parms->f_xtal) / (1<<28)) * (256 + radio_parms->drate_m) * (1<<radio_parms->drate_e), radio_parms->drate_m, radio_parms->drate_e);
     fprintf(stderr, "Deviation ..............: %.3f kHz (M=%d, E=%d)\n",
         ((radio_parms->f_xtal/1e3) / (1<<17)) * (8 + radio_parms->deviat_m) * (1<<radio_parms->deviat_e), radio_parms->deviat_m, radio_parms->deviat_e);
+    fprintf(stderr, "Packet length ..........: %d bytes\n",
+        radio_parms->packet_length);
 }
