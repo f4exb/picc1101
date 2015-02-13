@@ -18,6 +18,13 @@
 #include "pi_cc_cc1100-cc2500.h"
 
 // ------------------------------------------------------------------------------------------------
+static float my_log2f(float x)
+// ------------------------------------------------------------------------------------------------
+{
+    return log(x) / log(2.0);
+}
+
+// ------------------------------------------------------------------------------------------------
 // Calculate frequency word FREQ[23..0]
 static uint32_t get_freq_word(uint32_t freq_xtal, uint32_t freq_hz)
 // ------------------------------------------------------------------------------------------------
@@ -141,10 +148,10 @@ static void get_rate_words(rate_t rate_code, modulation_t modulation_code, radio
         deviat *=2;
     }
 
-    radio_parms->drate_e = (uint8_t) (floor(log2f( drate*(1<<20) / radio_parms->f_xtal )));
+    radio_parms->drate_e = (uint8_t) (floor(my_log2f( drate*(1<<20) / radio_parms->f_xtal )));
     radio_parms->drate_m = (uint8_t) (((drate*(1<<28)) / (radio_parms->f_xtal * (1<<radio_parms->drate_e))) - 256);
 
-    radio_parms->deviat_e = (uint8_t) (floor(log2f( deviat*(1<<13) / radio_parms->f_xtal )));
+    radio_parms->deviat_e = (uint8_t) (floor(my_log2f( deviat*(1<<14) / radio_parms->f_xtal )));
     radio_parms->deviat_m = (uint8_t) (((deviat*(1<<17)) / (radio_parms->f_xtal * (1<<radio_parms->deviat_e))) - 8);
 }
 
