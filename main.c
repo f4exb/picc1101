@@ -23,7 +23,7 @@ serial_t      serial_parameters;
 spi_parms_t   spi_parameters;
 radio_parms_t radio_parameters;
 
-char modulation_names[] = {
+char *modulation_names[] = {
     "OOK",
     "2-FSK",
     "4-FSK",
