@@ -526,14 +526,16 @@ void print_radio_parms(radio_parms_t *radio_parms)
 // ------------------------------------------------------------------------------------------------
 {
     fprintf(stderr, "--- Actual radio channel parameters ---\n");
-    fprintf(stderr, "Operating frequency ..: %.3f MHz (W=%d)\n", 
+    fprintf(stderr, "Operating frequency ....: %.3f MHz (W=%d)\n", 
         ((radio_parms->f_xtal/1e6) / (1<<16))*radio_parms->freq_word, radio_parms->freq_word);
-    fprintf(stderr, "Channel spacing ......: %.3f kHz (M=%d, E=%d)\n", 
+    fprintf(stderr, "Intermediate frequency .: %.3f kHz (W=%d)\n", 
+        ((radio_parms->f_xtal/1e3) / (1<<10))*radio_parms->if_word, radio_parms->if_word);
+    fprintf(stderr, "Channel spacing ........: %.3f kHz (M=%d, E=%d)\n", 
         ((radio_parms->f_xtal/1e3) / (1<<18))*(256+radio_parms->chanspc_m)*(1<<radio_parms->chanspc_e), radio_parms->chanspc_m, radio_parms->chanspc_e);
-    fprintf(stderr, "Channel bandwidth.....: %.3f kHz (M=%d, E=%d)\n",
+    fprintf(stderr, "Channel bandwidth.......: %.3f kHz (M=%d, E=%d)\n",
         (radio_parms->f_xtal/1e3) / (8*(4+radio_parms->chanbw_m)*(1<<radio_parms->chanbw_e)), radio_parms->chanbw_m, radio_parms->chanbw_e);
-    fprintf(stderr, "Data rate ............: %.1f Baud (M=%d, E=%d)\n",
+    fprintf(stderr, "Data rate ..............: %.1f Baud (M=%d, E=%d)\n",
         ((float) (radio_parms->f_xtal) / (1<<28)) * (256 + radio_parms->drate_m) * (1<<radio_parms->drate_e), radio_parms->drate_m, radio_parms->drate_e);
-    fprintf(stderr, "Deviation ............: %.3f kHz (M=%d, E=%d)\n",
+    fprintf(stderr, "Deviation ..............: %.3f kHz (M=%d, E=%d)\n",
         ((radio_parms->f_xtal/1e3) / (1<<17)) * (8 + radio_parms->deviat_m) * (1<<radio_parms->deviat_e), radio_parms->deviat_m, radio_parms->deviat_e);
 }
