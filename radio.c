@@ -535,6 +535,6 @@ void print_radio_parms(radio_parms_t *radio_parms)
     fprintf(stderr, "Deviation ............: %.3f kHz (M=%d, E=%d)\n",
         ((radio_parms->f_xtal/1e3) / (1<<17)) * (8 + radio_parms->deviat_m) * (1<<radio_parms->deviat_e), radio_parms->deviat_m, radio_parms->deviat_e);
     fprintf(stderr, "Test .................: %.1f Baud\n",
-        (float) (radio_parms->f_xtal) / (1<28));
+        (float) (radio_parms->f_xtal) / (uint32_t) (1<28));
 
 }
