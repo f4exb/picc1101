@@ -152,23 +152,13 @@ static void get_rate_words(rate_t rate_code, modulation_t modulation_code, radio
     }
 
     deviat = drate / 2.0;
-
-    if (modulation_code == MOD_FSK4)
-    {
-        deviat *=2;
-    }
-
     f_xtal = (double) radio_parms->f_xtal;
 
     radio_parms->drate_e = (uint8_t) (floor(log2( drate*(1<<20) / f_xtal )));
     radio_parms->drate_m = (uint8_t) (((drate*(1<<28)) / (f_xtal * (1<<radio_parms->drate_e))) - 256);
 
-    printf("%lf\n", drate*(1<<20) / f_xtal);
-
     radio_parms->deviat_e = (uint8_t) (floor(log2( deviat*(1<<14) / f_xtal )));
     radio_parms->deviat_m = (uint8_t) (((deviat*(1<<17)) / (f_xtal * (1<<radio_parms->deviat_e))) - 8);
-
-    printf("%lf\n", deviat*(1<<14) / f_xtal);
 }
 
 // ------------------------------------------------------------------------------------------------
