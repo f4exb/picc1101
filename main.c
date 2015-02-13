@@ -23,7 +23,7 @@ serial_t      serial_parameters;
 spi_parms_t   spi_parameters;
 radio_parms_t radio_parameters;
 
-char modulation_names[] = {
+char modulation_names[NUM_MOD] = {
     "OOK",
     "2-FSK",
     "4-FSK",
@@ -31,7 +31,7 @@ char modulation_names[] = {
     "GFSK",
 }
 
-uint32_t rate_values[] = {
+uint32_t rate_values[NUM_RATE] = {
     600,
     1200,
     2400,
