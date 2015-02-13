@@ -116,7 +116,7 @@ static void get_rate_words(rate_t rate_code, modulation_t modulation_code, radio
             radio_parms->chanbw_e = 3;
             break;
         case RATE_57600:
-            drate = 38400.0;
+            drate = 57600.0;
             radio_parms->chanbw_m = 3; // 116 kHz 
             radio_parms->chanbw_e = 1;
             break;
