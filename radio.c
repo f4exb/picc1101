@@ -151,12 +151,12 @@ static void get_rate_words(rate_t rate_code, modulation_t modulation_code, radio
     radio_parms->drate_e = (uint8_t) (floor(my_log2f( drate*(1<<20) / radio_parms->f_xtal )));
     radio_parms->drate_m = (uint8_t) (((drate*(1<<28)) / (radio_parms->f_xtal * (1<<radio_parms->drate_e))) - 256);
 
-    printf("%d\n", radio_parms->f_xtal * (1<<radio_parms->drate_e));
+    printf("%u\n", radio_parms->f_xtal * (1<<radio_parms->drate_e));
 
     radio_parms->deviat_e = (uint8_t) (floor(my_log2f( deviat*(1<<14) / radio_parms->f_xtal )));
     radio_parms->deviat_m = (uint8_t) (((deviat*(1<<17)) / (radio_parms->f_xtal * (1<<radio_parms->deviat_e))) - 8);
 
-    printf("%d\n", radio_parms->f_xtal * (1<<radio_parms->deviat_e));
+    printf("%u\n", radio_parms->f_xtal * (1<<radio_parms->deviat_e));
 }
 
 // ------------------------------------------------------------------------------------------------
