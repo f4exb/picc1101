@@ -158,7 +158,7 @@ void init_radio_parms(radio_parms_t *radio_parms)
 	radio_parms->sync_ctl  = SYNC_30_over_32; // 30/32 sync word bits detected
     radio_parms->chanspc_m = 0;               // Do not use channel spacing for the moment defaulting to 0
     radio_parms->chanspc_e = 0;               // Do not use channel spacing for the moment defaulting to 0
-    radio_parms->packet_length = 260;
+    radio_parms->packet_length = 250;
 }
 
 // ------------------------------------------------------------------------------------------------
