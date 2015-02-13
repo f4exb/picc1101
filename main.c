@@ -23,6 +23,30 @@ serial_t      serial_parameters;
 spi_parms_t   spi_parameters;
 radio_parms_t radio_parameters;
 
+modulation_names[] = {
+    "OOK",
+    "2-FSK",
+    "4-FSK",
+    "MSK",
+    "GFSK",
+}
+
+rate_values[] = {
+    600,
+    1200,
+    2400,
+    4800,
+    9600,
+    14400,
+    19200,
+    28800,
+    38400,
+    57600,
+    115200,
+    250000,
+    500000
+}
+
 /***** Argp configuration start *****/
 
 const char *argp_program_version = "PiCC1101 0.1";
@@ -91,8 +115,8 @@ static void print_args(arguments_t *arguments)
     fprintf(stderr, "-- options --\n");
     fprintf(stderr, "Verbosity ...........: %d\n", arguments->verbose_level);
     fprintf(stderr, "--- radio ---\n");
-    fprintf(stderr, "Modulation # ........: %d\n", (int) arguments->modulation);
-    fprintf(stderr, "Rate # ..............: %d\n", (int) arguments->rate);
+    fprintf(stderr, "Modulation ..........: %s\n", modulation_names[arguments->modulation];
+    fprintf(stderr, "Rate ................: %d Baud\n", rate_values[arguments->rate];
     fprintf(stderr, "Frequency ...........: %d Hz\n", arguments->freq_hz);
     fprintf(stderr, "SPI device ..........: %s\n", arguments->spi_device);
     fprintf(stderr, "--- serial ---\n");

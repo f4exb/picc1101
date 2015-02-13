@@ -78,55 +78,56 @@ static void get_rate_words(rate_t rate_code, modulation_t modulation_code, radio
 // ------------------------------------------------------------------------------------------------
 {
     double drate, deviat, f_xtal;
+
+    drate = (double) rate_values[rate_code];
+
     switch (rate_code)
     {
         case RATE_600:
-            drate = 600.0;
             radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
             radio_parms->chanbw_e = 3;
             break;
         case RATE_1200:
-            drate = 1200.0;
             radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
             radio_parms->chanbw_e = 3;
             break;
         case RATE_2400:
-            drate = 2400.0;
             radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
             radio_parms->chanbw_e = 3;
             break;
         case RATE_4800:
-            drate = 4800.0;
             radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
             radio_parms->chanbw_e = 3;
             break;
         case RATE_9600:
-            drate = 9600.0;
+            radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
+            radio_parms->chanbw_e = 3;
+            break;
+        case RATE_14400:
             radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
             radio_parms->chanbw_e = 3;
             break;
         case RATE_19200:
-            drate = 19200.0;
+            radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
+            radio_parms->chanbw_e = 3;
+            break;
+        case RATE_28800:
             radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
             radio_parms->chanbw_e = 3;
             break;
         case RATE_38400:
-            drate = 38400.0;
             radio_parms->chanbw_m = 1; // 81 kHz 
             radio_parms->chanbw_e = 3;
             break;
         case RATE_57600:
-            drate = 57600.0;
             radio_parms->chanbw_m = 3; // 116 kHz 
             radio_parms->chanbw_e = 1;
             break;
         case RATE_115200:
-            drate = 115200.0;
             radio_parms->chanbw_m = 3; // 232 kHz 
             radio_parms->chanbw_e = 2;
             break;
         case RATE_250K:
-            drate = 250000.0;
             radio_parms->chanbw_m = 2; // 541 kHz 
             radio_parms->chanbw_e = 0;
             break;
@@ -140,7 +141,6 @@ static void get_rate_words(rate_t rate_code, modulation_t modulation_code, radio
             }
             else
             {
-                drate = 500000.0;
                 radio_parms->chanbw_m = 0; // 812 kHz (maximum available) 
                 radio_parms->chanbw_e = 0;
             }
