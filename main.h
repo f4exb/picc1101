@@ -13,7 +13,7 @@ typedef enum modulation_e {
     NUM_MOD
 } modulation_t;
 
-extern char *modulation_names;
+extern char modulation_names[];
 
 typedef enum rate_e {
     RATE_600,
@@ -32,7 +32,7 @@ typedef enum rate_e {
     NUM_RATE
 } rate_t;
 
-extern uint32_t *rate_values;
+extern uint32_t rate_values[];
 
 typedef struct arguments_s {
     uint8_t      verbose_level;      // Verbose level
