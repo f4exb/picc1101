@@ -141,7 +141,7 @@ static void get_rate_words(rate_t rate_code, modulation_t modulation_code, radio
             radio_parms->chanbw_e = 3;
     }
 
-    deviat = drate / 2.4;
+    deviat = drate / 2.0;
 
     if (modulation_code == MOD_FSK4)
     {
