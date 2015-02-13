@@ -23,7 +23,7 @@ serial_t      serial_parameters;
 spi_parms_t   spi_parameters;
 radio_parms_t radio_parameters;
 
-modulation_names[] = {
+char *modulation_names[] = {
     "OOK",
     "2-FSK",
     "4-FSK",
@@ -31,7 +31,7 @@ modulation_names[] = {
     "GFSK",
 }
 
-rate_values[] = {
+uint32_t *rate_values[] = {
     600,
     1200,
     2400,
