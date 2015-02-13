@@ -9,7 +9,8 @@ typedef enum modulation_e {
     MOD_FSK2,
     MOD_FSK4,
     MOD_MSK,
-    MOD_GFSK
+    MOD_GFSK,
+    NUM_MOD
 } modulation_t;
 
 typedef enum rate_e {
@@ -23,7 +24,8 @@ typedef enum rate_e {
     RATE_57600,
     RATE_115200,
     RATE_250K,
-    RATE_500K
+    RATE_500K,
+    NUM_RATE
 } rate_t;
 
 typedef struct arguments_s {

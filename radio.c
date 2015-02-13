@@ -131,9 +131,19 @@ static void get_rate_words(rate_t rate_code, modulation_t modulation_code, radio
             radio_parms->chanbw_e = 0;
             break;
         case RATE_500K:
-            drate = 500000.0;
-            radio_parms->chanbw_m = 0; // 812 kHz (maximum available) 
-            radio_parms->chanbw_e = 0;
+            if (modulation_code == MOD_FSK4)
+            {
+                printf(stderr, "RADIO: falling back to 300 kBaud rate for FSK-4\n");
+                drate = 300000.0;
+                radio_parms->chanbw_m = 0; // 812 kHz (maximum available) 
+                radio_parms->chanbw_e = 0;
+            }
+            else
+            {
+                drate = 500000.0;
+                radio_parms->chanbw_m = 0; // 812 kHz (maximum available) 
+                radio_parms->chanbw_e = 0;
+            }
             break;
         default:
             drate = 9600.0;

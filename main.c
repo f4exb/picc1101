@@ -105,7 +105,7 @@ static void print_args(arguments_t *arguments)
 static modulation_t get_modulation_scheme(uint8_t modulation_index)
 // ------------------------------------------------------------------------------------------------
 {
-    if (modulation_index < sizeof(modulation_t))
+    if (modulation_index < NUM_MOD)
     {
         return (modulation_t) modulation_index;
     }
@@ -120,7 +120,7 @@ static modulation_t get_modulation_scheme(uint8_t modulation_index)
 static rate_t get_rate(uint8_t rate_index)
 // ------------------------------------------------------------------------------------------------
 {
-    if (rate_index < sizeof(rate_t))
+    if (rate_index < NUM_RATE)
     {
         return (rate_t) rate_index;
     }
