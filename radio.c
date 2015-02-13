@@ -106,8 +106,8 @@ void init_radio_parms(radio_parms_t *radio_parms)
 	radio_parms->f_xtal    = 26000000;        // 26 MHz Xtal
 	radio_parms->f_if      = 310000;          // 304.6875 kHz (lowest point below 310 kHz)
 	radio_parms->sync_ctl  = SYNC_30_over_32; // 30/32 sync word bits detected
-        radio_parms->chanspc_m = 0;               // Do not use channel spacing for the moment defaulting to 0
-        radio_parms->chanspc_e = 0;               // Do not use channel spacing for the moment defaulting to 0
+    radio_parms->chanspc_m = 0;               // Do not use channel spacing for the moment defaulting to 0
+    radio_parms->chanspc_e = 0;               // Do not use channel spacing for the moment defaulting to 0
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -135,6 +135,8 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
         fprintf(stderr, "RADIO: cannot reset CC1101 chip, RC=%d\n", ret);
         return ret;
     }
+
+    get_rate_words(arguments->rate, arguments->modulation, radio_parms);
 
     // Write register settings
 
