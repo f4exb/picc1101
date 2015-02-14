@@ -82,18 +82,20 @@ static void print_long_help()
 {
     int i;
 
-    fprintf(stderr, "Modulation scheme option -M values:");
+    fprintf(stderr, "Modulation scheme option -M values\n");
+    fprintf(stderr, "Value:\tScheme:\n");
 
     for (i=0; i<NUM_MOD; i++)
     {
-        fprintf(stderr, "%d:\t%s\n", i, modulation_names[i]);
+        fprintf(stderr, "%d\t%s\n", i, modulation_names[i]);
     }
 
-    fprintf(stderr, "\nRate indexes option -R values:");    
+    fprintf(stderr, "\nRate indexes option -R values\n");    
+    fprintf(stderr, "Value:\tRate (Baud):\n");
 
     for (i=0; i<NUM_RATE; i++)
     {
-        fprintf(stderr, "%2d:\t%d Baud\n", i, rate_values[i]);
+        fprintf(stderr, "%2d\t%d\n", i, rate_values[i]);
     }
 }
 
