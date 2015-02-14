@@ -621,7 +621,7 @@ int radio_set_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len)
 
 // ------------------------------------------------------------------------------------------------
 // Transmission test
-int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments);
+int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
     uint8_t tx_length;
