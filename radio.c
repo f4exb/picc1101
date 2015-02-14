@@ -129,7 +129,7 @@ static void get_rate_words(rate_t rate_code, modulation_t modulation_code, radio
             break;
         case RATE_115200:
             radio_parms->chanbw_m = 3; // 232 kHz 
-            radio_parms->chanbw_e = 2;
+            radio_parms->chanbw_e = 1;
             break;
         case RATE_250K:
             radio_parms->chanbw_m = 2; // 541 kHz 
