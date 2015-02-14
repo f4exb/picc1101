@@ -653,5 +653,6 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
         sleep(2);
     }
 
-    fprintf(stderr, "\n");
+    print_radio_status(spi_parms);
+
 }
