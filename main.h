@@ -48,7 +48,7 @@ typedef struct arguments_s {
     modulation_t modulation;         // Radio modulation scheme
     rate_t       rate;               // Data rate (Baud)
     uint32_t     freq_hz;            // Frequency in Hz
-    uint8_t      pkt_length;         // Fixed packet length
+    uint8_t      packet_length;      // Fixed packet length
 } arguments_t;
 
 #endif
