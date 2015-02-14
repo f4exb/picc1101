@@ -522,14 +522,6 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
 }
 
 // ------------------------------------------------------------------------------------------------
-// Set fixed packet length
-int  set_radio_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len)
-// ------------------------------------------------------------------------------------------------
-{
-    return PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_PKTLEN, pkt_len); // Packet length.
-}
-
-// ------------------------------------------------------------------------------------------------
 // Print status registers to stderr
 int  print_radio_status(spi_parms_t *spi_parms)
 // ------------------------------------------------------------------------------------------------
@@ -617,4 +609,46 @@ void print_radio_parms(radio_parms_t *radio_parms)
         ((radio_parms->f_xtal/1e3) / (1<<17)) * (8 + radio_parms->deviat_m) * (1<<radio_parms->deviat_e), radio_parms->deviat_m, radio_parms->deviat_e);
     fprintf(stderr, "Packet length ..........: %d bytes\n",
         radio_parms->packet_length);
+}
+
+// ------------------------------------------------------------------------------------------------
+// Set fixed packet length
+int radio_set_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len)
+// ------------------------------------------------------------------------------------------------
+{
+    return PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_PKTLEN, pkt_len); // Packet length.
+}
+
+// ------------------------------------------------------------------------------------------------
+// Transmission test
+int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments);
+// ------------------------------------------------------------------------------------------------
+{
+    uint8_t tx_length;
+    uint8_t tx_buf[PI_CCxxx0_FIFO_SIZE];
+    int     i;
+
+    if (strlen(arguments->test_phrase) < PI_CCxxx0_FIFO_SIZE)
+    {
+        tx_length = strlen(arguments->test_phrase);
+    }
+    else
+    {
+        fprintf(stderr, "Test phrase too long. Truncated to CC1101 FIFO size\n", );
+        tx_length = PI_CCxxx0_FIFO_SIZE - 1;
+    }
+
+    memset(tx_buf, ' ', PI_CCxxx0_FIFO_SIZE);
+    memcpy(tx_buf, arguments->test_phrase, tx_length);
+
+    fprintf(stderr, "Sending test packet of size %d %d times\n", tx_length, arguments->test_repetition);
+
+    for (i=0; i<arguments->test_repetition; i++)
+    {
+        PI_CC_SPIWriteBurstReg(spi_parms, PI_CCxxx0_TXFIFO, tx_buf, tx_length);
+        PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFTX);
+        fprintf(stderr, ".");
+    }
+
+    fprintf(stderr, "\n");
 }

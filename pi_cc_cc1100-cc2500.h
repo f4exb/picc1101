@@ -143,4 +143,5 @@
 #define PI_CCxxx0_READ_SINGLE  0x80
 #define PI_CCxxx0_READ_BURST   0xC0
 
-
+// Various constants
+#define PI_CCxxx0_FIFO_SIZE    64

@@ -49,6 +49,8 @@ typedef struct arguments_s {
     rate_t       rate;               // Data rate (Baud)
     uint32_t     freq_hz;            // Frequency in Hz
     uint8_t      packet_length;      // Fixed packet length
+    char         *test_phrase;       // Test phrase to transmit
+    uint8_t      test_repetition;    // Test transmission repetition
 } arguments_t;
 
 #endif

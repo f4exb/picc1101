@@ -65,6 +65,7 @@ static struct argp_option options[] = {
     {"rate",  'R', "DATA_RATE_INDEX", 0, "Data rate index, See long help (-H) option"},
     {"frequency",  'f', "FREQUENCY_HZ", 0, "Frequency in Hz (default: 433600000)"},
     {"packet-length",  'P', "PACKET_LENGTH", 0, "Fixed packet length (default: 250)"},
+    {"transmit-test",  't', "TEST_PHRASE", 0, "Send a test phrase (default : 0 no test)"},
     {"radio-status",  's', 0, 0, "Print radio status and exit"},
     {0}
 };
@@ -74,6 +75,7 @@ static struct argp_option options[] = {
 static void terminate(const int signal_) {
 // ------------------------------------------------------------------------------------------------
     printf("PICC: Terminating with signal %d\n", signal_);
+    delete_args(&arguments);
     exit(1);
 }
 
@@ -116,6 +118,8 @@ static void init_args(arguments_t *arguments)
     arguments->rate = RATE_9600;
     arguments->freq_hz = 433600000;
     arguments->packet_length = 250;
+    arguments->test_phrase = 0;
+    arguments->test_repetition = 100;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -130,6 +134,10 @@ static void delete_args(arguments_t *arguments)
     if (arguments->spi_device)
     {
         free(arguments->spi_device);
+    }
+    if (arguments->test_phrase)
+    {
+        free(arguments->test_phrase);
     }
 }
 
@@ -146,6 +154,13 @@ static void print_args(arguments_t *arguments)
     fprintf(stderr, "Frequency ...........: %d Hz\n", arguments->freq_hz);
     fprintf(stderr, "Packet length .......: %d bits\n", arguments->packet_length);
     fprintf(stderr, "SPI device ..........: %s\n", arguments->spi_device);
+
+    if (arguments->test_phrase)
+    {
+        fprintf(stderr, "Test phrase .........: %s\n", arguments->test_phrase);
+        fprintf(stderr, "Test repetition .....: %d times\n", arguments->test_repetition);
+    }
+
     fprintf(stderr, "--- serial ---\n");
     fprintf(stderr, "TNC device ..........: %s\n", arguments->serial_device);
     fprintf(stderr, "TNC speed ...........: %d Baud\n", arguments->serial_speed_n);
@@ -246,6 +261,10 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
         case 'd':
             arguments->spi_device = strdup(arg);
             break;
+        // Transmission test phrase
+        case 't':
+            arguments->test_phrase = strdup(arg);
+            break;
         // Print radio status and exit
         case 's':
             arguments->print_radio_status = 1;
@@ -328,6 +347,11 @@ int main (int argc, char **argv)
         print_radio_status(&spi_parameters);
         return 0;
     }
+    else if (arguments->test_phrase)
+    {
+        radio_transmit_test(&spi_parameters, &arguments);
+        return 9;
+    }
 
     set_serial_parameters(&serial_parameters, &arguments);
 
@@ -346,6 +370,7 @@ int main (int argc, char **argv)
         }
     }
 
+    delete_args(&arguments);
     return 0;
 }
 
