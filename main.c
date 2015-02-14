@@ -70,6 +70,8 @@ static struct argp_option options[] = {
     {0}
 };
 
+static void delete_args(arguments_t *arguments);
+
 // ------------------------------------------------------------------------------------------------
 // Terminator
 static void terminate(const int signal_) {
@@ -124,7 +126,7 @@ static void init_args(arguments_t *arguments)
 
 // ------------------------------------------------------------------------------------------------
 // Delete arguments
-static void delete_args(arguments_t *arguments)
+void delete_args(arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
     if (arguments->serial_device)
@@ -347,7 +349,7 @@ int main (int argc, char **argv)
         print_radio_status(&spi_parameters);
         return 0;
     }
-    else if (arguments->test_phrase)
+    else if (arguments.test_phrase)
     {
         radio_transmit_test(&spi_parameters, &arguments);
         return 9;
