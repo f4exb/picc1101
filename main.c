@@ -78,7 +78,7 @@ static void terminate(const int signal_) {
 
 // ------------------------------------------------------------------------------------------------
 // Long help displays enumerated values
-static void long_help()
+static void print_long_help()
 {
     int i;
 
