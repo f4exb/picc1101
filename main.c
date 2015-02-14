@@ -64,6 +64,7 @@ static struct argp_option options[] = {
     {"modulation",  'M', "MODULATION_SCHEME", 0, "Radio modulation scheme, See long help (-H) option"},
     {"rate",  'R', "DATA_RATE_INDEX", 0, "Data rate index, See long help (-H) option"},
     {"frequency",  'f', "FREQUENCY_HZ", 0, "Frequency in Hz (default: 433600000)"},
+    {"packet-length",  'P', "PACKET_LENGTH", 0, "Fixed packet length (default: 250)"},
     {"radio-status",  's', 0, 0, "Print radio status and exit"},
     {0}
 };
@@ -114,6 +115,7 @@ static void init_args(arguments_t *arguments)
     arguments->modulation = MOD_FSK2;
     arguments->rate = RATE_9600;
     arguments->freq_hz = 433600000;
+    arguments->packet-length = 250;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -142,6 +144,7 @@ static void print_args(arguments_t *arguments)
     fprintf(stderr, "Modulation ..........: %s\n", modulation_names[arguments->modulation]);
     fprintf(stderr, "Rate ................: %d Baud\n", rate_values[arguments->rate]);
     fprintf(stderr, "Frequency ...........: %d Hz\n", arguments->freq_hz);
+    fprintf(stderr, "Packet length .......: %d bits\n", arguments->packet-length);
     fprintf(stderr, "SPI device ..........: %s\n", arguments->spi_device);
     fprintf(stderr, "--- serial ---\n");
     fprintf(stderr, "TNC device ..........: %s\n", arguments->serial_device);
@@ -218,6 +221,12 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
         // Radio link frequency
         case 'f':
             arguments->freq_hz = strtol(arg, &end, 10);
+            if (*end)
+                argp_usage(state);
+            break; 
+        // Fixed packet length
+        case 'P':
+            arguments->packet-length = strtol(arg, &end, 10) % 256;
             if (*end)
                 argp_usage(state);
             break; 

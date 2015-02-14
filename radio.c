@@ -170,12 +170,12 @@ static void get_rate_words(rate_t rate_code, modulation_t modulation_code, radio
 void init_radio_parms(radio_parms_t *radio_parms)
 // ------------------------------------------------------------------------------------------------
 {
-	radio_parms->f_xtal    = 26000000;        // 26 MHz Xtal
-	radio_parms->f_if      = 310000;          // 304.6875 kHz (lowest point below 310 kHz)
-	radio_parms->sync_ctl  = SYNC_30_over_32; // 30/32 sync word bits detected
-    radio_parms->chanspc_m = 0;               // Do not use channel spacing for the moment defaulting to 0
-    radio_parms->chanspc_e = 0;               // Do not use channel spacing for the moment defaulting to 0
-    radio_parms->packet_length = 250;
+	radio_parms->f_xtal        = 26000000;         // 26 MHz Xtal
+	radio_parms->f_if          = 310000;           // 304.6875 kHz (lowest point below 310 kHz)
+	radio_parms->sync_ctl      = SYNC_30_over_32;  // 30/32 sync word bits detected
+    radio_parms->chanspc_m     = 0;                // Do not use channel spacing for the moment defaulting to 0
+    radio_parms->chanspc_e     = 0;                // Do not use channel spacing for the moment defaulting to 0
+    radio_parms->packet_config = PKTLEN_FIXED;     // Use fixed packet length
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -204,6 +204,7 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
         return ret;
     }
 
+    radio_parms->packet_length = arguments->packet_length;  // Packet length
     get_rate_words(arguments->rate, arguments->modulation, radio_parms);
 
     // Write register settings
@@ -227,7 +228,7 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_FIFOTHR,  0x0E); // FIFO threshold.
 
     // PKTLEN: packet length up to 255 bytes. 
-    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_PKTLEN,   radio_parms->packet_length); // Packet length.
+    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_PKTLEN, radio_parms->packet_length); // Packet length.
 
     // PKTCTRL0: Packet automation control #0
     // . bit  7:   unused
@@ -235,8 +236,8 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     // . bits 5:4: 00 -> normal mode use FIFOs for Rx and Tx
     // . bit  3:   unused
     // . bit  2:   1  -> CRC enabled
-    // . bits 1:0: 01 -> Variable packet length mode. Packet length is configured by the first byte after sync word.
-    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_PKTCTRL0, 0x05); // Packet automation control.
+    // . bits 1:0: xx -> Packet length mode. Taken from radio config.
+    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_PKTCTRL0, 0x04 + (int) radio_parms->packet_config); // Packet automation control.
 
     // PKTCTRL1: Packet automation control #1
     // . bits 7:5: 000 -> Preamble quality estimator threshold
@@ -518,6 +519,14 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     {
         print_radio_parms(radio_parms);
     }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Set fixed packet length
+int  set_radio_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len)
+// ------------------------------------------------------------------------------------------------
+{
+    return PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_PKTLEN, pkt_len); // Packet length.
 }
 
 // ------------------------------------------------------------------------------------------------

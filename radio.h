@@ -24,27 +24,36 @@ typedef enum sync_word_e
 	SYNC_30_over_32_CARRIER   // 30/32 + carrier-sense above threshold
 } sync_word_t;
 
+typedef enum packet_config_e 
+{
+	PKTLEN_FIXED = 0,
+	PKTLEN_VARIABLE,
+	PKTLEN_INFINITE
+} packet_config_t;
+
 typedef struct radio_parms_s
 {
-	uint32_t    f_xtal;        // Crystal frequency (Hz)
-	uint32_t    f_if;          // IF frequency (Hz)
-	uint8_t     packet_length;
-	sync_word_t sync_ctl;      // Sync word control
-	float       deviat_factor; // FSK-2 deviation is +/- data rate divised by this factor
-	uint32_t    freq_word;     // Frequency 24 bit word FREQ[23..0]
-    uint8_t     chanspc_m;     // Channel spacing mantissa 
-    uint8_t     chanspc_e;     // Channel spacing exponent
-	uint8_t     if_word;       // Intermediate frequency 5 bit word FREQ_IF[4:0] 
-	uint8_t     drate_m;       // Data rate mantissa
-	uint8_t     drate_e;       // Data rate exponent
-	uint8_t     chanbw_m;      // Channel bandwidth mantissa
-	uint8_t     chanbw_e;      // Channel bandwidth exponent
-	uint8_t     deviat_m;      // Deviation mantissa
-	uint8_t     deviat_e;      // Deviation exponent
+	uint32_t        f_xtal;        // Crystal frequency (Hz)
+	uint32_t        f_if;          // IF frequency (Hz)
+	packet_config_t packet_config; // Packet length configuration
+	uint8_t         packet_length; // Packet length if fixed
+	sync_word_t     sync_ctl;      // Sync word control
+	float           deviat_factor; // FSK-2 deviation is +/- data rate divised by this factor
+	uint32_t        freq_word;     // Frequency 24 bit word FREQ[23..0]
+    uint8_t         chanspc_m;     // Channel spacing mantissa 
+    uint8_t         chanspc_e;     // Channel spacing exponent
+	uint8_t         if_word;       // Intermediate frequency 5 bit word FREQ_IF[4:0] 
+	uint8_t         drate_m;       // Data rate mantissa
+	uint8_t         drate_e;       // Data rate exponent
+	uint8_t         chanbw_m;      // Channel bandwidth mantissa
+	uint8_t         chanbw_e;      // Channel bandwidth exponent
+	uint8_t         deviat_m;      // Deviation mantissa
+	uint8_t         deviat_e;      // Deviation exponent
 } radio_parms_t;
 
 void init_radio_parms(radio_parms_t *radio_parms);
 int  init_radio(radio_parms_t *radio_parms,  spi_parms_t *spi_parms, arguments_t *arguments);
+int  set_radio_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len);
 void print_radio_parms(radio_parms_t *radio_parms);
 int  print_radio_status(spi_parms_t *spi_parms);
 
