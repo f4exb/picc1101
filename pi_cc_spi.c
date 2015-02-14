@@ -255,6 +255,8 @@ int PI_CC_SPIWriteBurstReg(spi_parms_t *spi_parms, uint8_t addr, uint8_t *buffer
         fprintf(stderr, "SPI: can't send write burst register\n");
         return 1;
     }
+
+    return spi_parms->ret;
 }
 
 // ------------------------------------------------------------------------------------------------
