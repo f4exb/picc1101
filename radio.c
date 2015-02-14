@@ -155,12 +155,6 @@ static void get_rate_words(rate_t rate_code, modulation_t modulation_code, radio
             radio_parms->chanbw_e = 3;
     }
 
-    if (rate_code == RATE_76800)
-    {
-        radio_parms->chanbw_m = 1; // 162 kHz 
-        radio_parms->chanbw_e = 2;        
-    }
-
     deviat = drate / 2.0;
     f_xtal = (double) radio_parms->f_xtal;
 
