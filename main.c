@@ -42,6 +42,7 @@ uint32_t rate_values[] = {
     28800,
     38400,
     57600,
+    76800,
     115200,
     250000,
     500000
@@ -73,6 +74,27 @@ static void terminate(const int signal_) {
 // ------------------------------------------------------------------------------------------------
     printf("PICC: Terminating with signal %d\n", signal_);
     exit(1);
+}
+
+// ------------------------------------------------------------------------------------------------
+// Long help displays enumerated values
+static void long_help()
+{
+    int i;
+
+    fprintf(stderr, "Modulation scheme option -M values:");
+
+    for (i=0; i<NUM_MOD; i++)
+    {
+        fprintf(stderr, "%d:\t%s\n", i, modulation_names[i]);
+    }
+
+    fprintf(stderr, "\nRate indexes option -R values:");    
+
+    for (i=0; i<NUM_RATE; i++)
+    {
+        fprintf(stderr, "%2d:\t%d Baud\n", i, rate_values[i]);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -262,6 +284,12 @@ int main (int argc, char **argv)
 
     // Parse arguments 
     argp_parse (&argp, argc, argv, 0, 0, &arguments);
+
+    if (arguments.print_long_help)
+    {
+        print_long_help();
+        return 0;
+    }
     
     if (!arguments.serial_device)
     {

@@ -26,6 +26,7 @@ typedef enum rate_e {
     RATE_28800,
     RATE_38400,
     RATE_57600,
+    RATE_76800,
     RATE_115200,
     RATE_250K,
     RATE_500K,
