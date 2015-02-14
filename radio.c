@@ -647,6 +647,7 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
     {
         ret = PI_CC_SPIWriteBurstReg(spi_parms, PI_CCxxx0_TXFIFO, tx_buf, tx_length);
         fprintf(stderr, "%d", ret);
+        sleep(1);
         ret = PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFTX);
         fprintf(stderr, " %d\n", ret);
         sleep(2);
