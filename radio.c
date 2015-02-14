@@ -124,8 +124,8 @@ static void get_rate_words(rate_t rate_code, modulation_t modulation_code, radio
             radio_parms->chanbw_e = 1;
             break;
         case RATE_76800:
-            radio_parms->chanbw_m = 3; // 154 kHz 
-            radio_parms->chanbw_e = 1;
+            radio_parms->chanbw_m = 1; // 162 kHz 
+            radio_parms->chanbw_e = 2;
             break;
         case RATE_115200:
             radio_parms->chanbw_m = 3; // 232 kHz 
@@ -153,6 +153,12 @@ static void get_rate_words(rate_t rate_code, modulation_t modulation_code, radio
             drate = 9600.0;
             radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
             radio_parms->chanbw_e = 3;
+    }
+
+    if (rate_code == RATE_76800)
+    {
+        radio_parms->chanbw_m = 1; // 162 kHz 
+        radio_parms->chanbw_e = 2;        
     }
 
     deviat = drate / 2.0;
