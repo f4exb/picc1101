@@ -58,7 +58,7 @@ typedef enum preamble_e {
     NUM_PREAMBLE
 } preamble_t;
 
-extern uint32_t nb_preamble_bytes[];
+extern uint8_t nb_preamble_bytes[];
 
 typedef struct arguments_s {
     uint8_t      verbose_level;      // Verbose level
