@@ -235,7 +235,7 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
             arguments->fec = 1;
             break;
         // Activate whitening
-        case 'F':
+        case 'W':
             arguments->whitening = 1;
             break;
         // Modulation scheme 
