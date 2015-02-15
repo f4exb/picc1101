@@ -213,7 +213,7 @@ static void get_chanbw_words(float bw, radio_parms_t *radio_parms)
 //   o DRATE = (Fxosc / 2^28) * (256 + DRATE_M) * 2^DRATE_E
 //   o CHANBW = Fxosc / (8(4+CHANBW_M) * 2^CHANBW_E)
 //   o DEVIATION = (Fxosc / 2^17) * (8 + DEVIATION_M) * 2^DEVIATION_E
-static void get_rate_words(rate_t rate_code, modulation_t modulation_code, radio_parms_t *radio_parms)
+static void get_rate_words(rate_t rate_code, modulation_t modulation_code, float modulation_index, radio_parms_t *radio_parms)
 // ------------------------------------------------------------------------------------------------
 {
     double drate, deviat, f_xtal;
@@ -226,7 +226,7 @@ static void get_rate_words(rate_t rate_code, modulation_t modulation_code, radio
         drate = 300000.0;
     }
 
-    deviat = drate / 2.0;
+    deviat = drate * modulation_index;
     f_xtal = (double) radio_parms->f_xtal;
 
     get_chanbw_words(2.0*(deviat + drate), radio_parms); // Apply Carson's rule for bandwidth
@@ -283,7 +283,7 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     }
 
     radio_parms->packet_length = arguments->packet_length;  // Packet length
-    get_rate_words(arguments->rate, arguments->modulation, radio_parms);
+    get_rate_words(arguments->rate, arguments->modulation, arguments->modulation_index, radio_parms);
 
     // Write register settings
 

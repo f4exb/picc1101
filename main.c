@@ -63,6 +63,7 @@ static struct argp_option options[] = {
     {"spi-device",  'd', "SPI_DEVICE", 0, "SPI device, (default : /dev/spidev0.0)"},
     {"modulation",  'M', "MODULATION_SCHEME", 0, "Radio modulation scheme, See long help (-H) option"},
     {"rate",  'R', "DATA_RATE_INDEX", 0, "Data rate index, See long help (-H) option"},
+    {"modulation-index",  'm', "MODULATION_INDEX", 0, "Modulation index (default 0.5)"},
     {"fec",  'F', 0, 0, "Activate FEC (default off)"},
     {"whitening",  'W', 0, 0, "Activate whitening (default off)"},
     {"frequency",  'f', "FREQUENCY_HZ", 0, "Frequency in Hz (default: 433600000)"},
@@ -126,6 +127,7 @@ static void init_args(arguments_t *arguments)
     arguments->print_radio_status = 0;
     arguments->modulation = MOD_FSK2;
     arguments->rate = RATE_9600;
+    arguments->modulation_index = 0.5;
     arguments->freq_hz = 433600000;
     arguments->packet_length = 250;
     arguments->test_phrase = 0;
@@ -164,10 +166,11 @@ static void print_args(arguments_t *arguments)
     fprintf(stderr, "--- radio ---\n");
     fprintf(stderr, "Modulation ..........: %s\n", modulation_names[arguments->modulation]);
     fprintf(stderr, "Rate ................: %d Baud\n", rate_values[arguments->rate]);
+    fprintf(stderr, "Modulation index ....: %.2f\n", arguments->modulation_index);
     fprintf(stderr, "Frequency ...........: %d Hz\n", arguments->freq_hz);
     fprintf(stderr, "Packet length .......: %d bits\n", arguments->packet_length);
     fprintf(stderr, "FEC .................: %s\n", (arguments->fec ? "on" : "off"));
-    fprintf(stderr, "whitening ...........: %s\n", (arguments->whitening ? "on" : "off"));
+    fprintf(stderr, "Whitening ...........: %s\n", (arguments->whitening ? "on" : "off"));
     fprintf(stderr, "SPI device ..........: %s\n", arguments->spi_device);
 
     if (arguments->test_phrase)
@@ -307,6 +310,10 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
         // Print radio status and exit
         case 's':
             arguments->print_radio_status = 1;
+            break;
+        // Modulation index
+        case 'm':
+            arguments->modulation_index = atof(arg);
             break;
         default:
             return ARGP_ERR_UNKNOWN;
