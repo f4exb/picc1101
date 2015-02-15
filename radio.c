@@ -764,6 +764,7 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
     uint8_t iterations, rx_bytes, fsm_state, rssi_dec, garbage_byte;
     uint8_t rx_buf[PI_CCxxx0_FIFO_SIZE+1];
     int i;
+    uint32_t poll_us = 32*1000000 / rate_values[arguments->rate_code];
 
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX);
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX);
@@ -793,7 +794,7 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
             PI_CC_SPIReadStatus(spi_parms, PI_CCxxx0_RXBYTES, &rx_bytes);
             rx_bytes &= PI_CCxxx0_NUM_RXBYTES;
 
-            if (rx_bytes >= arguments->packet_length)
+            if (rx_bytes >= arguments->packet_length + 2)
             {
                 fprintf(stderr, "Received %d bytes\n", rx_bytes);
 
@@ -817,7 +818,7 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
                 break;
             }
 
-            usleep(100000);
+            usleep(poll_us);
         }
 
         fprintf(stderr, "\"%s\"\n", rx_buf);
