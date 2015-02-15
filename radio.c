@@ -122,6 +122,93 @@ static uint8_t get_mod_word(modulation_t modulation_code)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Calculate CHANBW words according to CC1101 bandwidth steps
+static void get_chanbw_words(float bw, radio_parms_t *radio_parms)
+// ------------------------------------------------------------------------------------------------
+{
+    if (bw < 58000.0)
+    {
+        radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
+        radio_parms->chanbw_e = 3;
+    }
+    else if (bw < 68000.0)
+    {
+        radio_parms->chanbw_m = 2; // 68 kHz
+        radio_parms->chanbw_e = 3;
+    }
+    else if (bw < 81000.0)
+    {
+        radio_parms->chanbw_m = 1; // 81 kHz
+        radio_parms->chanbw_e = 3;
+    }
+    else if (bw < 102000.0)
+    {
+        radio_parms->chanbw_m = 0; // 81 kHz
+        radio_parms->chanbw_e = 3;
+    }
+    else if (bw < 116000.0)
+    {
+        radio_parms->chanbw_m = 3; // 116 kHz
+        radio_parms->chanbw_e = 2;
+    }
+    else if (bw < 135000.0)
+    {
+        radio_parms->chanbw_m = 2; // 135 kHz
+        radio_parms->chanbw_e = 2;
+    }
+    else if (bw < 162000.0)
+    {
+        radio_parms->chanbw_m = 1; // 162 kHz
+        radio_parms->chanbw_e = 2;
+    }
+    else if (bw < 203000.0)
+    {
+        radio_parms->chanbw_m = 0; // 203 kHz
+        radio_parms->chanbw_e = 2;
+    }
+    else if (bw < 232000.0)
+    {
+        radio_parms->chanbw_m = 3; // 232 kHz
+        radio_parms->chanbw_e = 1;
+    }
+    else if (bw < 270000.0)
+    {
+        radio_parms->chanbw_m = 2; // 270 kHz
+        radio_parms->chanbw_e = 1;
+    }
+    else if (bw < 325000.0)
+    {
+        radio_parms->chanbw_m = 1; // 325 kHz
+        radio_parms->chanbw_e = 1;
+    }
+    else if (bw < 406000.0)
+    {
+        radio_parms->chanbw_m = 0; // 406 kHz
+        radio_parms->chanbw_e = 1;
+    }
+    else if (bw < 464000.0)
+    {
+        radio_parms->chanbw_m = 3; // 406 kHz
+        radio_parms->chanbw_e = 0;
+    }
+    else if (bw < 541000.0)
+    {
+        radio_parms->chanbw_m = 2; // 541 kHz
+        radio_parms->chanbw_e = 0;
+    }
+    else if (bw < 650000.0)
+    {
+        radio_parms->chanbw_m = 1; // 650 kHz
+        radio_parms->chanbw_e = 0;
+    }
+    else
+    {
+        radio_parms->chanbw_m = 0; // 812 kHz (maximum available)
+        radio_parms->chanbw_e = 0;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 // Calculate data rate, channel bandwidth and deviation words. Assumes 26 MHz crystal.
 //   o DRATE = (Fxosc / 2^28) * (256 + DRATE_M) * 2^DRATE_E
 //   o CHANBW = Fxosc / (8(4+CHANBW_M) * 2^CHANBW_E)
@@ -133,82 +220,16 @@ static void get_rate_words(rate_t rate_code, modulation_t modulation_code, radio
 
     drate = (double) rate_values[rate_code];
 
-    switch (rate_code)
+    if ((arguments->modulation_code == MOD_FSK4) && (drate > 300000.0)
     {
-        case RATE_600:
-            radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
-            radio_parms->chanbw_e = 3;
-            break;
-        case RATE_1200:
-            radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
-            radio_parms->chanbw_e = 3;
-            break;
-        case RATE_2400:
-            radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
-            radio_parms->chanbw_e = 3;
-            break;
-        case RATE_4800:
-            radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
-            radio_parms->chanbw_e = 3;
-            break;
-        case RATE_9600:
-            radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
-            radio_parms->chanbw_e = 3;
-            break;
-        case RATE_14400:
-            radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
-            radio_parms->chanbw_e = 3;
-            break;
-        case RATE_19200:
-            radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
-            radio_parms->chanbw_e = 3;
-            break;
-        case RATE_28800:
-            radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
-            radio_parms->chanbw_e = 3;
-            break;
-        case RATE_38400:
-            radio_parms->chanbw_m = 1; // 81 kHz 
-            radio_parms->chanbw_e = 3;
-            break;
-        case RATE_57600:
-            radio_parms->chanbw_m = 3; // 116 kHz 
-            radio_parms->chanbw_e = 1;
-            break;
-        case RATE_76800:
-            radio_parms->chanbw_m = 1; // 162 kHz 
-            radio_parms->chanbw_e = 2;
-            break;
-        case RATE_115200:
-            radio_parms->chanbw_m = 3; // 232 kHz 
-            radio_parms->chanbw_e = 1;
-            break;
-        case RATE_250K:
-            radio_parms->chanbw_m = 2; // 541 kHz 
-            radio_parms->chanbw_e = 0;
-            break;
-        case RATE_500K:
-            if (modulation_code == MOD_FSK4)
-            {
-                fprintf(stderr, "RADIO: falling back to 300 kBaud rate for FSK-4\n");
-                drate = 300000.0;
-                radio_parms->chanbw_m = 0; // 812 kHz (maximum available) 
-                radio_parms->chanbw_e = 0;
-            }
-            else
-            {
-                radio_parms->chanbw_m = 0; // 812 kHz (maximum available) 
-                radio_parms->chanbw_e = 0;
-            }
-            break;
-        default:
-            drate = 9600.0;
-            radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
-            radio_parms->chanbw_e = 3;
+        fprintf(stderr, "RADIO: forcibly set data rate to 300 kBaud for 4-FSK\n");
+        drate = 300000.0;
     }
 
     deviat = drate / 2.0;
     f_xtal = (double) radio_parms->f_xtal;
+
+    get_chanbw_words(2.0*(deviat + drate), radio_parms); // Apply Carson's rule for bandwidth
 
     radio_parms->drate_e = (uint8_t) (floor(log2( drate*(1<<20) / f_xtal )));
     radio_parms->drate_m = (uint8_t) (((drate*(1<<28)) / (f_xtal * (1<<radio_parms->drate_e))) - 256);
@@ -783,7 +804,7 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
 
                 PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RSSI, &rssi_dec); 
                 fprintf(stderr, "\nRSSI: %.1f dBm\n", rssi_dbm(rssi_dec));
-                
+
                 break;
             }
 
