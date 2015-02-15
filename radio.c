@@ -695,9 +695,21 @@ int radio_set_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len)
 int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    uint8_t test_length, tx_length, byte;
-    uint8_t tx_buf[PI_CCxxx0_FIFO_SIZE];
-    int     i, j, ret;
+    uint8_t  test_length, tx_length, byte;
+    uint8_t  tx_buf[PI_CCxxx0_FIFO_SIZE];
+    int      i, j, ret;
+    // Calculate delay in microseconds for message transmission assume 32 bits sync word all counters and CRC plus 16 guard bytes 
+    uint64_t tx_delay = (8000000ULL * (arguments->packet_length + nb_preamble_bytes[arguments->preamble] + 8 + 16)) / rate_values[arguments->rate];
+
+    if (arguments->fec) // Assume twice the Tx delay if FEC is engaged
+    {
+        tx_delay *= 2;
+    }
+
+    if (arguments->verbose_level > 0)
+    {
+        fprintf(stderr, "Estimated Tx delay is %lld us\n", tx_delay);
+    }
 
     if (strlen(arguments->test_phrase) < PI_CCxxx0_FIFO_SIZE)
     {
@@ -743,14 +755,7 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
         fprintf(stderr, "\n");
         ret = PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX);
         
-        if (rate_values[arguments->rate] < 600)
-        {
-            sleep(4);
-        }
-        else
-        {
-            sleep(2);
-        }
+        usleep(tx_delay);
 
         print_radio_status(spi_parms);
     }
@@ -764,7 +769,7 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
     uint8_t iterations, rx_bytes, fsm_state, rssi_dec, garbage_byte;
     uint8_t rx_buf[PI_CCxxx0_FIFO_SIZE+1];
     int i;
-    uint32_t poll_us = 32*1000000 / rate_values[arguments->rate];
+    uint32_t poll_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
 
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX);
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX);
