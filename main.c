@@ -68,6 +68,7 @@ static struct argp_option options[] = {
     {"frequency",  'f', "FREQUENCY_HZ", 0, "Frequency in Hz (default: 433600000)"},
     {"packet-length",  'P', "PACKET_LENGTH", 0, "Packet length, 0 is variable (default: 250)"},
     {"transmit-test",  't', "TEST_PHRASE", 0, "Send a test phrase (default : 0 no test)"},
+    {"receive-test",  'r', 0, 0, "Reception test. Exits after receiving number of repetition packets"},
     {"repetition",  'n', "REPETITION", 0, "Repetiton factor wherever appropriate, see long Help (-H) option (default : 1 single)"},
     {"radio-status",  's', 0, 0, "Print radio status and exit"},
     {0}
@@ -128,6 +129,7 @@ static void init_args(arguments_t *arguments)
     arguments->freq_hz = 433600000;
     arguments->packet_length = 250;
     arguments->test_phrase = 0;
+    arguments->test_rx = 0;
     arguments->repetition = 1;
     arguments->fec = 0;
     arguments->whitening = 0;
@@ -172,6 +174,12 @@ static void print_args(arguments_t *arguments)
     {
         fprintf(stderr, "Test phrase .........: %s\n", arguments->test_phrase);
         fprintf(stderr, "Test repetition .....: %d times\n", arguments->repetition);
+    }
+
+    if (arguments->test_rx)
+    {
+        fprintf(stderr, "Test receoption .....: on\n");
+        fprintf(stderr, "Exit after ..........: %d received packets\n", arguments->repetition);
     }
 
     fprintf(stderr, "--- serial ---\n");
@@ -237,6 +245,10 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
         // Activate whitening
         case 'W':
             arguments->whitening = 1;
+            break;
+        // Reception test
+        case 'W':
+            arguments->test_rx = 1;
             break;
         // Modulation scheme 
         case 'M':

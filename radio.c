@@ -720,3 +720,40 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
         print_radio_status(spi_parms);
     }
 }
+
+// ------------------------------------------------------------------------------------------------
+// Reception test
+int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
+// ------------------------------------------------------------------------------------------------
+{
+    uint8_t iterations, rx_bytes;
+    uint8_t rx_buf[PI_CCxxx0_FIFO_SIZE+1];
+
+    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX);
+    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX);
+    print_radio_status(spi_parms);
+
+    for (iterations=0; iterations<arguments->repetition; iterations++)
+    {
+        fprintf(stderr, "Packet #%d\n", iterations+1);
+        memset(rx_buf, '\0', PI_CCxxx0_FIFO_SIZE+1);
+
+        while(1)
+        {
+            PI_CC_SPIReadStatus(spi_parms, PI_CCxxx0_RXBYTES, &rx_bytes);
+            rx_bytes &= PI_CCxxx0_NUM_RXBYTES;
+
+            if (rx_bytes == arguments->packet_length)
+            {
+                PI_CC_SPIReadBurstReg(spi_parms, PI_CCxxx0_RXFIFO, rx_buf, rx_bytes);
+                break;
+            }
+
+            sleep(1);
+        }
+
+        fprintf(stderr, "\"%s\"\n", rx_buf);
+    }
+
+    fprintf(stderr, "Done\n");
+}
