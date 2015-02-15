@@ -668,7 +668,7 @@ int radio_set_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len)
 int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    uint8_t tx_length, byte;
+    uint8_t test_length, tx_length, byte;
     uint8_t tx_buf[PI_CCxxx0_FIFO_SIZE];
     int     i, j, ret;
 
@@ -678,17 +678,31 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 
     if (strlen(arguments->test_phrase) < PI_CCxxx0_FIFO_SIZE)
     {
-        tx_length = strlen(arguments->test_phrase);
+        test_length = strlen(arguments->test_phrase);
     }
     else
     {
         fprintf(stderr, "Test phrase too long. Truncated to CC1101 FIFO size\n");
-        tx_length = PI_CCxxx0_FIFO_SIZE;
+        test_length = PI_CCxxx0_FIFO_SIZE;
     }
 
     memset(tx_buf, ' ', PI_CCxxx0_FIFO_SIZE);
-    memset(spi_parms->rx, 0, tx_length);
-    memcpy(tx_buf, arguments->test_phrase, tx_length);
+    memcpy(tx_buf, arguments->test_phrase, test_length);
+
+    if (arguments->packet_length == 0)
+    {
+        tx_length = test_length;
+    }
+    else if (arguments->packet_length < PI_CCxxx0_FIFO_SIZE)
+    {
+        tx_length = arguments->packet_length;
+    }
+    else
+    {
+        tx_length = PI_CCxxx0_FIFO_SIZE;
+    }
+
+    radio_set_packet_length(spi_parms, tx_length);
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFTX);
 
     fprintf(stderr, "Sending test packet of size %d %d times\n", tx_length, arguments->test_repetition);
