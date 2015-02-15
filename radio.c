@@ -68,7 +68,7 @@ static float rssi_dbm(uint8_t rssi_dec)
 {
     if (rssi_dec < 128)
     {
-        return rssi_dec / 2.0;
+        return (rssi_dec / 2.0) - 74.0;
     }
     else
     {
