@@ -278,7 +278,7 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     // . bit  3:   unused
     // . bit  2:   1  -> CRC enabled
     // . bits 1:0: xx -> Packet length mode. Taken from radio config.
-    reg_word = arguments->whitening<<6 + 0x04 + (int) radio_parms->packet_config;
+    reg_word = (arguments->whitening<<6) + 0x04 + (int) radio_parms->packet_config;
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_PKTCTRL0, reg_word); // Packet automation control.
 
     // PKTCTRL1: Packet automation control #1
