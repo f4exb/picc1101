@@ -640,6 +640,7 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 
     memset(tx_buf, ' ', PI_CCxxx0_FIFO_SIZE);
     memcpy(tx_buf, arguments->test_phrase, tx_length);
+    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFTX);
 
     fprintf(stderr, "Sending test packet of size %d %d times\n", tx_length, arguments->test_repetition);
 
@@ -648,7 +649,7 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
         ret = PI_CC_SPIWriteBurstReg(spi_parms, PI_CCxxx0_TXFIFO, tx_buf, tx_length);
         fprintf(stderr, "%d\n", ret);
         sleep(1);
-        ret = PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFTX);
+        ret = PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX);
     }
 
     print_radio_status(spi_parms);
