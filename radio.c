@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "main.h"
 #include "radio.h"
@@ -747,7 +748,7 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
             break;
         }
 
-        sleep(1);
+        usleep(1000);
     }
 
     print_radio_status(spi_parms);
@@ -777,7 +778,7 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
                 break;
             }
 
-            sleep(1);
+            usleep(100000);
         }
 
         fprintf(stderr, "\"%s\"\n", rx_buf);
