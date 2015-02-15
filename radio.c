@@ -599,7 +599,7 @@ int  print_radio_status(spi_parms_t *spi_parms)
     fprintf(stderr, "CRC OK ................: %d\n", ((regs[3] & 0x80)>>7));
     fprintf(stderr, "LQI ...................: %d\n", regs[3] & 0x7F);
     fprintf(stderr, "RSSI ..................: %.1f dBm\n", rssi_dbm);
-    fprintf(stderr, "Radio FSM state .......: %s\n", state_name[regs[5] & 0x1F]);
+    fprintf(stderr, "Radio FSM state .......: %s\n", state_names[regs[5] & 0x1F]);
     fprintf(stderr, "WOR time ..............: %d\n", ((regs[6] << 8) + regs[7]));
     fprintf(stderr, "Carrier Sense .........: %d\n", ((regs[8] & 0x40)>>6));
     fprintf(stderr, "Preamble Qual Reached .: %d\n", ((regs[8] & 0x20)>>5));
