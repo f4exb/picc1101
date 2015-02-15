@@ -136,7 +136,7 @@ static void init_args(arguments_t *arguments)
     arguments->modulation_index = 0.5;
     arguments->freq_hz = 433600000;
     arguments->packet_length = 250;
-    arguments->test-mode = TEST_NONE;
+    arguments->test_mode = TEST_NONE;
     arguments->test_phrase = strdup("Hello, World!");
     arguments->repetition = 1;
     arguments->fec = 0;
@@ -422,7 +422,7 @@ int main (int argc, char **argv)
         radio_transmit_test(&spi_parameters, &arguments);
         return 9;
     }
-    else if (arguments.test_rx)
+    else if (arguments.test_mode == TEST_RX_SIMPLE)
     {
         radio_receive_test(&spi_parameters, &arguments);
         return 0;
