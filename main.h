@@ -25,6 +25,7 @@ typedef enum modulation_e {
 extern char *modulation_names[];
 
 typedef enum rate_e {
+    RATE_110,
     RATE_300,
     RATE_600,
     RATE_1200,

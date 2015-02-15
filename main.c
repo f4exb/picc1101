@@ -38,6 +38,7 @@ char *modulation_names[] = {
 };
 
 uint32_t rate_values[] = {
+    110,
     300,
     600,
     1200,
