@@ -64,6 +64,7 @@ static struct argp_option options[] = {
     {"modulation",  'M', "MODULATION_SCHEME", 0, "Radio modulation scheme, See long help (-H) option"},
     {"rate",  'R', "DATA_RATE_INDEX", 0, "Data rate index, See long help (-H) option"},
     {"fec",  'F', 0, 0, "Activate FEC (default off)"},
+    {"whitening",  'W', 0, 0, "Activate whitening (default off)"},
     {"frequency",  'f', "FREQUENCY_HZ", 0, "Frequency in Hz (default: 433600000)"},
     {"packet-length",  'P', "PACKET_LENGTH", 0, "Packet length, 0 is variable (default: 250)"},
     {"transmit-test",  't', "TEST_PHRASE", 0, "Send a test phrase (default : 0 no test)"},
@@ -129,6 +130,7 @@ static void init_args(arguments_t *arguments)
     arguments->test_phrase = 0;
     arguments->repetition = 1;
     arguments->fec = 0;
+    arguments->whitening = 0;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -163,6 +165,7 @@ static void print_args(arguments_t *arguments)
     fprintf(stderr, "Frequency ...........: %d Hz\n", arguments->freq_hz);
     fprintf(stderr, "Packet length .......: %d bits\n", arguments->packet_length);
     fprintf(stderr, "FEC .................: %s\n", (arguments->fec ? "on" : "off"));
+    fprintf(stderr, "whitening ...........: %s\n", (arguments->whitening ? "on" : "off"));
     fprintf(stderr, "SPI device ..........: %s\n", arguments->spi_device);
 
     if (arguments->test_phrase)
@@ -230,6 +233,10 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
         // Activate FEC
         case 'F':
             arguments->fec = 1;
+            break;
+        // Activate whitening
+        case 'F':
+            arguments->whitening = 1;
             break;
         // Modulation scheme 
         case 'M':

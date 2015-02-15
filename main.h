@@ -52,6 +52,7 @@ typedef struct arguments_s {
     char         *test_phrase;       // Test phrase to transmit
     uint8_t      repetition;         // Repetition factor
     uint8_t      fec;                // Activate FEC
+    uint8_t      whitening;          // Activate whitening
 } arguments_t;
 
 #endif
