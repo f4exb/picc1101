@@ -50,6 +50,7 @@ typedef struct arguments_s {
     uint32_t     freq_hz;            // Frequency in Hz
     uint8_t      packet_length;      // Fixed packet length
     char         *test_phrase;       // Test phrase to transmit
+    uint8_t      test_rx;            // Reception test. Exits after receiving number of repetition packets
     uint8_t      repetition;         // Repetition factor
     uint8_t      fec;                // Activate FEC
     uint8_t      whitening;          // Activate whitening
