@@ -165,7 +165,7 @@ static void print_args(arguments_t *arguments)
     if (arguments->test_phrase)
     {
         fprintf(stderr, "Test phrase .........: %s\n", arguments->test_phrase);
-        fprintf(stderr, "Test repetition .....: %d times\n", arguments->test_repetition);
+        fprintf(stderr, "Test repetition .....: %d times\n", arguments->repetition);
     }
 
     fprintf(stderr, "--- serial ---\n");
