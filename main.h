@@ -46,6 +46,20 @@ typedef enum rate_e {
 
 extern uint32_t rate_values[];
 
+typedef enum preamble_e {
+    PREAMBLE_2,
+    PREAMBLE_3,
+    PREAMBLE_4,
+    PREAMBLE_6,
+    PREAMBLE_8,
+    PREAMBLE_12,
+    PREAMBLE_16,
+    PREAMBLE_24,
+    NUM_PREAMBLE
+} preamble_t;
+
+extern uint32_t nb_preamble_bytes[];
+
 typedef struct arguments_s {
     uint8_t      verbose_level;      // Verbose level
     uint8_t      print_long_help;    // Print a long help and exit
@@ -67,6 +81,7 @@ typedef struct arguments_s {
     uint8_t      repetition;         // Repetition factor
     uint8_t      fec;                // Activate FEC
     uint8_t      whitening;          // Activate whitening
+    preamble_t   preamble;           // Preamblescheme (number of preamble bytes) 
 } arguments_t;
 
 #endif
