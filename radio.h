@@ -52,7 +52,7 @@ typedef struct radio_parms_s
 } radio_parms_t;
 
 extern char  *state_names[];
-extern float *chanbw_limits[];
+extern float chanbw_limits[];
 
 void init_radio_parms(radio_parms_t *radio_parms);
 int  init_radio(radio_parms_t *radio_parms,  spi_parms_t *spi_parms, arguments_t *arguments);
