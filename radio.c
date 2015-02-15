@@ -683,7 +683,7 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
     else
     {
         fprintf(stderr, "Test phrase too long. Truncated to CC1101 FIFO size\n");
-        tx_length = PI_CCxxx0_FIFO_SIZE - 1;
+        tx_length = PI_CCxxx0_FIFO_SIZE;
     }
 
     memset(tx_buf, ' ', PI_CCxxx0_FIFO_SIZE);

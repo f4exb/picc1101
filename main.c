@@ -64,7 +64,7 @@ static struct argp_option options[] = {
     {"modulation",  'M', "MODULATION_SCHEME", 0, "Radio modulation scheme, See long help (-H) option"},
     {"rate",  'R', "DATA_RATE_INDEX", 0, "Data rate index, See long help (-H) option"},
     {"frequency",  'f', "FREQUENCY_HZ", 0, "Frequency in Hz (default: 433600000)"},
-    {"packet-length",  'P', "PACKET_LENGTH", 0, "Fixed packet length (default: 250)"},
+    {"packet-length",  'P', "PACKET_LENGTH", 0, "Packet length, 0 is variable (default: 250)"},
     {"transmit-test",  't', "TEST_PHRASE", 0, "Send a test phrase (default : 0 no test)"},
     {"radio-status",  's', 0, 0, "Print radio status and exit"},
     {0}
