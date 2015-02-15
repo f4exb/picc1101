@@ -51,6 +51,7 @@ typedef struct arguments_s {
     uint8_t      packet_length;      // Fixed packet length
     char         *test_phrase;       // Test phrase to transmit
     uint8_t      repetition;         // Repetition factor
+    uint8_t      fec;                // Activate FEC
 } arguments_t;
 
 #endif

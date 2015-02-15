@@ -341,7 +341,7 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     // o bits 6:4: 2   -> number of preamble bytes (0:2, 1:3, 2:4, 3:6, 4:8, 5:12, 6:16, 7:24)
     // o bits 3:2: unused
     // o bits 1:0: CHANSPC_E: exponent of channel spacing (here: 2)
-    reg_word = 0x20 + radio_parms->chanspc_e;
+    reg_word = 0x20 + radio_parms->chanspc_e + arguments->fec<<7;
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_MDMCFG1,  reg_word); // Modem configuration.
 
     // MODCFG0 Modem configuration: CHANSPC_M: mantissa of channel spacing following this formula:
