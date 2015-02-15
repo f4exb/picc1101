@@ -564,6 +564,8 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     {
         print_radio_parms(radio_parms);
     }
+
+    return 0;
 }
 
 // ------------------------------------------------------------------------------------------------
