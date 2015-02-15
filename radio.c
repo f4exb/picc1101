@@ -61,6 +61,21 @@ static float my_log2f(float x)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Calculate RSSI in dBm from decimal RSSI read out of RSSI status register
+static float rssi_dbm(uint8_t rssi_dec)
+// ------------------------------------------------------------------------------------------------
+{
+    if (rssi_dec < 128)
+    {
+        return rssi_dec / 2.0;
+    }
+    else
+    {
+        return ((rssi_dec - 256) / 2.0) - 74.0;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 // Calculate frequency word FREQ[23..0]
 static uint32_t get_freq_word(uint32_t freq_xtal, uint32_t freq_hz)
 // ------------------------------------------------------------------------------------------------
@@ -575,9 +590,7 @@ int  print_radio_status(spi_parms_t *spi_parms)
 {
     uint8_t regs[14];
     uint8_t reg_index = PI_CCxxx0_PARTNUM;
-    uint8_t rssi_dec;
     int ret = 0;
-    float rssi_dbm;
 
     memset(regs, 0, 14);
 
@@ -593,23 +606,12 @@ int  print_radio_status(spi_parms_t *spi_parms)
         return ret;
     }
 
-    rssi_dec = regs[4];
-
-    if (rssi_dec < 128)
-    {
-        rssi_dbm = rssi_dec / 2.0;
-    }
-    else
-    {
-        rssi_dbm = ((rssi_dec - 256) / 2.0) - 74.0;
-    }
-
     fprintf(stderr, "Part number ...........: %d\n", regs[0]);
     fprintf(stderr, "Version ...............: %d\n", regs[1]);
     fprintf(stderr, "Freq offset estimate ..: %d\n", regs[2]);
     fprintf(stderr, "CRC OK ................: %d\n", ((regs[3] & 0x80)>>7));
     fprintf(stderr, "LQI ...................: %d\n", regs[3] & 0x7F);
-    fprintf(stderr, "RSSI ..................: %.1f dBm\n", rssi_dbm);
+    fprintf(stderr, "RSSI ..................: %.1f dBm\n", rssi_dbm(regs[4]));
     fprintf(stderr, "Radio FSM state .......: %s\n", state_names[regs[5] & 0x1F]);
     fprintf(stderr, "WOR time ..............: %d\n", ((regs[6] << 8) + regs[7]));
     fprintf(stderr, "Carrier Sense .........: %d\n", ((regs[8] & 0x40)>>6));
@@ -728,7 +730,7 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    uint8_t iterations, rx_bytes, fsm_state;
+    uint8_t iterations, rx_bytes, fsm_state, rssi_dec;
     uint8_t rx_buf[PI_CCxxx0_FIFO_SIZE+1];
     int i;
 
@@ -770,7 +772,8 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
                     fprintf(stderr, "%02X ", spi_parms->rx[1]);   
                 }
 
-                fprintf(stderr, "\n");
+                PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RSSI, &rssi_dec); 
+                fprintf(stderr, "\nRSSI: %.1f dBm\n", rssi_dbm(rssi_dec));
                 break;
             }
 
