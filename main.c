@@ -27,7 +27,7 @@ char *test_mode_names[] = {
     "No test",
     "Simple Tx. Packet < 64 bytes",
     "Simple Rx. Packet < 64 bytes"
-}
+};
 
 char *modulation_names[] = {
     "OOK",
@@ -181,7 +181,7 @@ static void print_args(arguments_t *arguments)
 
     if (arguments->test_mode != TEST_NONE)
     {
-        fprintf(stderr, "Test mode ...........: %s\n", test_mode_names[arguments->test_mode])
+        fprintf(stderr, "Test mode ...........: %s\n", test_mode_names[arguments->test_mode]);
         fprintf(stderr, "Test phrase .........: %s\n", arguments->test_phrase);
         fprintf(stderr, "Test repetition .....: %d times\n", arguments->repetition);
     }
