@@ -672,10 +672,6 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
     uint8_t tx_buf[PI_CCxxx0_FIFO_SIZE];
     int     i, j, ret;
 
-    PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_MDMCFG3, &byte);
-    sleep(1);
-    fprintf(stderr, "Test MDMCFG3: %02X\n", byte);
-
     if (strlen(arguments->test_phrase) < PI_CCxxx0_FIFO_SIZE)
     {
         test_length = strlen(arguments->test_phrase);
@@ -710,7 +706,7 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
     for (i=0; i<arguments->repetition; i++)
     {
         fprintf(stderr, "Test #%d\n", i+1);
-        
+
         for (j=0; j<tx_length; j++)
         {
             PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_TXFIFO, tx_buf[j]);
