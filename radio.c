@@ -220,7 +220,7 @@ static void get_rate_words(rate_t rate_code, modulation_t modulation_code, radio
 
     drate = (double) rate_values[rate_code];
 
-    if ((arguments->modulation_code == MOD_FSK4) && (drate > 300000.0))
+    if ((modulation_code == MOD_FSK4) && (drate > 300000.0))
     {
         fprintf(stderr, "RADIO: forcibly set data rate to 300 kBaud for 4-FSK\n");
         drate = 300000.0;
