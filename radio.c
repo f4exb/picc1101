@@ -808,7 +808,7 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
                         PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RXFIFO, &garbage_byte); 
                     }
 
-                    fprintf(stderr, "%02X:%02X ", spi_parms->rx[0], spi_parms->rx[1]);   
+                    fprintf(stderr, "%X:%02X ", spi_parms->rx[0] & 0x0F, spi_parms->rx[1]);   
                 }
 
                 PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RSSI, &rssi_dec); 
