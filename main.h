@@ -50,7 +50,7 @@ typedef struct arguments_s {
     uint32_t     freq_hz;            // Frequency in Hz
     uint8_t      packet_length;      // Fixed packet length
     char         *test_phrase;       // Test phrase to transmit
-    uint8_t      test_repetition;    // Test transmission repetition
+    uint8_t      repetition;         // Repetition factor
 } arguments_t;
 
 #endif

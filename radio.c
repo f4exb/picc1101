@@ -707,7 +707,7 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 
     fprintf(stderr, "Sending test packet of size %d %d times\n", tx_length, arguments->test_repetition);
 
-    for (i=0; i<arguments->test_repetition; i++)
+    for (i=0; i<arguments->repetition; i++)
     {
         for (j=0; j<tx_length; j++)
         {

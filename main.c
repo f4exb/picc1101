@@ -66,6 +66,7 @@ static struct argp_option options[] = {
     {"frequency",  'f', "FREQUENCY_HZ", 0, "Frequency in Hz (default: 433600000)"},
     {"packet-length",  'P', "PACKET_LENGTH", 0, "Packet length, 0 is variable (default: 250)"},
     {"transmit-test",  't', "TEST_PHRASE", 0, "Send a test phrase (default : 0 no test)"},
+    {"repetition",  'n', "REPETITION", 0, "Repetiton factor wherever appropriate, see long Help (-H) option (default : 1 single)"},
     {"radio-status",  's', 0, 0, "Print radio status and exit"},
     {0}
 };
@@ -102,6 +103,10 @@ static void print_long_help()
     {
         fprintf(stderr, "%2d\t%d\n", i, rate_values[i]);
     }
+
+    fprintf(stderr, "\nRepetition factor option -n values\n");    
+    fprintf(stderr, "- for test transmissions (-t option) this is the repetition of the same test packet\n");
+
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -121,7 +126,7 @@ static void init_args(arguments_t *arguments)
     arguments->freq_hz = 433600000;
     arguments->packet_length = 250;
     arguments->test_phrase = 0;
-    arguments->test_repetition = 1;
+    arguments->repetition = 1;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -241,9 +246,15 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
             if (*end)
                 argp_usage(state);
             break; 
-        // Fixed packet length
+        // Packet length
         case 'P':
             arguments->packet_length = strtol(arg, &end, 10) % 256;
+            if (*end)
+                argp_usage(state);
+            break; 
+        // Repetition factor
+        case 'n':
+            arguments->repetition = strtol(arg, &end, 10);
             if (*end)
                 argp_usage(state);
             break; 
