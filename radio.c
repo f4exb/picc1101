@@ -742,7 +742,16 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 
         fprintf(stderr, "\n");
         ret = PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX);
-        sleep(2);
+        
+        if (rate_values[arguments->rate] < 600)
+        {
+            sleep(4);
+        }
+        else
+        {
+            sleep(2);
+        }
+
         print_radio_status(spi_parms);
     }
 }
