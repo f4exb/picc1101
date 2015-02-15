@@ -759,8 +759,9 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
             PI_CC_SPIReadStatus(spi_parms, PI_CCxxx0_RXBYTES, &rx_bytes);
             rx_bytes &= PI_CCxxx0_NUM_RXBYTES;
 
-            if (rx_bytes == arguments->packet_length)
+            if (rx_bytes > 0)
             {
+                fprintf(stderr, "Received %d bytes\n", rx_bytes);
                 PI_CC_SPIReadBurstReg(spi_parms, PI_CCxxx0_RXFIFO, rx_buf, rx_bytes);
                 break;
             }
