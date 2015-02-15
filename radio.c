@@ -706,6 +706,11 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
         tx_delay *= 2;
     }
 
+    if (tx_delay < 50000ULL) // set a minimum wait time of 50ms
+    {
+        tx_delay = 50000ULL;
+    }
+
     if (arguments->verbose_level > 0)
     {
         fprintf(stderr, "Estimated Tx delay is %lld us\n", tx_delay);
