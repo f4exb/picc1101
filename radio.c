@@ -687,14 +687,19 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 
     for (i=0; i<arguments->test_repetition; i++)
     {
-        ret = PI_CC_SPIWriteBurstReg(spi_parms, PI_CCxxx0_TXFIFO, tx_buf, tx_length);
-        sleep(1);
-        fprintf(stderr, "%d\n", ret);
         for (j=0; j<tx_length; j++)
         {
-            fprintf(stderr, "%02X\n", spi_parms->rx[i]);
+            PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_TXFIFO, tx_buf[j]);
+            fprintf(stderr, "%02X\n", spi_parms->rx[0]);
         }
-        ret = PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX);
+        //ret = PI_CC_SPIWriteBurstReg(spi_parms, PI_CCxxx0_TXFIFO, tx_buf, tx_length);
+        //sleep(1);
+        //fprintf(stderr, "%d\n", ret);
+        //for (j=0; j<tx_length; j++)
+        //{
+        //    fprintf(stderr, "%02X\n", spi_parms->rx[i]);
+        //}
+        //ret = PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX);
     }
 
     print_radio_status(spi_parms);
