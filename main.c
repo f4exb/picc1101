@@ -393,7 +393,7 @@ int main (int argc, char **argv)
     }
     else if (arguments.test_rx)
     {
-        radio_reception_test(&spi_parameters, &arguments);
+        radio_receive_test(&spi_parameters, &arguments);
         return 0;
     }
 
