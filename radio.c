@@ -728,11 +728,25 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    uint8_t iterations, rx_bytes;
+    uint8_t iterations, rx_bytes, fsm_state;
     uint8_t rx_buf[PI_CCxxx0_FIFO_SIZE+1];
 
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX);
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX);
+
+    while(1)
+    {
+        PI_CC_SPIReadStatus(spi_parms, PI_CCxxx0_MARCSTATE, &fsm_state);
+        fsm_state &= 0x1F;
+
+        if (fsm_state == CCxxx0_STATE_RX)
+        {
+            break;
+        }
+
+        sleep(1);
+    }
+
     print_radio_status(spi_parms);
 
     for (iterations=0; iterations<arguments->repetition; iterations++)
