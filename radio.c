@@ -767,7 +767,7 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
             {
                 fprintf(stderr, "Received %d bytes\n", rx_bytes);
 
-                for (i=0; i<rx_bytes; i++)
+                for (i=0; i<arguments->packet_length; i++)
                 {
                     PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RXFIFO, &rx_buf[i]); 
                     fprintf(stderr, "%02X ", spi_parms->rx[1]);   
