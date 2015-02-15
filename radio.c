@@ -662,7 +662,7 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 {
     uint8_t tx_length;
     uint8_t tx_buf[PI_CCxxx0_FIFO_SIZE];
-    int     i, ret;
+    int     i, j, ret;
 
     if (strlen(arguments->test_phrase) < PI_CCxxx0_FIFO_SIZE)
     {
@@ -675,6 +675,7 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
     }
 
     memset(tx_buf, ' ', PI_CCxxx0_FIFO_SIZE);
+    memset(spi_parms->rx, 0, tx_length);
     memcpy(tx_buf, arguments->test_phrase, tx_length);
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFTX);
 
@@ -684,6 +685,10 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
     {
         ret = PI_CC_SPIWriteBurstReg(spi_parms, PI_CCxxx0_TXFIFO, tx_buf, tx_length);
         fprintf(stderr, "%d\n", ret);
+        for (j=0; j<tx_length; j++)
+        {
+            fprintf(stderr, "%02X\n", spi_parms->rx[i]);
+        }
         sleep(1);
         ret = PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX);
     }

@@ -242,7 +242,7 @@ int PI_CC_SPIWriteBurstReg(spi_parms_t *spi_parms, uint8_t addr, uint8_t *buffer
     count %= 64;
     spi_parms->tx[0] = addr | PI_CCxxx0_WRITE_BURST;   // Send address
 
-    for (i=1; i<count; i++)
+    for (i=1; i<count+1; i++)
     {
         spi_parms->tx[i] = buffer[i-1];
     }
@@ -288,7 +288,7 @@ int PI_CC_SPIReadBurstReg(spi_parms_t *spi_parms, uint8_t addr, const uint8_t *b
     count %= 64;
     spi_parms->tx[0] = addr | PI_CCxxx0_READ_BURST;   // Send address
 
-    for (i=1; i<count; i++)
+    for (i=1; i<count+1; i++)
     {
         spi_parms->tx[i] = 0; // Dummy write so we can read data
     }
