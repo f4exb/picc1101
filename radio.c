@@ -196,9 +196,14 @@ static void get_rate_words(rate_t rate_code, modulation_t modulation_code, radio
 
     radio_parms->drate_e = (uint8_t) (floor(log2( drate*(1<<20) / f_xtal )));
     radio_parms->drate_m = (uint8_t) (((drate*(1<<28)) / (f_xtal * (1<<radio_parms->drate_e))) - 256);
+    radio_parms->drate_e &= 0x0F; // it is 4 bits long
 
     radio_parms->deviat_e = (uint8_t) (floor(log2( deviat*(1<<14) / f_xtal )));
     radio_parms->deviat_m = (uint8_t) (((deviat*(1<<17)) / (f_xtal * (1<<radio_parms->deviat_e))) - 8);
+    radio_parms->deviat_e &= 0x07; // it is 3 bits long
+    radio_parms->deviat_m &= 0x07; // it is 3 bits long
+
+    radio_parms->chanspc_e &= 0x03; // it is 2 bits long
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -315,12 +320,13 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     //      Factory defaults: M=0, E=1 => BW = 26/128 ~ 203 kHz
     // Low nibble:
     // . bits 3:0: 13 -> DRATE_E: data rate base 2 exponent => here 13 (multiply by 8192)
-    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_MDMCFG4,  0x2D); // Modem configuration.
+    reg_word = (radio_parms->chanbw_e<<6) + (radio_parms->chanbw_m<<4) + radio_parms->drate_e;
+    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_MDMCFG4,  reg_word); // Modem configuration.
 
     // MODCFG3 Modem configuration: DRATE_M data rate mantissa as per formula:
     //    Rate = (256 + DRATE_M).2^DRATE_E.Fxosc / 2^28 
     // Here DRATE_M = 59, DRATE_E = 13 => Rate = 250 kBaud
-    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_MDMCFG3,  0x3B); // Modem configuration.
+    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_MDMCFG3,  radio_parms->drate_m); // Modem configuration.
 
     // MODCFG2 Modem configuration: DC block, modulation, Manchester, sync word
     // o bit 7:    0   -> Enable DC blocking (1: disable)
@@ -335,12 +341,13 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     // o bits 6:4: 2   -> number of preamble bytes (0:2, 1:3, 2:4, 3:6, 4:8, 5:12, 6:16, 7:24)
     // o bits 3:2: unused
     // o bits 1:0: CHANSPC_E: exponent of channel spacing (here: 2)
-    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_MDMCFG1,  0x22); // Modem configuration.
+    reg_word = 0x20 + radio_parms->chanspc_e;
+    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_MDMCFG1,  reg_word); // Modem configuration.
 
     // MODCFG0 Modem configuration: CHANSPC_M: mantissa of channel spacing following this formula:
     //    Df = (Fxosc / 2^18) * (256 + CHANSPC_M) * 2^CHANSPC_E
     //    Here: (26 /  ) * 2016 = 0.199951171875 MHz (200 kHz)
-    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_MDMCFG0,  0xF8); // Modem configuration.
+    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_MDMCFG0,  radio_parms->chanspc_m); // Modem configuration.
 
     // DEVIATN: Modem deviation
     // o bit 7:    0   -> not used
@@ -358,7 +365,8 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     //
     //   OOK      : No effect
     //    
-    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_DEVIATN,  0x00); // Modem dev (when FSK mod en)
+    reg_word = (radio_parms->deviat_e<<4) + (radio_parms->deviat_m);
+    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_DEVIATN,  reg_word); // Modem dev (when FSK mod en)
 
     // MCSM2: Main Radio State Machine. See documentation.
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_MCSM2 ,   0x00); //MainRadio Cntrl State Machine
@@ -687,13 +695,12 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 
     for (i=0; i<arguments->test_repetition; i++)
     {
-        /*
         for (j=0; j<tx_length; j++)
         {
             PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_TXFIFO, tx_buf[j]);
             fprintf(stderr, "%02X\n", spi_parms->rx[0]);
         }
-        */
+        /*
         ret = PI_CC_SPIWriteBurstReg(spi_parms, PI_CCxxx0_TXFIFO, tx_buf, tx_length);
         sleep(1);
         fprintf(stderr, "%d\n", ret);
@@ -701,6 +708,7 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
         {
             fprintf(stderr, "%02X\n", spi_parms->rx[i]);
         }
+        */
         ret = PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX);
     }
 

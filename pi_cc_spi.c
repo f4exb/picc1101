@@ -113,10 +113,11 @@ void PI_CC_SPIParmsDefaults(spi_parms_t *spi_parms)
 {
     spi_parms->mode             = 0;
     spi_parms->bits             = 8;
-    spi_parms->speed            = 100000;
-    spi_parms->delay            = 100;
+    spi_parms->speed            = 1000000;
+    spi_parms->delay            = 4;
     spi_parms->fd               = 0;
     spi_parms->ret              = 0;
+    
     spi_parms->tr.tx_buf        = (unsigned long) spi_parms->tx;
     spi_parms->tr.rx_buf        = (unsigned long) spi_parms->rx;
     spi_parms->tr.len           = 0;
