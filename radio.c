@@ -549,7 +549,7 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_TEST1,    0x31); // Various test settings.
 
     // TEST0: Various test settings. The value to write in this field is given by the SmartRF Studio software.
-    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_TEST0,    0x0B); // Various test settings.
+    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_TEST0,    0x09); // Various test settings.
 
     if (arguments->verbose_level > 0)
     {
@@ -683,8 +683,6 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 
     for (i=0; i<arguments->test_repetition; i++)
     {
-        ret = PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX);
-        sleep(1);
         ret = PI_CC_SPIWriteBurstReg(spi_parms, PI_CCxxx0_TXFIFO, tx_buf, tx_length);
         sleep(1);
         fprintf(stderr, "%d\n", ret);
@@ -692,6 +690,7 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
         {
             fprintf(stderr, "%02X\n", spi_parms->rx[i]);
         }
+        ret = PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX);
     }
 
     print_radio_status(spi_parms);
