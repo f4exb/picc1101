@@ -762,7 +762,14 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
             if (rx_bytes > 0)
             {
                 fprintf(stderr, "Received %d bytes\n", rx_bytes);
-                PI_CC_SPIReadBurstReg(spi_parms, PI_CCxxx0_RXFIFO, rx_buf, rx_bytes);
+
+                for (i=0; i<rx_bytes; i++)
+                {
+                    PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RXFIFO, &rx_buf[i]); 
+                    fprintf(stderr, "%02X ", spi_parms->rx[1]);   
+                }
+
+                fprintf(stderr, "\n");
                 break;
             }
 
