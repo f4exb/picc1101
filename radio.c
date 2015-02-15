@@ -699,7 +699,7 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
         //{
         //    fprintf(stderr, "%02X\n", spi_parms->rx[i]);
         //}
-        //ret = PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX);
+        ret = PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX);
     }
 
     print_radio_status(spi_parms);
