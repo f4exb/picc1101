@@ -709,6 +709,8 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 
     for (i=0; i<arguments->repetition; i++)
     {
+        fprintf(stderr, "Test #%d\n", i+1);
+        
         for (j=0; j<tx_length; j++)
         {
             PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_TXFIFO, tx_buf[j]);
