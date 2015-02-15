@@ -51,6 +51,8 @@ typedef struct radio_parms_s
 	uint8_t         deviat_e;      // Deviation exponent
 } radio_parms_t;
 
+extern char *state_names[];
+
 void init_radio_parms(radio_parms_t *radio_parms);
 int  init_radio(radio_parms_t *radio_parms,  spi_parms_t *spi_parms, arguments_t *arguments);
 int  radio_set_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len);

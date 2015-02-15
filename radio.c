@@ -17,6 +17,42 @@
 #include "pi_cc_spi.h"
 #include "pi_cc_cc1100-cc2500.h"
 
+char *state_names[] = {
+    "SLEEP",            // 00
+    "IDLE",             // 01
+    "XOFF",             // 02
+    "VCOON_MC",         // 03
+    "REGON_MC",         // 04
+    "MANCAL",           // 05
+    "VCOON",            // 06
+    "REGON",            // 07
+    "STARTCAL",         // 08
+    "BWBOOST",          // 09
+    "FS_LOCK",          // 10
+    "IFADCON",          // 11
+    "ENDCAL",           // 12
+    "RX",               // 13
+    "RX_END",           // 14
+    "RX_RST",           // 15
+    "TXRX_SWITCH",      // 16
+    "RXFIFO_OVERFLOW",  // 17
+    "FSTXON",           // 18
+    "TX",               // 19
+    "TX_END",           // 20
+    "RXTX_SWITCH",      // 21
+    "TXFIFO_UNDERFLOW", // 22
+    "undefined",        // 23
+    "undefined",        // 24
+    "undefined",        // 25
+    "undefined",        // 26
+    "undefined",        // 27
+    "undefined",        // 28
+    "undefined",        // 29
+    "undefined",        // 30
+    "undefined"         // 31
+};
+
+
 // ------------------------------------------------------------------------------------------------
 static float my_log2f(float x)
 // ------------------------------------------------------------------------------------------------
@@ -563,7 +599,7 @@ int  print_radio_status(spi_parms_t *spi_parms)
     fprintf(stderr, "CRC OK ................: %d\n", ((regs[3] & 0x80)>>7));
     fprintf(stderr, "LQI ...................: %d\n", regs[3] & 0x7F);
     fprintf(stderr, "RSSI ..................: %.1f dBm\n", rssi_dbm);
-    fprintf(stderr, "Radio FSM state # .....: %d\n", regs[5] & 0x1F);
+    fprintf(stderr, "Radio FSM state .......: %s\n", state_name[regs[5] & 0x1F]);
     fprintf(stderr, "WOR time ..............: %d\n", ((regs[6] << 8) + regs[7]));
     fprintf(stderr, "Carrier Sense .........: %d\n", ((regs[8] & 0x40)>>6));
     fprintf(stderr, "Preamble Qual Reached .: %d\n", ((regs[8] & 0x20)>>5));
