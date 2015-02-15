@@ -247,7 +247,7 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
             arguments->whitening = 1;
             break;
         // Reception test
-        case 'W':
+        case 'r':
             arguments->test_rx = 1;
             break;
         // Modulation scheme 
@@ -390,6 +390,11 @@ int main (int argc, char **argv)
     {
         radio_transmit_test(&spi_parameters, &arguments);
         return 9;
+    }
+    else if (arguments.test_rx)
+    {
+        radio_reception_test(&spi_parameters, &arguments);
+        return 0;
     }
 
     set_serial_parameters(&serial_parameters, &arguments);
