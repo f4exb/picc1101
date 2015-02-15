@@ -730,6 +730,7 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
 {
     uint8_t iterations, rx_bytes, fsm_state;
     uint8_t rx_buf[PI_CCxxx0_FIFO_SIZE+1];
+    int i;
 
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX);
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX);
