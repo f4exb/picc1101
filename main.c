@@ -121,7 +121,7 @@ static void init_args(arguments_t *arguments)
     arguments->freq_hz = 433600000;
     arguments->packet_length = 250;
     arguments->test_phrase = 0;
-    arguments->test_repetition = 10;
+    arguments->test_repetition = 1;
 }
 
 // ------------------------------------------------------------------------------------------------
