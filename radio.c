@@ -53,6 +53,25 @@ char *state_names[] = {
     "undefined"         // 31
 };
 
+// 4x4 channel bandwidth limits
+float chanbw_limits[] = {
+    812000.0,
+    650000.0,
+    541000.0,
+    464000.0,
+    406000.0,
+    325000.0,
+    270000.0,
+    232000.0,
+    203000.0,
+    162000.0,
+    135000.0,
+    116000.0,
+    102000.0,
+    81000.0,
+    68000.0,
+    58000.0
+};
 
 // ------------------------------------------------------------------------------------------------
 static float my_log2f(float x)
@@ -126,86 +145,23 @@ static uint8_t get_mod_word(modulation_t modulation_code)
 static void get_chanbw_words(float bw, radio_parms_t *radio_parms)
 // ------------------------------------------------------------------------------------------------
 {
-    if (bw < 58000.0)
+    uint8_t e_index, m_index;
+
+    for (e_index=0; e_index<4; e_index++)
     {
-        radio_parms->chanbw_m = 3; // 58 kHz (minimum available)
-        radio_parms->chanbw_e = 3;
+        for (m_index=0; m_index<4; m_index++)
+        {
+            if (bw > chanbw_limits[4*e_index + m_index])
+            {
+                radio_parms->chanbw_e = e_index;
+                radio_parms->chanbw_m = m_index;
+                return;
+            }
+        }
     }
-    else if (bw < 68000.0)
-    {
-        radio_parms->chanbw_m = 2; // 68 kHz
-        radio_parms->chanbw_e = 3;
-    }
-    else if (bw < 81000.0)
-    {
-        radio_parms->chanbw_m = 1; // 81 kHz
-        radio_parms->chanbw_e = 3;
-    }
-    else if (bw < 102000.0)
-    {
-        radio_parms->chanbw_m = 0; // 81 kHz
-        radio_parms->chanbw_e = 3;
-    }
-    else if (bw < 116000.0)
-    {
-        radio_parms->chanbw_m = 3; // 116 kHz
-        radio_parms->chanbw_e = 2;
-    }
-    else if (bw < 135000.0)
-    {
-        radio_parms->chanbw_m = 2; // 135 kHz
-        radio_parms->chanbw_e = 2;
-    }
-    else if (bw < 162000.0)
-    {
-        radio_parms->chanbw_m = 1; // 162 kHz
-        radio_parms->chanbw_e = 2;
-    }
-    else if (bw < 203000.0)
-    {
-        radio_parms->chanbw_m = 0; // 203 kHz
-        radio_parms->chanbw_e = 2;
-    }
-    else if (bw < 232000.0)
-    {
-        radio_parms->chanbw_m = 3; // 232 kHz
-        radio_parms->chanbw_e = 1;
-    }
-    else if (bw < 270000.0)
-    {
-        radio_parms->chanbw_m = 2; // 270 kHz
-        radio_parms->chanbw_e = 1;
-    }
-    else if (bw < 325000.0)
-    {
-        radio_parms->chanbw_m = 1; // 325 kHz
-        radio_parms->chanbw_e = 1;
-    }
-    else if (bw < 406000.0)
-    {
-        radio_parms->chanbw_m = 0; // 406 kHz
-        radio_parms->chanbw_e = 1;
-    }
-    else if (bw < 464000.0)
-    {
-        radio_parms->chanbw_m = 3; // 406 kHz
-        radio_parms->chanbw_e = 0;
-    }
-    else if (bw < 541000.0)
-    {
-        radio_parms->chanbw_m = 2; // 541 kHz
-        radio_parms->chanbw_e = 0;
-    }
-    else if (bw < 650000.0)
-    {
-        radio_parms->chanbw_m = 1; // 650 kHz
-        radio_parms->chanbw_e = 0;
-    }
-    else
-    {
-        radio_parms->chanbw_m = 0; // 812 kHz (maximum available)
-        radio_parms->chanbw_e = 0;
-    }
+
+    radio_parms->chanbw_e = 3;
+    radio_parms->chanbw_m = 3;
 }
 
 // ------------------------------------------------------------------------------------------------
