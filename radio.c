@@ -705,7 +705,7 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
     radio_set_packet_length(spi_parms, tx_length);
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFTX);
 
-    fprintf(stderr, "Sending test packet of size %d %d times\n", tx_length, arguments->test_repetition);
+    fprintf(stderr, "Sending test packet of size %d %d times\n", tx_length, arguments->repetition);
 
     for (i=0; i<arguments->repetition; i++)
     {
