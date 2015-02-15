@@ -655,15 +655,15 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
     uint8_t  tx_buf[PI_CCxxx0_FIFO_SIZE];
     int      i, j, ret;
     uint32_t payload_fec = 4 + arguments->packet_length; // Number of bytes that can be protected by FEC
-    uint64_t tx_delay; // Delay in microseconds for message transmission. Take 16 bytes guard interval. 
+    uint64_t tx_delay; // Delay in microseconds for message transmission. Take 8 bytes guard interval. 
 
     if (arguments->fec) // twice the payload delay if FEC is engaged
     {
-        tx_delay = (8000000ULL * (nb_preamble_bytes[arguments->preamble] + 4 + 2*payload_fec + 16)) / rate_values[arguments->rate];
+        tx_delay = (8000000ULL * (nb_preamble_bytes[arguments->preamble] + 4 + 2*payload_fec + 8)) / rate_values[arguments->rate];
     }
     else
     {
-        tx_delay = (8000000ULL * (nb_preamble_bytes[arguments->preamble] + 4 + payload_fec + 16)) / rate_values[arguments->rate];   
+        tx_delay = (8000000ULL * (nb_preamble_bytes[arguments->preamble] + 4 + payload_fec + 8)) / rate_values[arguments->rate];   
     }
 
     if (tx_delay < 100000ULL) // set a minimum wait time of 100ms
