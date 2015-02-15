@@ -23,6 +23,12 @@ serial_t      serial_parameters;
 spi_parms_t   spi_parameters;
 radio_parms_t radio_parameters;
 
+char *test_mode_names[] = {
+    "No test",
+    "Simple Tx. Packet < 64 bytes",
+    "Simple Rx. Packet < 64 bytes"
+}
+
 char *modulation_names[] = {
     "OOK",
     "2-FSK",
@@ -68,8 +74,8 @@ static struct argp_option options[] = {
     {"whitening",  'W', 0, 0, "Activate whitening (default off)"},
     {"frequency",  'f', "FREQUENCY_HZ", 0, "Frequency in Hz (default: 433600000)"},
     {"packet-length",  'P', "PACKET_LENGTH", 0, "Packet length, 0 is variable (default: 250)"},
-    {"transmit-test",  't', "TEST_PHRASE", 0, "Send a test phrase (default : 0 no test)"},
-    {"receive-test",  'r', 0, 0, "Reception test. Exits after receiving number of repetition packets"},
+    {"test-mode",  't', "TEST_SCHEME", 0, "Test scheme, See long help (-H) option fpr details (default : 0 no test)"},
+    {"test-phrase",  'y', "TEST_PHRASE", 0, "Set a test phrase to be used in test (default : \"Hello, World!\")"},
     {"repetition",  'n', "REPETITION", 0, "Repetiton factor wherever appropriate, see long Help (-H) option (default : 1 single)"},
     {"radio-status",  's', 0, 0, "Print radio status and exit"},
     {0}
@@ -130,8 +136,8 @@ static void init_args(arguments_t *arguments)
     arguments->modulation_index = 0.5;
     arguments->freq_hz = 433600000;
     arguments->packet_length = 250;
-    arguments->test_phrase = 0;
-    arguments->test_rx = 0;
+    arguments->test-mode = TEST_NONE;
+    arguments->test_phrase = strdup("Hello, World!");
     arguments->repetition = 1;
     arguments->fec = 0;
     arguments->whitening = 0;
@@ -173,21 +179,31 @@ static void print_args(arguments_t *arguments)
     fprintf(stderr, "Whitening ...........: %s\n", (arguments->whitening ? "on" : "off"));
     fprintf(stderr, "SPI device ..........: %s\n", arguments->spi_device);
 
-    if (arguments->test_phrase)
+    if (arguments->test_mode != TEST_NONE)
     {
+        fprintf(stderr, "Test mode ...........: %s\n", test_mode_names[arguments->test_mode])
         fprintf(stderr, "Test phrase .........: %s\n", arguments->test_phrase);
         fprintf(stderr, "Test repetition .....: %d times\n", arguments->repetition);
-    }
-
-    if (arguments->test_rx)
-    {
-        fprintf(stderr, "Test receoption .....: on\n");
-        fprintf(stderr, "Exit after ..........: %d received packets\n", arguments->repetition);
     }
 
     fprintf(stderr, "--- serial ---\n");
     fprintf(stderr, "TNC device ..........: %s\n", arguments->serial_device);
     fprintf(stderr, "TNC speed ...........: %d Baud\n", arguments->serial_speed_n);
+}
+
+// ------------------------------------------------------------------------------------------------
+// Get test scheme from index
+static test_mode_t get_test_scheme(uint8_t test_mode_index)
+// ------------------------------------------------------------------------------------------------
+{
+    if (test_mode_index < NUM_TEST)
+    {
+        return (test_mode_t) test_mode_index;
+    }
+    else
+    {
+        return TEST_NONE;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -261,6 +277,14 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
             else
                 arguments->modulation = get_modulation_scheme(i8);
             break;
+        // Test scheme 
+        case 't':
+            i8 = strtol(arg, &end, 10); 
+            if (*end)
+                argp_usage(state);
+            else
+                arguments->test_mode = get_test_scheme(i8);
+            break;
         // Radio data rate 
         case 'R':
             i8 = strtol(arg, &end, 10); 
@@ -304,7 +328,7 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
             arguments->spi_device = strdup(arg);
             break;
         // Transmission test phrase
-        case 't':
+        case 'y':
             arguments->test_phrase = strdup(arg);
             break;
         // Print radio status and exit
@@ -393,7 +417,7 @@ int main (int argc, char **argv)
         print_radio_status(&spi_parameters);
         return 0;
     }
-    else if (arguments.test_phrase)
+    else if (arguments.test_mode == TEST_TX_SIMPLE)
     {
         radio_transmit_test(&spi_parameters, &arguments);
         return 9;

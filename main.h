@@ -4,6 +4,15 @@
 #include <inttypes.h>
 #include <termios.h> 
 
+typedef enum test_mode_e {
+    TEST_NONE = 0,
+    TEST_TX_SIMPLE,
+    TEST_RX_SIMPLE,
+    NUM_TEST
+} test_mode_t;
+
+extern char *test_mode_names[];
+
 typedef enum modulation_e {
     MOD_OOK,
     MOD_FSK2,
