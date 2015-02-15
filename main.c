@@ -154,7 +154,7 @@ static void init_args(arguments_t *arguments)
     arguments->repetition = 1;
     arguments->fec = 0;
     arguments->whitening = 0;
-    arguments-preamble = PREAMBLE_4;
+    arguments->preamble = PREAMBLE_4;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -189,7 +189,7 @@ static void print_args(arguments_t *arguments)
     fprintf(stderr, "Modulation index ....: %.2f\n", arguments->modulation_index);
     fprintf(stderr, "Frequency ...........: %d Hz\n", arguments->freq_hz);
     fprintf(stderr, "Packet length .......: %d bits\n", arguments->packet_length);
-    fprintf(stderr, "Preamble size .......: %d bytes\n", nb_preamble_bytes[arguments->Preamble]);
+    fprintf(stderr, "Preamble size .......: %d bytes\n", nb_preamble_bytes[arguments->preamble]);
     fprintf(stderr, "FEC .................: %s\n", (arguments->fec ? "on" : "off"));
     fprintf(stderr, "Whitening ...........: %s\n", (arguments->whitening ? "on" : "off"));
     fprintf(stderr, "SPI device ..........: %s\n", arguments->spi_device);
