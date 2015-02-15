@@ -660,9 +660,13 @@ int radio_set_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len)
 int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    uint8_t tx_length;
+    uint8_t tx_length, byte;
     uint8_t tx_buf[PI_CCxxx0_FIFO_SIZE];
     int     i, j, ret;
+
+    PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_MDMCFG3, &byte);
+    sleep(1);
+    fprintf(stderr, "Test MDMCFG3: %02X\n", byte);
 
     if (strlen(arguments->test_phrase) < PI_CCxxx0_FIFO_SIZE)
     {
