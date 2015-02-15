@@ -731,7 +731,7 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    uint8_t iterations, rx_bytes, fsm_state, rssi_dec;
+    uint8_t iterations, rx_bytes, fsm_state, rssi_dec, garbage_byte;
     uint8_t rx_buf[PI_CCxxx0_FIFO_SIZE+1];
     int i;
 
@@ -767,14 +767,23 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
             {
                 fprintf(stderr, "Received %d bytes\n", rx_bytes);
 
-                for (i=0; i<arguments->packet_length; i++)
+                for (i=0; i<rx_bytes; i++)
                 {
-                    PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RXFIFO, &rx_buf[i]); 
+                    if (i<arguments->packet_length)
+                    {
+                        PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RXFIFO, &rx_buf[i]);    
+                    }
+                    else
+                    {
+                        PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RXFIFO, &garbage_byte); 
+                    }
+
                     fprintf(stderr, "%02X ", spi_parms->rx[1]);   
                 }
 
                 PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RSSI, &rssi_dec); 
                 fprintf(stderr, "\nRSSI: %.1f dBm\n", rssi_dbm(rssi_dec));
+                
                 break;
             }
 
