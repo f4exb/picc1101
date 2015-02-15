@@ -684,12 +684,12 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
     for (i=0; i<arguments->test_repetition; i++)
     {
         ret = PI_CC_SPIWriteBurstReg(spi_parms, PI_CCxxx0_TXFIFO, tx_buf, tx_length);
+        sleep(1);
         fprintf(stderr, "%d\n", ret);
         for (j=0; j<tx_length; j++)
         {
             fprintf(stderr, "%02X\n", spi_parms->rx[i]);
         }
-        sleep(1);
         ret = PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX);
     }
 
