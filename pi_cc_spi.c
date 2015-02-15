@@ -114,7 +114,7 @@ void PI_CC_SPIParmsDefaults(spi_parms_t *spi_parms)
     spi_parms->mode   = 0;
     spi_parms->bits   = 8;
     spi_parms->speed  = 500000;
-    spi_parms->delay  = 0;
+    spi_parms->delay  = 100;
     spi_parms->fd     = 0;
     spi_parms->ret    = 0;
     spi_parms->tr.tx_buf        = (unsigned long) spi_parms->tx;
@@ -206,6 +206,7 @@ int PI_CC_SPISetup(spi_parms_t *spi_parms, arguments_t *arguments)
             fprintf(stderr, "-- SPI --\n");
             fprintf(stderr, "SPI mode ............: %d\n", spi_parms->mode);
             fprintf(stderr, "Bits per word .......: %d\n", spi_parms->bits);
+            fprintf(stderr, "Interbyte delay .....: %d\n us", spi_parms->delay);
             fprintf(stderr, "Max speed ...........: %d Hz (%d KHz)\n", spi_parms->speed, spi_parms->speed/1000);
         }
     }
