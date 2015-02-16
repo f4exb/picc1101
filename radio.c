@@ -816,7 +816,7 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
                 fprintf(stderr, "\nRSSI: %.1f dBm. LQI=%d. CRC=%d\n", 
                     rssi_dbm(rssi_dec),
                     crc_lqi & PI_CCxxx0_LQI_RX,
-                    crc_lqi & PI_CCxxx0_CRC_OK);
+                    (crc_lqi & PI_CCxxx0_CRC_OK)>>7);
 
                 break;
             }
