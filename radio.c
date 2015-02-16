@@ -791,10 +791,9 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
 
             if (!(x_byte & 0x01) && pkt_on) // packet received
             {
-                PI_CC_SPIReadStatus(spi_parms, PI_CCxxx0_LQI, &x_byte);
                 PI_CC_SPIReadStatus(spi_parms, PI_CCxxx0_RXBYTES, &rx_bytes);
                 rx_bytes &= PI_CCxxx0_NUM_RXBYTES;
-                fprintf(stderr, "Received %d bytes. CRC=%d\n", rx_bytes, (x_byte & PI_CCxxx0_CRC_OK));
+                fprintf(stderr, "Received %d bytes\n", rx_bytes);
 
                 for (i=0; i<rx_bytes; i++)
                 {
@@ -811,7 +810,7 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
                 }
 
                 PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RSSI, &rssi_dec); 
-                fprintf(stderr, "\nRSSI: %.1f dBm. LQI=%d\n", rssi_dbm(rssi_dec), (x_byte & PI_CCxxx0_LQI_RX));
+                fprintf(stderr, "\nRSSI: %.1f dBm\n", rssi_dbm(rssi_dec));
 
                 break;
             }
