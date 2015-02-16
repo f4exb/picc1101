@@ -82,7 +82,7 @@ void int_packet_simple(void)
 {
     uint8_t x_byte, int_packet, rx_bytes, rssi_dec, crc_lqi;
     int i;
-    
+
     PI_CC_SPIReadStatus(radio_int_data->spi_parms, PI_CCxxx0_PKTSTATUS, &x_byte); // sense interrupt lines
     int_packet = x_byte & 0x01; // GDO0 (& 0x01) packet interrupt
 
@@ -123,7 +123,7 @@ void int_packet_simple(void)
                         PI_CC_SPIReadReg(radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &crc_lqi);
                     }
 
-                    fprintf(stderr, "%X:%02X ", spi_parms->rx[0] & 0x0F, spi_parms->rx[1]);   
+                    fprintf(stderr, "%X:%02X ", radio_int_data->spi_parms->rx[0] & 0x0F, radio_int_data->spi_parms->rx[1]);   
                 }
 
                 fprintf(stderr, "\nRSSI: %.1f dBm. LQI=%d. CRC=%d\n", 
@@ -145,21 +145,6 @@ static float my_log2f(float x)
 // ------------------------------------------------------------------------------------------------
 {
     return log(x) / log(2.0);
-}
-
-// ------------------------------------------------------------------------------------------------
-// Calculate RSSI in dBm from decimal RSSI read out of RSSI status register
-static float rssi_dbm(uint8_t rssi_dec)
-// ------------------------------------------------------------------------------------------------
-{
-    if (rssi_dec < 128)
-    {
-        return (rssi_dec / 2.0) - 74.0;
-    }
-    else
-    {
-        return ((rssi_dec - 256) / 2.0) - 74.0;
-    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -267,6 +252,21 @@ static void get_rate_words(rate_t rate_code, modulation_t modulation_code, float
 }
 
 // === Public functions ===========================================================================
+
+// ------------------------------------------------------------------------------------------------
+// Calculate RSSI in dBm from decimal RSSI read out of RSSI status register
+float rssi_dbm(uint8_t rssi_dec)
+// ------------------------------------------------------------------------------------------------
+{
+    if (rssi_dec < 128)
+    {
+        return (rssi_dec / 2.0) - 74.0;
+    }
+    else
+    {
+        return ((rssi_dec - 256) / 2.0) - 74.0;
+    }
+}
 
 // ------------------------------------------------------------------------------------------------
 // Set interrupt routines and interrupt data block

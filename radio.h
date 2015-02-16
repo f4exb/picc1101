@@ -87,16 +87,17 @@ typedef struct radio_int_data_s
 extern char  *state_names[];
 extern float chanbw_limits[];
 
-void init_radio_int_data();
-void delete_radio_int_data();
-void init_radio_parms(radio_parms_t *radio_parms);
-int  init_radio(radio_parms_t *radio_parms,  spi_parms_t *spi_parms, arguments_t *arguments);
-int  radio_set_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len);
-void print_radio_parms(radio_parms_t *radio_parms);
-int  print_radio_status(spi_parms_t *spi_parms);
-int  radio_set_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len);
-int  radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments);
-int  radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments);
-int  radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments);
+void  init_radio_int_data();
+void  delete_radio_int_data();
+float rssi_dbm(uint8_t rssi_dec);
+void  init_radio_parms(radio_parms_t *radio_parms);
+int   init_radio(radio_parms_t *radio_parms,  spi_parms_t *spi_parms, arguments_t *arguments);
+int   radio_set_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len);
+void  print_radio_parms(radio_parms_t *radio_parms);
+int   print_radio_status(spi_parms_t *spi_parms);
+int   radio_set_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len);
+int   radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments);
+int   radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments);
+int   radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments);
 
 #endif
