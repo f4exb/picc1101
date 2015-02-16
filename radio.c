@@ -112,7 +112,7 @@ void int_packet_simple(void)
                 {
                     if (i<(rx_bytes-2)) // packet bytes
                     {
-                        PI_CC_SPIReadReg(radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &radio_int_data->rx_buf[i]);    
+                        PI_CC_SPIReadReg(radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &(radio_int_data->rx_buf[i]);    
                     }
                     else if (i == (rx_bytes-2)) // RSSI
                     {
