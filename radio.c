@@ -750,7 +750,7 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    uint8_t iterations, rx_bytes, fsm_state, rssi_dec, garbage_byte, x_byte, pkt_on;
+    uint8_t iterations, rx_bytes, fsm_state, rssi_dec, crc_lqi, x_byte, pkt_on;
     uint8_t rx_buf[PI_CCxxx0_FIFO_SIZE+1];
     int i;
     uint32_t poll_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
@@ -797,20 +797,26 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
 
                 for (i=0; i<rx_bytes; i++)
                 {
-                    if (i<arguments->packet_length)
+                    if (i<arguments->packet_length) // packet bytes
                     {
                         PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RXFIFO, &rx_buf[i]);    
                     }
-                    else
+                    else if (i == arguments->packet_length) // RSSI
                     {
-                        PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RXFIFO, &garbage_byte); 
+                        PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RXFIFO, &rssi_dec); 
+                    }
+                    else // LQI + CRC
+                    {
+                        PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RXFIFO, &crc_lqi);
                     }
 
                     fprintf(stderr, "%X:%02X ", spi_parms->rx[0] & 0x0F, spi_parms->rx[1]);   
                 }
 
-                PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RSSI, &rssi_dec); 
-                fprintf(stderr, "\nRSSI: %.1f dBm\n", rssi_dbm(rssi_dec));
+                fprintf(stderr, "\nRSSI: %.1f dBm. LQI=%d. CRC=%d\n", 
+                    rssi_dbm(rssi_dec),
+                    crc_lqi & PI_CCxxx0_LQI_RX,
+                    crc_lqi & PI_CCxxx0_CRC_OK);
 
                 break;
             }
