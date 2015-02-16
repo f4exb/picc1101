@@ -27,6 +27,7 @@ char *test_mode_names[] = {
     "No test",
     "Simple Tx. Packet < 64 bytes",
     "Simple Rx. Packet < 64 bytes"
+    "Simple Rx with packet interrupt handling. Packet < 64 bytes"
 };
 
 char *modulation_names[] = {
@@ -103,6 +104,7 @@ static void terminate(const int signal_) {
 // ------------------------------------------------------------------------------------------------
     printf("PICC: Terminating with signal %d\n", signal_);
     delete_args(&arguments);
+    delete_radio_int_data();
     exit(1);
 }
 
@@ -441,6 +443,11 @@ int main (int argc, char **argv)
     else if (arguments.test_mode == TEST_RX_SIMPLE)
     {
         radio_receive_test(&spi_parameters, &arguments);
+        return 0;
+    }
+    else if (arguments.test_mode == TEST_RX_INT_SIMPLE)
+    {
+        radio_receive_test_int(&spi_parameters, &arguments);
         return 0;
     }
 

@@ -12,6 +12,9 @@
 
 #include "pi_cc_spi.h"
 
+#define WPI_GDO0 5 // For Wiring Pi, 5 is GPIO_24 connected to GDO0
+#define WPI_GDO2 6 // For Wiring Pi, 6 is GPIO_25 connected to GDO2
+
 typedef enum sync_word_e
 {
 	NO_SYNC = 0,              // No preamble/sync
@@ -51,17 +54,41 @@ typedef struct radio_parms_s
 	uint8_t         deviat_e;      // Deviation exponent
 } radio_parms_t;
 
-typedef enum radio_int_scheme_e {
+typedef enum radio_int_scheme_e 
+{
 	RADIOINT_NONE = 0,   // Do not use interrupts
 	RADIOINT_SIMPLE,     // Interrupts for packets fitting in FIFO
 	RADIOINT_COMPOSITE,  // Interrupts for amy packet length up to 255
 	NUM_RADIOINT
 } radio_int_scheme_t;
 
+typedef enum radio_mode_e
+{
+	RADIOMODE_RX = 0,
+	RADIOMODE_TX,
+	NUM_RADIOMODE
+} radio_mode_t;
+
+typedef struct radio_int_data_s 
+{
+	spi_parms_t  *spi_parms;
+	radio_mode_t mode;
+	uint8_t      terminate;
+	uint32_t     packet_count;
+	uint32_t     packet_limit;
+	uint8_t      tx_buf[255];
+	uint8_t      tx_count;
+	uint8_t      rx_buf[255];
+	uint8_t      rx_count;
+	uint8_t      packet_receive;
+	uint8_t      packet_send;
+} radio_int_data_t;
+
 extern char  *state_names[];
 extern float chanbw_limits[];
 
-void init_radio_isr(radio_int_scheme_t int_scheme);
+void init_radio_int_data();
+void delete_radio_int_data();
 void init_radio_parms(radio_parms_t *radio_parms);
 int  init_radio(radio_parms_t *radio_parms,  spi_parms_t *spi_parms, arguments_t *arguments);
 int  radio_set_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len);
@@ -70,5 +97,6 @@ int  print_radio_status(spi_parms_t *spi_parms);
 int  radio_set_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len);
 int  radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments);
 int  radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments);
+int  radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments);
 
 #endif

@@ -74,6 +74,69 @@ float chanbw_limits[] = {
     58000.0
 };
 
+static volatile radio_int_data_t *radio_int_data = 0;
+
+// === Interupt handlers ==========================================================================
+
+void int_packet_simple(void)
+{
+    uint8_t x_byte, int_packet, rx_bytes, rssi_dec, crc_lqi;
+    PI_CC_SPIReadStatus(radio_int_data->spi_parms, PI_CCxxx0_PKTSTATUS, &x_byte); // sense interrupt lines
+    int_packet = x_byte & 0x01; // GDO0 (& 0x01) packet interrupt
+
+    if (radio_int_data->mode == RADIOMODE_RX)
+    {
+        if (int_packet)
+        {
+            radio_int_data->packet_receive = 1; 
+        }
+        else
+        {
+            if (radio_int_data->packet_receive) // packet has been received
+            {
+                if (radio_int_data->packet_count == radio_int_data->packet_limit)
+                {
+                    radio_int_data->terminate;
+                    return;
+                }
+
+                fprintf(stderr, "Packet #%d\n", radio_int_data->packet_count);
+
+                PI_CC_SPIReadStatus(radio_int_data->spi_parms, PI_CCxxx0_RXBYTES, &rx_bytes);
+                rx_bytes &= PI_CCxxx0_NUM_RXBYTES;
+                fprintf(stderr, "Received %d bytes\n", rx_bytes);
+
+                for (i=0; i<rx_bytes; i++)
+                {
+                    if (i<(rx_bytes-2)) // packet bytes
+                    {
+                        PI_CC_SPIReadReg(radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &radio_int_data->rx_buf[i]);    
+                    }
+                    else if (i == (rx_bytes-2)) // RSSI
+                    {
+                        PI_CC_SPIReadReg(radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &rssi_dec); 
+                    }
+                    else // LQI + CRC
+                    {
+                        PI_CC_SPIReadReg(radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &crc_lqi);
+                    }
+
+                    fprintf(stderr, "%X:%02X ", spi_parms->rx[0] & 0x0F, spi_parms->rx[1]);   
+                }
+
+                fprintf(stderr, "\nRSSI: %.1f dBm. LQI=%d. CRC=%d\n", 
+                    rssi_dbm(rssi_dec),
+                    0x7F - (crc_lqi & 0x7F),
+                    (crc_lqi & PI_CCxxx0_CRC_OK)>>7);
+
+                radio_int_data->packet_count++;
+                radio_int_data->packet_receive = 0;        
+            }
+        }
+    }
+}
+
+// === Static functions ===========================================================================
 
 // ------------------------------------------------------------------------------------------------
 static float my_log2f(float x)
@@ -201,12 +264,29 @@ static void get_rate_words(rate_t rate_code, modulation_t modulation_code, float
     radio_parms->chanspc_e &= 0x03; // it is 2 bits long
 }
 
+// === Public functions ===========================================================================
+
 // ------------------------------------------------------------------------------------------------
-// Set interrupt routines
-void init_radio_isr(radio_int_scheme_t int_scheme)
+// Set interrupt routines and interrupt data block
+void init_radio_int_data(radio_int_scheme_t int_scheme)
 // ------------------------------------------------------------------------------------------------
 {
-    
+    radio_int_data = (radio_int_data_t *) malloc(sizeof radio_int_data_t);
+    radio_int_data->terminate = 0;
+    radio_int_data->packet_count = 0;
+    radio_int_data->packet_receive = 0;
+    radio_int_data->packet_send = 0;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Delete interrupt data block
+void delete_radio_int_data()
+// ------------------------------------------------------------------------------------------------
+{
+    if (radio_int_data)
+    {
+        free(radio_int_data);
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -229,9 +309,6 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
 {
     int ret = 0;
     uint8_t  reg_word;
-
-    // initialize Wiring Pi library and GDOx interrupt routines
-    wiringPiSetup();
 
     // open SPI link
     PI_CC_SPIParmsDefaults(spi_parms);
@@ -743,6 +820,33 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 
         print_radio_status(spi_parms);
     }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Reception test with polling of registers
+int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
+// ------------------------------------------------------------------------------------------------
+{
+    init_radio_int_data();
+
+    radio_int_data->spi_parms = spi_parms;
+    radio_int_data->packet_count = 0;
+    radio_int_data->packet_limit = arguments->repetition;
+    uint32_t wait_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
+
+    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x00); // GDO2 output pin config RX mode
+    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX); // Flush Rx FIFO
+    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX); // Enter Rx mode
+
+    wiringPiSetup(); // initialize Wiring Pi library and GDOx interrupt routines
+    wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet_simple); // set interrupt handler for paket interrupts
+
+    while(!(radio_int_data->terminate))
+    {
+        usleep(wait_us); 
+    }
+
+    delete_radio_int_data();
 }
 
 // ------------------------------------------------------------------------------------------------
