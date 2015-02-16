@@ -81,6 +81,8 @@ static volatile radio_int_data_t *radio_int_data = 0;
 void int_packet_simple(void)
 {
     uint8_t x_byte, int_packet, rx_bytes, rssi_dec, crc_lqi;
+    int i;
+    
     PI_CC_SPIReadStatus(radio_int_data->spi_parms, PI_CCxxx0_PKTSTATUS, &x_byte); // sense interrupt lines
     int_packet = x_byte & 0x01; // GDO0 (& 0x01) packet interrupt
 
