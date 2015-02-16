@@ -739,7 +739,7 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    uint8_t iterations, rx_bytes, fsm_state, rssi_dec, garbage_byte;
+    uint8_t iterations, rx_bytes, fsm_state, rssi_dec, garbage_byte, x_byte, pkt_on;
     uint8_t rx_buf[PI_CCxxx0_FIFO_SIZE+1];
     int i;
     uint32_t poll_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
@@ -766,15 +766,22 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
     for (iterations=0; iterations<arguments->repetition; iterations++)
     {
         fprintf(stderr, "Packet #%d\n", iterations+1);
+        pkt_on = 0; // wait for packet start
         memset(rx_buf, '\0', PI_CCxxx0_FIFO_SIZE+1);
 
         while(1)
         {
-            PI_CC_SPIReadStatus(spi_parms, PI_CCxxx0_RXBYTES, &rx_bytes);
-            rx_bytes &= PI_CCxxx0_NUM_RXBYTES;
+            PI_CC_SPIReadStatus(spi_parms, PI_CCxxx0_PKTSTATUS, &x_byte); // sense GDO0 (& 0x01)
 
-            if (rx_bytes >= arguments->packet_length + 2)
+            if (x_byte & 0x01)
             {
+                pkt_on = 1; // started receiving a packet
+            }
+
+            if (!(x_byte & 0x01) && pkt_on) // packet received
+            {
+                PI_CC_SPIReadStatus(spi_parms, PI_CCxxx0_RXBYTES, &rx_bytes);
+                rx_bytes &= PI_CCxxx0_NUM_RXBYTES;
                 fprintf(stderr, "Received %d bytes\n", rx_bytes);
 
                 for (i=0; i<rx_bytes; i++)
