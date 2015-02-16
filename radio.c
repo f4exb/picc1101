@@ -202,6 +202,14 @@ static void get_rate_words(rate_t rate_code, modulation_t modulation_code, float
 }
 
 // ------------------------------------------------------------------------------------------------
+// Initialoze Wiring Pi and set interrupt routines
+static void init_wiring_pi_int()
+// ------------------------------------------------------------------------------------------------
+{
+    wiringPiSetup();
+}
+
+// ------------------------------------------------------------------------------------------------
 // Initialize constant radio parameters
 void init_radio_parms(radio_parms_t *radio_parms)
 // ------------------------------------------------------------------------------------------------
@@ -221,6 +229,9 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
 {
     int ret = 0;
     uint8_t  reg_word;
+
+    // initialize Wiring Pi library and GDOx interrupt routines
+    init_wiring_pi_int(); 
 
     // open SPI link
     PI_CC_SPIParmsDefaults(spi_parms);
@@ -780,9 +791,10 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
 
             if (!(x_byte & 0x01) && pkt_on) // packet received
             {
+                PI_CC_SPIReadStatus(spi_parms, PI_CCxxx0_LQI, &x_byte);
                 PI_CC_SPIReadStatus(spi_parms, PI_CCxxx0_RXBYTES, &rx_bytes);
                 rx_bytes &= PI_CCxxx0_NUM_RXBYTES;
-                fprintf(stderr, "Received %d bytes\n", rx_bytes);
+                fprintf(stderr, "Received %d bytes. CRC=%d\n", rx_bytes, (x_byte & PI_CCxxx0_CRC_OK));
 
                 for (i=0; i<rx_bytes; i++)
                 {
@@ -799,7 +811,7 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
                 }
 
                 PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RSSI, &rssi_dec); 
-                fprintf(stderr, "\nRSSI: %.1f dBm\n", rssi_dbm(rssi_dec));
+                fprintf(stderr, "\nRSSI: %.1f dBm. LQI=%d\n", rssi_dbm(rssi_dec), (x_byte & PI_CCxxx0_LQI_RX));
 
                 break;
             }
