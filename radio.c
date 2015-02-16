@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <wiringPi.h>
 
 #include "main.h"
 #include "radio.h"
@@ -72,6 +73,7 @@ float chanbw_limits[] = {
     68000.0,
     58000.0
 };
+
 
 // ------------------------------------------------------------------------------------------------
 static float my_log2f(float x)
@@ -647,7 +649,7 @@ int radio_set_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Transmission test
+// Transmission test with polling of registers
 int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
@@ -708,6 +710,7 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
     }
 
     radio_set_packet_length(spi_parms, tx_length);
+    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x02); // GDO2 output pin config TX mode
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFTX);
 
     fprintf(stderr, "Sending test packet of size %d %d times\n", tx_length, arguments->repetition);
@@ -732,7 +735,7 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Reception test
+// Reception test with polling of registers
 int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
@@ -741,6 +744,7 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
     int i;
     uint32_t poll_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
 
+    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x00); // GDO2 output pin config RX mode
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX);
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX);
 
