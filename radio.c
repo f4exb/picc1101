@@ -202,11 +202,11 @@ static void get_rate_words(rate_t rate_code, modulation_t modulation_code, float
 }
 
 // ------------------------------------------------------------------------------------------------
-// Initialoze Wiring Pi and set interrupt routines
-static void init_wiring_pi_int()
+// Set interrupt routines
+void init_radio_isr(radio_int_scheme_t int_scheme)
 // ------------------------------------------------------------------------------------------------
 {
-    wiringPiSetup();
+    
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -231,7 +231,7 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     uint8_t  reg_word;
 
     // initialize Wiring Pi library and GDOx interrupt routines
-    init_wiring_pi_int(); 
+    wiringPiSetup();
 
     // open SPI link
     PI_CC_SPIParmsDefaults(spi_parms);

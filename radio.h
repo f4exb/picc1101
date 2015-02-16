@@ -51,9 +51,17 @@ typedef struct radio_parms_s
 	uint8_t         deviat_e;      // Deviation exponent
 } radio_parms_t;
 
+typedef enum radio_int_scheme_e {
+	RADIOINT_NONE = 0,   // Do not use interrupts
+	RADIOINT_SIMPLE,     // Interrupts for packets fitting in FIFO
+	RADIOINT_COMPOSITE,  // Interrupts for amy packet length up to 255
+	NUM_RADIOINT
+} radio_int_scheme_t;
+
 extern char  *state_names[];
 extern float chanbw_limits[];
 
+void init_radio_isr(radio_int_scheme_t int_scheme);
 void init_radio_parms(radio_parms_t *radio_parms);
 int  init_radio(radio_parms_t *radio_parms,  spi_parms_t *spi_parms, arguments_t *arguments);
 int  radio_set_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len);
