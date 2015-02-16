@@ -6,7 +6,7 @@ clean:
 	 
 
 picc1101: main.o serial.o pi_cc_spi.o radio.o
-	$(CCPREFIX)gcc $(LDFLAGS) -s -lm -o picc1101 main.o serial.o pi_cc_spi.o radio.o
+	$(CCPREFIX)gcc $(LDFLAGS) -s -lm -lwiringPi -o picc1101 main.o serial.o pi_cc_spi.o radio.o
 
 main.o: main.h main.c
 	$(CCPREFIX)gcc $(CFLAGS) -c -o main.o main.c
