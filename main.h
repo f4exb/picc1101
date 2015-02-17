@@ -7,6 +7,7 @@
 typedef enum test_mode_e {
     TEST_NONE = 0,
     TEST_TX_SIMPLE,
+    TEST_TX_INT_SIMPLE,
     TEST_RX_SIMPLE,
     TEST_RX_INT_SIMPLE,
     NUM_TEST

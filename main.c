@@ -26,6 +26,7 @@ radio_parms_t radio_parameters;
 char *test_mode_names[] = {
     "No test",
     "Simple Tx. Packet < 64 bytes",
+    "Simple Tx with packet interrupt handling. Packet < 64 bytes",
     "Simple Rx. Packet < 64 bytes",
     "Simple Rx with packet interrupt handling. Packet < 64 bytes"
 };
@@ -442,6 +443,11 @@ int main (int argc, char **argv)
         return 0;
     }
     else if (arguments.test_mode == TEST_TX_SIMPLE)
+    {
+        radio_transmit_test(&spi_parameters, &arguments);
+        return 9;
+    }
+    else if (arguments.test_mode == TEST_TX_INT_SIMPLE)
     {
         radio_transmit_test(&spi_parameters, &arguments);
         return 9;

@@ -146,6 +146,23 @@ void int_packet_simple(void)
             }
         }
     }
+    else if (radio_int_data->mode == RADIOMODE_TX)
+    {
+        if (int_packet)
+        {
+            fprintf(stderr, "GDO0 rising edge\n");
+            radio_int_data->packet_send = 1; 
+        }
+        else
+        {
+            fprintf(stderr, "GDO0 falling edge\n");
+            if (radio_int_data->packet_send) // packet has been sent
+            {
+                radio_int_data->packet_count++;
+                radio_int_data->packet_send = 0;
+            }
+        }
+    }
 }
 
 // === Static functions ===========================================================================
@@ -730,6 +747,82 @@ int radio_set_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Transmission test with interrupt handling
+int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
+// ------------------------------------------------------------------------------------------------
+{
+    uint8_t  phrase_length;
+    uint32_t packets_sent;
+    int     i, j, ret;
+
+    radio_int_data_t *data_block = malloc(sizeof(radio_int_data_t));
+
+    init_radio_int_data(data_block);
+
+    data_block->spi_parms = spi_parms;
+    data_block->mode = RADIOMODE_TX;
+    uint32_t wait_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
+
+    if (strlen(arguments->test_phrase) < PI_CCxxx0_FIFO_SIZE)
+    {
+        phrase_length = strlen(arguments->test_phrase);
+    }
+    else
+    {
+        fprintf(stderr, "Test phrase too long. Truncated to CC1101 FIFO size\n");
+        phrase_length = PI_CCxxx0_FIFO_SIZE;
+    }
+
+    memset(data_block->tx_buf, ' ', PI_CCxxx0_FIFO_SIZE);
+    memcpy(data_block->tx_buf, arguments->test_phrase, phrase_length);
+
+    if (arguments->packet_length == 0)
+    {
+        data_block->tx_count = phrase_length;
+    }
+    else if (arguments->packet_length < PI_CCxxx0_FIFO_SIZE)
+    {
+        data_block->tx_count = arguments->packet_length;
+    }
+    else
+    {
+        data_block->tx_count = PI_CCxxx0_FIFO_SIZE;
+    }
+
+    radio_set_packet_length(spi_parms, data_block->tx_count);
+    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x02); // GDO2 output pin config TX mode
+    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFTX); // Flush Tx FIFO
+    packets_sent = data_block->packet_count;
+    radio_int_data = data_block;
+
+    fprintf(stderr, "Sending test packet of size %d %d times\n", tx_length, arguments->repetition);
+    fprintf(stderr, "Wait Tx delay is %lld us\n", tx_delay);
+
+    while(data_block->packet_count < arguments->repetition)
+    {
+        fprintf(stderr, "Test #%d\n", i++);
+
+        for (j=0; j<data_block->tx_count; j++)
+        {
+            PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_TXFIFO, tx_buf[j]);
+            fprintf(stderr, "%02X ", spi_parms->rx[0]);
+        }
+
+        fprintf(stderr, "\n");        
+        PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX); // Kick-off Tx
+
+        while (packets_sent == data_block->packet_count)
+        {
+            usleep(wait_us);    
+        }
+
+        packets_sent++;
+    }
+
+    free(data_block);
+}
+
+// ------------------------------------------------------------------------------------------------
 // Transmission test with polling of registers
 int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
@@ -816,7 +909,7 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Reception test with polling of registers
+// Reception test with interrupt handling
 int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
