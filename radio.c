@@ -117,7 +117,7 @@ void int_packet_simple(void)
                 PI_CC_SPIReadStatus(radio_int_data->spi_parms, PI_CCxxx0_RXBYTES, &rx_bytes);
                 rx_bytes &= PI_CCxxx0_NUM_RXBYTES;
                 verbprintf(1, "Received %d bytes\n", rx_bytes);
-                memset(radio_int_data->rx_buf, '\0', PACKET_BUFSIZE);
+                memset((uint8_t *)radio_int_data->rx_buf, '\0', PACKET_BUFSIZE);
 
                 for (i=0; i<rx_bytes; i++)
                 {
