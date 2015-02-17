@@ -402,7 +402,7 @@ int main (int argc, char **argv)
     
 
     wiringPiSetup(); // initialize Wiring Pi library and GDOx interrupt routines
-    wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &toto); // set interrupt handler for paket interrupts
+    wiringPiISR(5, INT_EDGE_BOTH, &toto); // set interrupt handler for paket interrupts
 
     // Set argument defaults
     init_args(&arguments); 
