@@ -388,9 +388,9 @@ int main (int argc, char **argv)
     for (i = 1; i < 64; i++) 
     {
         // skip SIGUSR2 for Wiring Pi
-        if (i == SIGUSR2)
+        if (i == 17)
             continue; 
-        
+
         // These are uncatchable or harmless 
         if (i != SIGKILL
             && i != SIGSTOP
