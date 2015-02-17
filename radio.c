@@ -797,8 +797,9 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
     fprintf(stderr, "Sending test packet of size %d %d times\n", data_block->tx_count, arguments->repetition);
     fprintf(stderr, "Wait Tx delay is %lld us\n", wait_us);
+    i = 0;
 
-    while(data_block->packet_count < arguments->repetition)
+    while(packets_sent < arguments->repetition)
     {
         fprintf(stderr, "Test #%d\n", i++);
 

@@ -449,7 +449,7 @@ int main (int argc, char **argv)
     }
     else if (arguments.test_mode == TEST_TX_INT_SIMPLE)
     {
-        radio_transmit_test(&spi_parameters, &arguments);
+        radio_transmit_test_int(&spi_parameters, &arguments);
         return 9;
     }
     else if (arguments.test_mode == TEST_RX_SIMPLE)
