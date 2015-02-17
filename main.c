@@ -26,7 +26,7 @@ radio_parms_t radio_parameters;
 char *test_mode_names[] = {
     "No test",
     "Simple Tx. Packet < 64 bytes",
-    "Simple Rx. Packet < 64 bytes"
+    "Simple Rx. Packet < 64 bytes",
     "Simple Rx with packet interrupt handling. Packet < 64 bytes"
 };
 
