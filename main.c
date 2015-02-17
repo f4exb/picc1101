@@ -14,6 +14,7 @@
 #include <signal.h>
 
 #include "main.h"
+#include "util.h"
 #include "serial.h"
 #include "pi_cc_spi.h"
 #include "radio.h"
