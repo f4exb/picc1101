@@ -90,10 +90,12 @@ void int_packet_simple(void)
     {
         if (int_packet)
         {
+            fprintf(stderr, "GDO0 rising edge\n", );
             radio_int_data->packet_receive = 1; 
         }
         else
         {
+            fprintf(stderr, "GDO0 falling edge\n", );
             if (radio_int_data->packet_receive) // packet has been received
             {
                 if (radio_int_data->packet_count == radio_int_data->packet_limit)
@@ -140,13 +142,6 @@ void int_packet_simple(void)
 }
 
 // === Static functions ===========================================================================
-
-// ------------------------------------------------------------------------------------------------
-static float my_log2f(float x)
-// ------------------------------------------------------------------------------------------------
-{
-    return log(x) / log(2.0);
-}
 
 // ------------------------------------------------------------------------------------------------
 // Calculate frequency word FREQ[23..0]
@@ -818,12 +813,12 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    radio_int_data_t data_block;
+    radio_int_data_t *data_block = malloc(sizeof(radio_int_data_t));
 
-    init_radio_int_data(&data_block);
+    init_radio_int_data(data_block);
 
-    data_block.spi_parms = spi_parms;
-    data_block.packet_limit = arguments->repetition;
+    data_block->spi_parms = spi_parms;
+    data_block->packet_limit = arguments->repetition;
     uint32_t wait_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
 
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x00); // GDO2 output pin config RX mode
@@ -831,13 +826,17 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX); // Enter Rx mode
 
     wiringPiSetup(); // initialize Wiring Pi library and GDOx interrupt routines
-    radio_int_data = &data_block;
+    radio_int_data = data_block;
     wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet_simple); // set interrupt handler for paket interrupts
+
+    fprintf(stderr, "Starting...\n", );
 
     while(!(data_block.terminate))
     {
         usleep(wait_us); 
     }
+
+    free(data_block);
 }
 
 // ------------------------------------------------------------------------------------------------
