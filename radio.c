@@ -811,7 +811,7 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     wiringPiISR(5, INT_EDGE_BOTH, &int_packet_simple); // set interrupt handler for paket interrupts
 
     verbprintf(0, "Sending %d test packets of size %d\n", arguments->repetition, data_block->tx_count);
-    verbprintf(0, "Wait Tx delay is %d us\n", wait_us);
+    verbprintf(1, "Wait Tx delay is %d us\n", wait_us);
     i = 0;
 
     while(packets_sent < arguments->repetition)
@@ -942,7 +942,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     wiringPiSetup(); // initialize Wiring Pi library and GDOx interrupt routines
     wiringPiISR(5, INT_EDGE_BOTH, &int_packet_simple); // set interrupt handler for paket interrupts
 
-    verbprintf(0, "Wait Rx delay is %d us\n", wait_us);
+    verbprintf(1, "Wait Rx delay is %d us\n", wait_us);
     verbprintf(0, "Starting...\n");
 
     while((arguments->repetition == 0) || (data_block->packet_count < arguments->repetition))
