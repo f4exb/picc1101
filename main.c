@@ -387,6 +387,10 @@ int main (int argc, char **argv)
     // Catch all signals possible on process exit!
     for (i = 1; i < 64; i++) 
     {
+        // skip SIGUSR2 for Wiring Pi
+        if (i == SIGUSR2)
+            continue; 
+        
         // These are uncatchable or harmless 
         if (i != SIGKILL
             && i != SIGSTOP
