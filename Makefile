@@ -5,7 +5,7 @@ clean:
 	rm -f *.o picc1101
 	 
 
-picc1101: main.o serial.o pi_cc_spi.o radio.o
+picc1101: main.o serial.o pi_cc_spi.o radio.o util.o
 	$(CCPREFIX)gcc $(LDFLAGS) -s -lm -lwiringPi -o picc1101 main.o serial.o pi_cc_spi.o radio.o util.o
 
 main.o: main.h main.c
