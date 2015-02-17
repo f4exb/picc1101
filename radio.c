@@ -74,7 +74,7 @@ float chanbw_limits[] = {
     58000.0
 };
 
-static volatile radio_int_data_t *radio_int_data = 0;
+static radio_int_data_t *radio_int_data = 0;
 
 // === Interupt handlers ==========================================================================
 
