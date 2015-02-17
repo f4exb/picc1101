@@ -104,7 +104,6 @@ static void terminate(const int signal_) {
 // ------------------------------------------------------------------------------------------------
     printf("PICC: Terminating with signal %d\n", signal_);
     delete_args(&arguments);
-    delete_radio_int_data();
     exit(1);
 }
 
