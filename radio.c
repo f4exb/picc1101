@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <wiringPi.h>
 
 #include "main.h"
 #include "radio.h"
@@ -825,6 +826,8 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX); // Enter Rx mode
 
     radio_int_data = data_block;
+    wiringPiSetup(); // initialize Wiring Pi library and GDOx interrupt routines
+    wiringPiISR(5, INT_EDGE_BOTH, &int_packet_simple); // set interrupt handler for paket interrupts
 
     fprintf(stderr, "Starting...\n");
 

@@ -12,7 +12,6 @@
 #include <argp.h>
 #include <string.h>
 #include <signal.h>
-#include <wiringPi.h>
 
 #include "main.h"
 #include "serial.h"
@@ -403,10 +402,6 @@ int main (int argc, char **argv)
             sigaction(i, &sa, NULL);
         }
     }
-    
-
-    wiringPiSetup(); // initialize Wiring Pi library and GDOx interrupt routines
-    wiringPiISR(5, INT_EDGE_BOTH, &toto); // set interrupt handler for paket interrupts
 
     // Set argument defaults
     init_args(&arguments); 
