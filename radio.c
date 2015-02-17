@@ -86,8 +86,6 @@ void int_packet_simple(void)
     PI_CC_SPIReadStatus(radio_int_data->spi_parms, PI_CCxxx0_PKTSTATUS, &x_byte); // sense interrupt lines
     int_packet = x_byte & 0x01; // GDO0 (& 0x01) packet interrupt
 
-    fprintf(stderr, "GDO0 interrupt %d\n", int_packet);
-
     if (radio_int_data->mode == RADIOMODE_RX)
     {
         if (int_packet)
@@ -821,7 +819,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
     data_block->spi_parms = spi_parms;
     data_block->packet_limit = arguments->repetition;
-    data_block->mode == RADIOMODE_RX;
+    data_block->mode = RADIOMODE_RX;
     uint32_t wait_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
 
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x00); // GDO2 output pin config RX mode
