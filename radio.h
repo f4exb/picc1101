@@ -89,7 +89,6 @@ typedef struct radio_int_data_s
 extern char  *state_names[];
 extern float chanbw_limits[];
 
-float rssi_dbm(uint8_t rssi_dec);
 void  init_radio_parms(radio_parms_t *radio_parms);
 int   init_radio(radio_parms_t *radio_parms,  spi_parms_t *spi_parms, arguments_t *arguments);
 int   radio_set_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len);

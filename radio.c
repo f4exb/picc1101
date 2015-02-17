@@ -76,6 +76,16 @@ float chanbw_limits[] = {
 
 static radio_int_data_t *radio_int_data = 0;
 
+// === Static functions declarations ==============================================================
+
+static float rssi_dbm(uint8_t rssi_dec);
+static uint32_t get_freq_word(uint32_t freq_xtal, uint32_t freq_hz);
+static uint8_t get_mod_word(modulation_t modulation_code);
+static uint32_t get_if_word(uint32_t freq_xtal, uint32_t if_hz);
+static void get_chanbw_words(float bw, radio_parms_t *radio_parms);
+static void get_rate_words(rate_t rate_code, modulation_t modulation_code, float modulation_index, radio_parms_t *radio_parms);
+static void init_radio_int_data(radio_int_data_t *radio_int_data);
+
 // === Interupt handlers ==========================================================================
 
 void int_packet_simple(void)
@@ -147,8 +157,23 @@ void int_packet_simple(void)
 // === Static functions ===========================================================================
 
 // ------------------------------------------------------------------------------------------------
+// Calculate RSSI in dBm from decimal RSSI read out of RSSI status register
+float rssi_dbm(uint8_t rssi_dec)
+// ------------------------------------------------------------------------------------------------
+{
+    if (rssi_dec < 128)
+    {
+        return (rssi_dec / 2.0) - 74.0;
+    }
+    else
+    {
+        return ((rssi_dec - 256) / 2.0) - 74.0;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 // Calculate frequency word FREQ[23..0]
-static uint32_t get_freq_word(uint32_t freq_xtal, uint32_t freq_hz)
+uint32_t get_freq_word(uint32_t freq_xtal, uint32_t freq_hz)
 // ------------------------------------------------------------------------------------------------
 {
 	uint64_t res; // calculate on 64 bits to save precision
@@ -158,7 +183,7 @@ static uint32_t get_freq_word(uint32_t freq_xtal, uint32_t freq_hz)
 
 // ------------------------------------------------------------------------------------------------
 // Calculate frequency word FREQ[23..0]
-static uint32_t get_if_word(uint32_t freq_xtal, uint32_t if_hz)
+uint32_t get_if_word(uint32_t freq_xtal, uint32_t if_hz)
 // ------------------------------------------------------------------------------------------------
 {
 	return (if_hz * (1<<10)) / freq_xtal;
@@ -166,7 +191,7 @@ static uint32_t get_if_word(uint32_t freq_xtal, uint32_t if_hz)
 
 // ------------------------------------------------------------------------------------------------
 // Calculate modulation format word MOD_FORMAT[2..0]
-static uint8_t get_mod_word(modulation_t modulation_code)
+uint8_t get_mod_word(modulation_t modulation_code)
 // ------------------------------------------------------------------------------------------------
 {
 	switch (modulation_code)
@@ -193,7 +218,7 @@ static uint8_t get_mod_word(modulation_t modulation_code)
 
 // ------------------------------------------------------------------------------------------------
 // Calculate CHANBW words according to CC1101 bandwidth steps
-static void get_chanbw_words(float bw, radio_parms_t *radio_parms)
+void get_chanbw_words(float bw, radio_parms_t *radio_parms)
 // ------------------------------------------------------------------------------------------------
 {
     uint8_t e_index, m_index;
@@ -220,7 +245,7 @@ static void get_chanbw_words(float bw, radio_parms_t *radio_parms)
 //   o DRATE = (Fxosc / 2^28) * (256 + DRATE_M) * 2^DRATE_E
 //   o CHANBW = Fxosc / (8(4+CHANBW_M) * 2^CHANBW_E)
 //   o DEVIATION = (Fxosc / 2^17) * (8 + DEVIATION_M) * 2^DEVIATION_E
-static void get_rate_words(rate_t rate_code, modulation_t modulation_code, float modulation_index, radio_parms_t *radio_parms)
+void get_rate_words(rate_t rate_code, modulation_t modulation_code, float modulation_index, radio_parms_t *radio_parms)
 // ------------------------------------------------------------------------------------------------
 {
     double drate, deviat, f_xtal;
@@ -252,7 +277,7 @@ static void get_rate_words(rate_t rate_code, modulation_t modulation_code, float
 
 // ------------------------------------------------------------------------------------------------
 // Set interrupt routines and interrupt data block
-static void init_radio_int_data(radio_int_data_t *radio_int_data)
+void init_radio_int_data(radio_int_data_t *radio_int_data)
 // ------------------------------------------------------------------------------------------------
 {
     radio_int_data->terminate = 0;
@@ -262,21 +287,6 @@ static void init_radio_int_data(radio_int_data_t *radio_int_data)
 }
 
 // === Public functions ===========================================================================
-
-// ------------------------------------------------------------------------------------------------
-// Calculate RSSI in dBm from decimal RSSI read out of RSSI status register
-float rssi_dbm(uint8_t rssi_dec)
-// ------------------------------------------------------------------------------------------------
-{
-    if (rssi_dec < 128)
-    {
-        return (rssi_dec / 2.0) - 74.0;
-    }
-    else
-    {
-        return ((rssi_dec - 256) / 2.0) - 74.0;
-    }
-}
 
 // ------------------------------------------------------------------------------------------------
 // Initialize constant radio parameters
