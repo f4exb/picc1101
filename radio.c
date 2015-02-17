@@ -80,7 +80,7 @@ static volatile radio_int_data_t *radio_int_data = 0;
 
 void toto(void)
 {
-    
+
 }
 
 void int_packet_simple(void)
@@ -300,6 +300,10 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
 {
     int ret = 0;
     uint8_t  reg_word;
+
+
+    wiringPiSetup(); // initialize Wiring Pi library and GDOx interrupt routines
+    wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &toto); // set interrupt handler for paket interrupts
 
     // open SPI link
     PI_CC_SPIParmsDefaults(spi_parms);
@@ -830,9 +834,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX); // Flush Rx FIFO
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX); // Enter Rx mode
 
-    wiringPiSetup(); // initialize Wiring Pi library and GDOx interrupt routines
     radio_int_data = data_block;
-    wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &toto); // set interrupt handler for paket interrupts
 
     fprintf(stderr, "Starting...\n");
 
