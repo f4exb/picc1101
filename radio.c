@@ -254,7 +254,7 @@ static void get_rate_words(rate_t rate_code, modulation_t modulation_code, float
 
 // ------------------------------------------------------------------------------------------------
 // Set interrupt routines and interrupt data block
-static void init_radio_int_data(radio_int_data_t *radio_int_data);
+static void init_radio_int_data(radio_int_data_t *radio_int_data)
 // ------------------------------------------------------------------------------------------------
 {
     radio_int_data->terminate = 0;
