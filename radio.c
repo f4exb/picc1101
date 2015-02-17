@@ -838,7 +838,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
     fprintf(stderr, "Starting...\n");
 
-    while(data_block->packet_count < arguments->repetition)
+    while((arguments->repetition == 0) || (data_block->packet_count <= arguments->repetition)
     {
         usleep(wait_us); 
     }
