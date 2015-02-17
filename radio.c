@@ -78,6 +78,11 @@ static volatile radio_int_data_t *radio_int_data = 0;
 
 // === Interupt handlers ==========================================================================
 
+void toto(void)
+{
+    
+}
+
 void int_packet_simple(void)
 {
     uint8_t x_byte, int_packet, rx_bytes, rssi_dec, crc_lqi;
@@ -827,7 +832,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
     wiringPiSetup(); // initialize Wiring Pi library and GDOx interrupt routines
     radio_int_data = data_block;
-    //wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet_simple); // set interrupt handler for paket interrupts
+    wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &toto); // set interrupt handler for paket interrupts
 
     fprintf(stderr, "Starting...\n");
 
