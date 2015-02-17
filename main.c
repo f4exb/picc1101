@@ -97,6 +97,9 @@ static struct argp_option options[] = {
     {0}
 };
 
+void toto(void)
+{}
+
 static void delete_args(arguments_t *arguments);
 
 // ------------------------------------------------------------------------------------------------
@@ -368,9 +371,6 @@ static struct argp argp = {options, parse_opt, args_doc, doc};
 // ------------------------------------------------------------------------------------------------
 
 /***** ARGP configuration stop *****/
-
-void toto(void)
-{}
 
 // ------------------------------------------------------------------------------------------------
 int main (int argc, char **argv)
