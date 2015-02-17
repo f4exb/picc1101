@@ -788,8 +788,8 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
         phrase_length = PI_CCxxx0_FIFO_SIZE;
     }
 
-    memset(data_block->tx_buf, ' ', PI_CCxxx0_FIFO_SIZE);
-    memcpy(data_block->tx_buf, arguments->test_phrase, phrase_length);
+    memset((uint8_t *) data_block->tx_buf, ' ', PI_CCxxx0_FIFO_SIZE);
+    memcpy((uint8_t *) data_block->tx_buf, arguments->test_phrase, phrase_length);
 
     if (arguments->packet_length == 0)
     {
@@ -925,7 +925,8 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    radio_int_data_t *data_block = malloc(sizeof(radio_int_data_t));
+    radio_int_data_t data_block_space;
+    radio_int_data_t *data_block = &data_block_space;
 
     init_radio_int_data(data_block);
 
@@ -948,7 +949,6 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
         usleep(wait_us); 
     }
 
-    free(data_block);
 }
 
 // ------------------------------------------------------------------------------------------------
