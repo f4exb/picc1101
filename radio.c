@@ -795,8 +795,8 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     packets_sent = data_block->packet_count;
     radio_int_data = data_block;
 
-    fprintf(stderr, "Sending test packet of size %d %d times\n", tx_length, arguments->repetition);
-    fprintf(stderr, "Wait Tx delay is %lld us\n", tx_delay);
+    fprintf(stderr, "Sending test packet of size %d %d times\n", data_block->tx_count, arguments->repetition);
+    fprintf(stderr, "Wait Tx delay is %lld us\n", wait_us);
 
     while(data_block->packet_count < arguments->repetition)
     {
@@ -804,7 +804,7 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
         for (j=0; j<data_block->tx_count; j++)
         {
-            PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_TXFIFO, tx_buf[j]);
+            PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_TXFIFO, data_block->tx_buf[j]);
             fprintf(stderr, "%02X ", spi_parms->rx[0]);
         }
 
