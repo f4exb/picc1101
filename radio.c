@@ -753,7 +753,8 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 {
     uint8_t  phrase_length;
     uint32_t packets_sent;
-    int     i, j, ret;
+    int      i, j, ret;
+    uint32_t wait_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
 
     radio_int_data_t *data_block = malloc(sizeof(radio_int_data_t));
 
@@ -761,7 +762,6 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
     data_block->spi_parms = spi_parms;
     data_block->mode = RADIOMODE_TX;
-    uint32_t wait_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
 
     if (strlen(arguments->test_phrase) < PI_CCxxx0_FIFO_SIZE)
     {
@@ -794,9 +794,11 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFTX); // Flush Tx FIFO
     packets_sent = data_block->packet_count;
     radio_int_data = data_block;
+    wiringPiSetup(); // initialize Wiring Pi library and GDOx interrupt routines
+    wiringPiISR(5, INT_EDGE_BOTH, &int_packet_simple); // set interrupt handler for paket interrupts
 
-    fprintf(stderr, "Sending test packet of size %d %d times\n", data_block->tx_count, arguments->repetition);
-    fprintf(stderr, "Wait Tx delay is %lld us\n", wait_us);
+    fprintf(stderr, "Sending %d test packets of size %d\n", arguments->repetition, data_block->tx_count);
+    fprintf(stderr, "Wait Tx delay is %d us\n", wait_us);
     i = 0;
 
     while(packets_sent < arguments->repetition)
@@ -930,6 +932,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     wiringPiSetup(); // initialize Wiring Pi library and GDOx interrupt routines
     wiringPiISR(5, INT_EDGE_BOTH, &int_packet_simple); // set interrupt handler for paket interrupts
 
+    fprintf(stderr, "Wait Rx delay is %d us\n", wait_us);
     fprintf(stderr, "Starting...\n");
 
     while((arguments->repetition == 0) || (data_block->packet_count < arguments->repetition))
