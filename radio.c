@@ -138,7 +138,8 @@ void int_packet_simple(void)
                     verbprintf(2, "%X:%02X ", radio_int_data->spi_parms->rx[0] & 0x0F, radio_int_data->spi_parms->rx[1]);   
                 }
 
-                verbprintf(0, "\nRSSI: %.1f dBm. LQI=%d. CRC=%d\n", 
+                verbprintf(2, "\n");
+                verbprintf(0, "RSSI: %.1f dBm. LQI=%d. CRC=%d\n", 
                     rssi_dbm(rssi_dec),
                     0x7F - (crc_lqi & 0x7F),
                     (crc_lqi & PI_CCxxx0_CRC_OK)>>7);
@@ -1020,7 +1021,7 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
                     verbprintf(2, "%X:%02X ", spi_parms->rx[0] & 0x0F, spi_parms->rx[1]);   
                 }
 
-                verbprintf(2, "%s\n");
+                verbprintf(2, "\n");
                 verbprintf(0, "RSSI: %.1f dBm. LQI=%d. CRC=%d\n", 
                     rssi_dbm(rssi_dec),
                     0x7F - (crc_lqi & 0x7F),
