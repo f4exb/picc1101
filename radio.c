@@ -100,7 +100,7 @@ void int_packet_simple(void)
             {
                 if (radio_int_data->packet_count == radio_int_data->packet_limit)
                 {
-                    radio_int_data->terminate;
+                    radio_int_data->terminate = 1;
                     return;
                 }
 
