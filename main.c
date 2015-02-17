@@ -273,6 +273,8 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
             arguments->verbose_level = strtol(arg, &end, 10);
             if (*end)
                 argp_usage(state);
+            else
+                verbose_level = arguments->verbose_level;
             break; 
         // Print long help and exit
         case 'H':

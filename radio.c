@@ -15,6 +15,7 @@
 #include <wiringPi.h>
 
 #include "main.h"
+#include "util.h"
 #include "radio.h"
 #include "pi_cc_spi.h"
 #include "pi_cc_cc1100-cc2500.h"
@@ -88,7 +89,10 @@ static void init_radio_int_data(radio_int_data_t *radio_int_data);
 
 // === Interupt handlers ==========================================================================
 
+// ------------------------------------------------------------------------------------------------
+// Processes packets that fit inside the Rx or Tx FIFO
 void int_packet_simple(void)
+// ------------------------------------------------------------------------------------------------
 {
     uint8_t x_byte, int_packet, rx_bytes, rssi_dec, crc_lqi;
     int i;
@@ -100,19 +104,19 @@ void int_packet_simple(void)
     {
         if (int_packet)
         {
-            fprintf(stderr, "GDO0 rising edge\n");
+            verbprintf(2, "GDO0 rising edge\n");
             radio_int_data->packet_receive = 1; 
         }
         else
         {
-            fprintf(stderr, "GDO0 falling edge\n");
+            verbprintf(2, "GDO0 falling edge\n");
             if (radio_int_data->packet_receive) // packet has been received
             {
-                fprintf(stderr, "Packet #%d\n", radio_int_data->packet_count);
+                verbprintf(0, "Packet #%d\n", radio_int_data->packet_count);
 
                 PI_CC_SPIReadStatus(radio_int_data->spi_parms, PI_CCxxx0_RXBYTES, &rx_bytes);
                 rx_bytes &= PI_CCxxx0_NUM_RXBYTES;
-                fprintf(stderr, "Received %d bytes\n", rx_bytes);
+                verbprintf(1, "Received %d bytes\n", rx_bytes);
                 memset(radio_int_data->rx_buf, '\0', PACKET_BUFSIZE);
 
                 for (i=0; i<rx_bytes; i++)
@@ -131,15 +135,15 @@ void int_packet_simple(void)
                         PI_CC_SPIReadReg(radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &crc_lqi);
                     }
 
-                    fprintf(stderr, "%X:%02X ", radio_int_data->spi_parms->rx[0] & 0x0F, radio_int_data->spi_parms->rx[1]);   
+                    verbprintf(2, "%X:%02X ", radio_int_data->spi_parms->rx[0] & 0x0F, radio_int_data->spi_parms->rx[1]);   
                 }
 
-                fprintf(stderr, "\nRSSI: %.1f dBm. LQI=%d. CRC=%d\n", 
+                verbprintf(0, "\nRSSI: %.1f dBm. LQI=%d. CRC=%d\n", 
                     rssi_dbm(rssi_dec),
                     0x7F - (crc_lqi & 0x7F),
                     (crc_lqi & PI_CCxxx0_CRC_OK)>>7);
 
-                fprintf(stderr, "\"%s\"\n", radio_int_data->rx_buf);
+                verbprintf(0, "\"%s\"\n", radio_int_data->rx_buf);
 
                 radio_int_data->packet_count++;
                 radio_int_data->packet_receive = 0;        
@@ -150,12 +154,12 @@ void int_packet_simple(void)
     {
         if (int_packet)
         {
-            fprintf(stderr, "GDO0 rising edge\n");
+            verbprintf(2, "GDO0 rising edge\n");
             radio_int_data->packet_send = 1; 
         }
         else
         {
-            fprintf(stderr, "GDO0 falling edge\n");
+            verbprintf(2, "GDO0 falling edge\n");
             if (radio_int_data->packet_send) // packet has been sent
             {
                 radio_int_data->packet_count++;
@@ -163,6 +167,14 @@ void int_packet_simple(void)
             }
         }
     }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Processes packets that do not fit in Rx or Tx FIFOs and 255 bytes long maximum
+void int_packet_composite(void)
+// ------------------------------------------------------------------------------------------------
+{
+
 }
 
 // === Static functions ===========================================================================
@@ -769,7 +781,7 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     }
     else
     {
-        fprintf(stderr, "Test phrase too long. Truncated to CC1101 FIFO size\n");
+        verbprintf(0, "Test phrase too long. Truncated to CC1101 FIFO size\n");
         phrase_length = PI_CCxxx0_FIFO_SIZE;
     }
 
@@ -797,21 +809,21 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     wiringPiSetup(); // initialize Wiring Pi library and GDOx interrupt routines
     wiringPiISR(5, INT_EDGE_BOTH, &int_packet_simple); // set interrupt handler for paket interrupts
 
-    fprintf(stderr, "Sending %d test packets of size %d\n", arguments->repetition, data_block->tx_count);
-    fprintf(stderr, "Wait Tx delay is %d us\n", wait_us);
+    verbprintf(0, "Sending %d test packets of size %d\n", arguments->repetition, data_block->tx_count);
+    verbprintf(0, "Wait Tx delay is %d us\n", wait_us);
     i = 0;
 
     while(packets_sent < arguments->repetition)
     {
-        fprintf(stderr, "Test #%d\n", i++);
+        verbprintf(0, "Packet #%d\n", i++);
 
         for (j=0; j<data_block->tx_count; j++)
         {
             PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_TXFIFO, data_block->tx_buf[j]);
-            fprintf(stderr, "%02X ", spi_parms->rx[0]);
+            verbprintf(2, "%02X ", spi_parms->rx[0]);
         }
 
-        fprintf(stderr, "\n");        
+        verbprintf(2, "\n");        
         PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX); // Kick-off Tx
 
         while (packets_sent == data_block->packet_count)
@@ -855,10 +867,7 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
         tx_delay = 100000ULL;
     }
 
-    if (arguments->verbose_level > 0)
-    {
-        fprintf(stderr, "Estimated Tx delay is %lld us\n", tx_delay);
-    }
+    verbprintf(1, "Estimated Tx delay is %lld us\n", tx_delay);
 
     if (strlen(arguments->test_phrase) < PI_CCxxx0_FIFO_SIZE)
     {
@@ -866,7 +875,7 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
     }
     else
     {
-        fprintf(stderr, "Test phrase too long. Truncated to CC1101 FIFO size\n");
+        verbprintf(0, "Test phrase too long. Truncated to CC1101 FIFO size\n");
         test_length = PI_CCxxx0_FIFO_SIZE;
     }
 
@@ -890,19 +899,19 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x02); // GDO2 output pin config TX mode
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFTX);
 
-    fprintf(stderr, "Sending test packet of size %d %d times\n", tx_length, arguments->repetition);
+    verbprintf(0, "Sending test packet of size %d %d times\n", tx_length, arguments->repetition);
 
     for (i=0; i<arguments->repetition; i++)
     {
-        fprintf(stderr, "Test #%d\n", i);
+        verbprintf(0, "Packet #%d\n", i);
 
         for (j=0; j<tx_length; j++)
         {
             PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_TXFIFO, tx_buf[j]);
-            fprintf(stderr, "%02X ", spi_parms->rx[0]);
+            verbprintf(2, "%02X ", spi_parms->rx[0]);
         }
 
-        fprintf(stderr, "\n");
+        verbprintf(2, "\n");
         ret = PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX);
         
         usleep(tx_delay);
@@ -932,8 +941,8 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     wiringPiSetup(); // initialize Wiring Pi library and GDOx interrupt routines
     wiringPiISR(5, INT_EDGE_BOTH, &int_packet_simple); // set interrupt handler for paket interrupts
 
-    fprintf(stderr, "Wait Rx delay is %d us\n", wait_us);
-    fprintf(stderr, "Starting...\n");
+    verbprintf(0, "Wait Rx delay is %d us\n", wait_us);
+    verbprintf(0, "Starting...\n");
 
     while((arguments->repetition == 0) || (data_block->packet_count < arguments->repetition))
     {
@@ -974,7 +983,7 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
 
     for (iterations=0; iterations<arguments->repetition; iterations++)
     {
-        fprintf(stderr, "Packet #%d\n", iterations+1);
+        verbprintf(0, "Packet #%d\n", iterations+1);
         pkt_on = 0; // wait for packet start
         memset(rx_buf, '\0', PI_CCxxx0_FIFO_SIZE+1);
 
@@ -991,7 +1000,7 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
             {
                 PI_CC_SPIReadStatus(spi_parms, PI_CCxxx0_RXBYTES, &rx_bytes);
                 rx_bytes &= PI_CCxxx0_NUM_RXBYTES;
-                fprintf(stderr, "Received %d bytes\n", rx_bytes);
+                verbprintf(1, "Received %d bytes\n", rx_bytes);
 
                 for (i=0; i<rx_bytes; i++)
                 {
@@ -1008,10 +1017,11 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
                         PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RXFIFO, &crc_lqi);
                     }
 
-                    fprintf(stderr, "%X:%02X ", spi_parms->rx[0] & 0x0F, spi_parms->rx[1]);   
+                    verbprintf(2, "%X:%02X ", spi_parms->rx[0] & 0x0F, spi_parms->rx[1]);   
                 }
 
-                fprintf(stderr, "\nRSSI: %.1f dBm. LQI=%d. CRC=%d\n", 
+                verbprintf(2, "%s\n");
+                verbprintf(0, "RSSI: %.1f dBm. LQI=%d. CRC=%d\n", 
                     rssi_dbm(rssi_dec),
                     0x7F - (crc_lqi & 0x7F),
                     (crc_lqi & PI_CCxxx0_CRC_OK)>>7);
@@ -1022,8 +1032,8 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
             usleep(poll_us);
         }
 
-        fprintf(stderr, "\"%s\"\n", rx_buf);
+        verbprintf(0, "\"%s\"\n", rx_buf);
     }
 
-    fprintf(stderr, "Done\n");
+    verbprintf(0, "Done\n");
 }
