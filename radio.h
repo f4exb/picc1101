@@ -71,7 +71,7 @@ typedef enum radio_mode_e
 	NUM_RADIOMODE
 } radio_mode_t;
 
-typedef struct radio_int_data_s 
+typedef volatile struct radio_int_data_s 
 {
 	spi_parms_t  *spi_parms;
 	radio_mode_t mode;
