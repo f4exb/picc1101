@@ -98,17 +98,12 @@ void int_packet_simple(void)
             fprintf(stderr, "GDO0 falling edge\n");
             if (radio_int_data->packet_receive) // packet has been received
             {
-                if (radio_int_data->packet_count == radio_int_data->packet_limit)
-                {
-                    radio_int_data->terminate = 1;
-                    return;
-                }
-
                 fprintf(stderr, "Packet #%d\n", radio_int_data->packet_count);
 
                 PI_CC_SPIReadStatus(radio_int_data->spi_parms, PI_CCxxx0_RXBYTES, &rx_bytes);
                 rx_bytes &= PI_CCxxx0_NUM_RXBYTES;
                 fprintf(stderr, "Received %d bytes\n", rx_bytes);
+                memset(radio_int_data->rx_buf, '\0', PACKET_BUFSIZE);
 
                 for (i=0; i<rx_bytes; i++)
                 {
@@ -134,8 +129,16 @@ void int_packet_simple(void)
                     0x7F - (crc_lqi & 0x7F),
                     (crc_lqi & PI_CCxxx0_CRC_OK)>>7);
 
+                fprintf(stderr, "\"%s\"\n", radio_int_data->rx_buf);
+
                 radio_int_data->packet_count++;
                 radio_int_data->packet_receive = 0;        
+
+                if (radio_int_data->packet_count == radio_int_data->packet_limit)
+                {
+                    radio_int_data->terminate = 1;
+                    return;
+                }
             }
         }
     }

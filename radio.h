@@ -15,6 +15,8 @@
 #define WPI_GDO0 5 // For Wiring Pi, 5 is GPIO_24 connected to GDO0
 #define WPI_GDO2 6 // For Wiring Pi, 6 is GPIO_25 connected to GDO2
 
+#define PACKET_BUFSIZE 256
+
 typedef enum sync_word_e
 {
 	NO_SYNC = 0,              // No preamble/sync
@@ -76,9 +78,9 @@ typedef struct radio_int_data_s
 	uint8_t      terminate;
 	uint32_t     packet_count;
 	uint32_t     packet_limit;
-	uint8_t      tx_buf[255];
+	uint8_t      tx_buf[PACKET_BUFSIZE];
 	uint8_t      tx_count;
-	uint8_t      rx_buf[255];
+	uint8_t      rx_buf[PACKET_BUFSIZE];
 	uint8_t      rx_count;
 	uint8_t      packet_receive;
 	uint8_t      packet_send;
