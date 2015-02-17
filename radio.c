@@ -768,8 +768,8 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     uint32_t packets_sent;
     int      i, j, ret;
     uint32_t wait_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
-
-    radio_int_data_t *data_block = malloc(sizeof(radio_int_data_t));
+    radio_int_data_t data_block_space;
+    radio_int_data_t *data_block = &data_block_space;
 
     init_radio_int_data(data_block);
 
@@ -834,8 +834,6 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
         packets_sent++;
     }
-
-    free(data_block);
 }
 
 // ------------------------------------------------------------------------------------------------
