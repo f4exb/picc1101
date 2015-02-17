@@ -90,12 +90,12 @@ void int_packet_simple(void)
     {
         if (int_packet)
         {
-            fprintf(stderr, "GDO0 rising edge\n", );
+            fprintf(stderr, "GDO0 rising edge\n");
             radio_int_data->packet_receive = 1; 
         }
         else
         {
-            fprintf(stderr, "GDO0 falling edge\n", );
+            fprintf(stderr, "GDO0 falling edge\n");
             if (radio_int_data->packet_receive) // packet has been received
             {
                 if (radio_int_data->packet_count == radio_int_data->packet_limit)
@@ -829,9 +829,9 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     radio_int_data = data_block;
     wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet_simple); // set interrupt handler for paket interrupts
 
-    fprintf(stderr, "Starting...\n", );
+    fprintf(stderr, "Starting...\n");
 
-    while(!(data_block.terminate))
+    while(!(data_block->terminate))
     {
         usleep(wait_us); 
     }
