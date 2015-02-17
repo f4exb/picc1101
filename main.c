@@ -12,6 +12,7 @@
 #include <argp.h>
 #include <string.h>
 #include <signal.h>
+#include <wiringPi.h>
 
 #include "main.h"
 #include "serial.h"
@@ -368,12 +369,15 @@ static struct argp argp = {options, parse_opt, args_doc, doc};
 
 /***** ARGP configuration stop *****/
 
+void toto(void)
+{}
+
 // ------------------------------------------------------------------------------------------------
 int main (int argc, char **argv)
 // ------------------------------------------------------------------------------------------------
 {
     int i, ret, ser_read;
-    
+
     // Whole response
     char response[1<<12];
     memset(response, '\0', sizeof(response));
@@ -396,6 +400,10 @@ int main (int argc, char **argv)
         }
     }
     
+
+    wiringPiSetup(); // initialize Wiring Pi library and GDOx interrupt routines
+    wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &toto); // set interrupt handler for paket interrupts
+
     // Set argument defaults
     init_args(&arguments); 
 
