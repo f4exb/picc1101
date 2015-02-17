@@ -143,12 +143,6 @@ void int_packet_simple(void)
 
                 radio_int_data->packet_count++;
                 radio_int_data->packet_receive = 0;        
-
-                if (radio_int_data->packet_count == radio_int_data->packet_limit)
-                {
-                    radio_int_data->terminate = 1;
-                    return;
-                }
             }
         }
     }
@@ -831,7 +825,6 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     init_radio_int_data(data_block);
 
     data_block->spi_parms = spi_parms;
-    data_block->packet_limit = arguments->repetition;
     data_block->mode = RADIOMODE_RX;
     uint32_t wait_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
 
@@ -845,7 +838,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
     fprintf(stderr, "Starting...\n");
 
-    while(!(data_block->terminate))
+    while(data_block->packet_count < arguments->repetition))
     {
         usleep(wait_us); 
     }

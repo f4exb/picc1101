@@ -77,7 +77,6 @@ typedef struct radio_int_data_s
 	radio_mode_t mode;
 	uint8_t      terminate;
 	uint32_t     packet_count;
-	uint32_t     packet_limit;
 	uint8_t      tx_buf[PACKET_BUFSIZE];
 	uint8_t      tx_count;
 	uint8_t      rx_buf[PACKET_BUFSIZE];
