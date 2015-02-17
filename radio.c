@@ -798,7 +798,7 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 
     for (i=0; i<arguments->repetition; i++)
     {
-        fprintf(stderr, "Test #%d\n", i+1);
+        fprintf(stderr, "Test #%d\n", i);
 
         for (j=0; j<tx_length; j++)
         {
@@ -838,7 +838,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
     fprintf(stderr, "Starting...\n");
 
-    while((arguments->repetition == 0) || (data_block->packet_count <= arguments->repetition))
+    while((arguments->repetition == 0) || (data_block->packet_count < arguments->repetition))
     {
         usleep(wait_us); 
     }
