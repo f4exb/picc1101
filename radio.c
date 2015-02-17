@@ -333,6 +333,8 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     int ret = 0;
     uint8_t  reg_word;
 
+    wiringPiSetup(); // initialize Wiring Pi library and GDOx interrupt routines
+
     // open SPI link
     PI_CC_SPIParmsDefaults(spi_parms);
     ret = PI_CC_SPISetup(spi_parms, arguments);
@@ -807,7 +809,6 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFTX); // Flush Tx FIFO
     packets_sent = data_block->packet_count;
     radio_int_data = data_block;
-    wiringPiSetup(); // initialize Wiring Pi library and GDOx interrupt routines
     wiringPiISR(5, INT_EDGE_BOTH, &int_packet_simple); // set interrupt handler for paket interrupts
 
     verbprintf(0, "Sending %d test packets of size %d\n", arguments->repetition, data_block->tx_count);
@@ -937,7 +938,6 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX); // Enter Rx mode
 
     radio_int_data = data_block;
-    wiringPiSetup(); // initialize Wiring Pi library and GDOx interrupt routines
     wiringPiISR(5, INT_EDGE_BOTH, &int_packet_simple); // set interrupt handler for paket interrupts
 
     verbprintf(1, "Wait Rx delay is %d us\n", wait_us);
