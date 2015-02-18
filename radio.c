@@ -116,7 +116,7 @@ void int_packet_simple(void)
                 PI_CC_SPIReadStatus(radio_int_data->spi_parms, PI_CCxxx0_RXBYTES, &rx_bytes);
                 rx_bytes &= PI_CCxxx0_NUM_RXBYTES;
                 verbprintf(1, "Received %d bytes\n", rx_bytes);
-                memset((uint8_t *)radio_int_data->rx_buf, '\0', PACKET_BUFSIZE);
+                memset((uint8_t *)radio_int_data->rx_buf, '\0', PI_CCxxx0_PACKET_COUNT_SIZE+1);
 
                 for (i=0; i<rx_bytes; i++)
                 {
@@ -181,13 +181,13 @@ void int_threshold_composite(void)
     {
         if (radio_int_data->bytes_remaining > 0) // bytes left to send
         {
-            if (radio_int_data->bytes_remaining < TX_FIFO_TRESHOLD)
+            if (radio_int_data->bytes_remaining < TX_FIFO_REFILL)
             {
                 bytes_to_send = radio_int_data->bytes_remaining;
             }
             else
             {
-                bytes_to_send = TX_FIFO_TRESHOLD;
+                bytes_to_send = TX_FIFO_REFILL;
             }
 
             for (i=0; i<bytes_to_send; i++)
@@ -329,30 +329,30 @@ void init_test_tx_block(radio_int_data_t *data_block, arguments_t *arguments)
 {
     uint8_t  phrase_length;
 
-    if (strlen(arguments->test_phrase) < PI_CCxxx0_FIFO_SIZE)
+    if (strlen(arguments->test_phrase) < PI_CCxxx0_PACKET_COUNT_SIZE)
     {
         phrase_length = strlen(arguments->test_phrase);
     }
     else
     {
-        verbprintf(0, "Test phrase too long. Truncated to CC1101 FIFO size\n");
-        phrase_length = PI_CCxxx0_FIFO_SIZE;
+        verbprintf(0, "Test phrase too long. Truncated to %d bytes\n", PI_CCxxx0_PACKET_COUNT_SIZE);
+        phrase_length = PI_CCxxx0_PACKET_COUNT_SIZE;
     }
 
-    memset((uint8_t *) data_block->tx_buf, ' ', PI_CCxxx0_FIFO_SIZE);
+    memset((uint8_t *) data_block->tx_buf, ' ', PI_CCxxx0_PACKET_COUNT_SIZE);
     memcpy((uint8_t *) data_block->tx_buf, arguments->test_phrase, phrase_length);
 
     if (arguments->packet_length == 0)
     {
         data_block->tx_count = phrase_length;
     }
-    else if (arguments->packet_length < PI_CCxxx0_FIFO_SIZE)
+    else if (arguments->packet_length < PI_CCxxx0_PACKET_COUNT_SIZE)
     {
         data_block->tx_count = arguments->packet_length;
     }
     else
     {
-        data_block->tx_count = PI_CCxxx0_FIFO_SIZE;
+        data_block->tx_count = PI_CCxxx0_PACKET_COUNT_SIZE;
     }
 }
 

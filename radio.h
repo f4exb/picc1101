@@ -15,10 +15,8 @@
 #define WPI_GDO0 5 // For Wiring Pi, 5 is GPIO_24 connected to GDO0
 #define WPI_GDO2 6 // For Wiring Pi, 6 is GPIO_25 connected to GDO2
 
-#define TX_FIFO_TRESHOLD 60 // With the default FIFO thresholds selected this is the upper limit in Tx FIFO
-#define RX_FIFO_TRESHOLD  5 // With the default FIFO thresholds selected this is the lower limit in Rx FIFO
-
-#define PACKET_BUFSIZE 256
+#define TX_FIFO_REFILL 60 // With the default FIFO thresholds selected this is the number of bytes to refill the Tx FIFO
+#define RX_FIFO_REFILL 59 // With the default FIFO thresholds selected this is the number of bytes to refill the Rx FIFO
 
 typedef enum sync_word_e
 {
@@ -79,9 +77,9 @@ typedef volatile struct radio_int_data_s
 	spi_parms_t  *spi_parms;             // SPI link parameters
 	radio_mode_t mode;                   // Radio mode (essentially Rx or Tx)
 	uint32_t     packet_count;           // Number of packets sent or received since put into action
-	uint8_t      tx_buf[PACKET_BUFSIZE]; // Tx buffer
+	uint8_t      tx_buf[PI_CCxxx0_PACKET_COUNT_SIZE+1]; // Tx buffer
 	uint8_t      tx_count;               // Number of bytes in Tx buffer
-	uint8_t      rx_buf[PACKET_BUFSIZE]; // Rx buffer
+	uint8_t      rx_buf[PI_CCxxx0_PACKET_COUNT_SIZE+1]; // Rx buffer
 	uint8_t      rx_count;               // Number of bytes in Rx buffer
 	uint8_t      bytes_remaining;        // Bytes remaining to be read from or written to buffer (composite mode)
 	uint8_t      byte_index;             // Current byte index in buffer
