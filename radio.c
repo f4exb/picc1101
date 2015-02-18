@@ -188,9 +188,7 @@ void int_packet_composite(void)
 
             // wait a bit to get packet length information
             usleep(radio_int_data->wait_us);
-            PI_CC_SPIReadStatus(radio_int_data->spi_parms, PI_CCxxx0_RXBYTES, &rx_bytes);
-            rx_bytes &= PI_CCxxx0_NUM_RXBYTES;
-
+            rx_bytes = radio_get_packet_length(radio_int_data->spi_parms);
             verbprintf(2, "%d bytes to read\n", rx_bytes);
 
             radio_int_data->bytes_remaining = rx_bytes;
@@ -896,11 +894,21 @@ void print_radio_parms(radio_parms_t *radio_parms)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Set fixed packet length
+// Set packet length
 int radio_set_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len)
 // ------------------------------------------------------------------------------------------------
 {
     return PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_PKTLEN, pkt_len); // Packet length.
+}
+
+// ------------------------------------------------------------------------------------------------
+// Get packet length
+uint8_t radio_get_packet_length(spi_parms_t *spi_parms)
+// ------------------------------------------------------------------------------------------------
+{
+    uint8_t pkt_len;
+    PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_PKTLEN, &pkt_len); // Packet length.
+    return pkt_len;
 }
 
 // ------------------------------------------------------------------------------------------------
