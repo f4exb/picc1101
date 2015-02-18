@@ -48,6 +48,8 @@
 //
 //----------------------------------------------------------------------------
 
+#ifndef _PI_CC_CC1100_CC2500_H_
+#define _PI_CC_CC1100_CC2500_H_
 
 // Configuration Registers
 #define PI_CCxxx0_IOCFG2       0x00        // GDO2 output pin configuration
@@ -144,7 +146,8 @@
 #define PI_CCxxx0_READ_BURST   0xC0
 
 // Various constants
-#define PI_CCxxx0_FIFO_SIZE    64
+#define PI_CCxxx0_FIFO_SIZE         64     // Rx or Tx FIFO size
+#define PI_CCxxx0_PACKET_COUNT_SIZE 255    // Packet bytes maximum count
 
 // FSM states
 typedef enum ccxxx0_state_e {
@@ -172,3 +175,5 @@ typedef enum ccxxx0_state_e {
 	CCxxx0_STATE_RXTX_SWITCH,
 	CCxxx0_STATE_TXFIFO_UNDERFLOW
 } ccxxx0_state_t;
+
+#endif
