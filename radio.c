@@ -140,7 +140,6 @@ void int_packet_simple(void)
             verbprintf(0, "\"%s\"\n", radio_int_data->rx_buf);
 
             radio_int_data->packet_count++;
-            radio_int_data->packet_receive = 0;        
         }
     }
     else if (radio_int_data->mode == RADIOMODE_TX)
@@ -148,8 +147,7 @@ void int_packet_simple(void)
         verbprintf(2, "GDO0 falling edge\n");
         if (radio_int_data->packet_send) // packet has been sent
         {
-            radio_int_data->packet_count++;
-            radio_int_data->packet_send = 0;
+            verbprintf(2, "Sent packet #%d\n", radio_int_data->packet_count++);
         }
     }
 }
@@ -818,6 +816,7 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
             usleep(wait_us);    
         }
 
+        data_block->packet_send = 0; 
         packets_sent++;
     }
 }
@@ -910,6 +909,7 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
+    uint32_t packets_received;
     radio_int_data_t data_block_space;
     radio_int_data_t *data_block = &data_block_space;
 
@@ -921,21 +921,25 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x00); // GDO2 output pin config RX mode
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX); // Flush Rx FIFO
+    packets_received = data_block->packet_count;
     radio_int_data = data_block;
     wiringPiISR(5, INT_EDGE_FALLING, &int_packet_simple); // set interrupt handler for paket interrupts
     
-    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX); // Enter Rx mode
-    data_block->packet_receive = 1;
-
-
     verbprintf(1, "Wait Rx delay is %d us\n", wait_us);
     verbprintf(0, "Starting...\n");
 
-    while((arguments->repetition == 0) || (data_block->packet_count < arguments->repetition))
-    {
-        usleep(wait_us); 
-    }
+    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX); // Enter Rx mode
+    data_block->packet_receive = 1;
 
+    while((arguments->repetition == 0) || (packets_received < arguments->repetition))
+    {
+        while(packets_received == data_block->packet_count)
+        {
+            usleep(wait_us);
+        }
+
+        packets_received++;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
