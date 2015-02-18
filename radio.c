@@ -937,8 +937,8 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x02); // GDO2 output pin config TX mode
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFTX); // Flush Tx FIFO
 
-    wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet_simple);          // set interrupt handler for packet interrupts
-    wiringPiISR(WPI_GDO2, INT_EDGE_FALLING, &int_threshold_composite); // set interrupt handler for FIFO threshold interrupts
+    wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet);       // set interrupt handler for packet interrupts
+    wiringPiISR(WPI_GDO2, INT_EDGE_FALLING, &int_threshold); // set interrupt handler for FIFO threshold interrupts
 
     verbprintf(0, "Sending %d test packets of size %d\n", arguments->repetition, data_block->tx_count);
     verbprintf(1, "Wait Tx delay is %d us\n", wait_us);
@@ -1127,8 +1127,8 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x00); // GDO2 output pin config RX mode
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX); // Flush Rx FIFO
 
-    wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet_composite);      // set interrupt handler for paket interrupts
-    wiringPiISR(WPI_GDO2, INT_EDGE_RISING, &int_threshold_composite); // set interrupt handler for FIFO threshold interrupts
+    wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet);      // set interrupt handler for paket interrupts
+    wiringPiISR(WPI_GDO2, INT_EDGE_RISING, &int_threshold); // set interrupt handler for FIFO threshold interrupts
     
     verbprintf(1, "Wait Rx delay is %d us\n", data_block->wait_us);
     verbprintf(0, "Starting...\n");

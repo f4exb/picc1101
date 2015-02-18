@@ -60,7 +60,7 @@ uint32_t rate_values[] = {
     500000
 };
 
-uint8_tq nb_preamble_bytes[] = {
+uint8_t nb_preamble_bytes[] = {
     2,
     3,
     4,
