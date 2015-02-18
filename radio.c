@@ -223,10 +223,10 @@ void int_threshold_composite(void)
 {
     uint8_t i, bytes_to_send, x_byte;
 
-    radio_int_data->threshold_hits++;
-
     if (radio_int_data->mode == RADIOMODE_RX) // Filling of Rx FIFO - Read next 59 bytes
     {
+        radio_int_data->threshold_hits++;
+    
         for (i=0; i<RX_FIFO_UNLOAD; i++)
         {
             PI_CC_SPIReadReg(radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &x_byte);
@@ -238,6 +238,8 @@ void int_threshold_composite(void)
     {
         if (radio_int_data->bytes_remaining > 0) // bytes left to send
         {
+            radio_int_data->threshold_hits++;
+
             if (radio_int_data->bytes_remaining < TX_FIFO_REFILL)
             {
                 bytes_to_send = radio_int_data->bytes_remaining;
