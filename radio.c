@@ -97,9 +97,7 @@ void int_packet_simple(void)
     uint8_t x_byte, int_line, rx_bytes, rssi_dec, crc_lqi;
     int i;
 
-    //PI_CC_SPIReadStatus(radio_int_data->spi_parms, PI_CCxxx0_PKTSTATUS, &x_byte); // sense interrupt lines
-    //int_line = x_byte & 0x01; // GDO0 (& 0x01) packet interrupt
-    int_line = digitalRead (WPI_GDO0);
+    int_line = digitalRead(WPI_GDO0); // Sense interrupt line to determine if it was a raising or falling edge
 
     if (radio_int_data->mode == RADIOMODE_RX)
     {
@@ -154,10 +152,19 @@ void int_packet_simple(void)
     }
     else if (radio_int_data->mode == RADIOMODE_TX)
     {
-        verbprintf(2, "GDO0 falling edge\n");
-        if (radio_int_data->packet_send) // packet has been sent
+        if (int_line)
         {
-            verbprintf(2, "Sent packet #%d\n", radio_int_data->packet_count++);
+            verbprintf(2, "GDO0 rising edge\n");
+            radio_int_data->packet_send = 1; // Assert packet transmission after sync has been sent
+        }
+        else
+        {
+            verbprintf(2, "GDO0 falling edge\n");
+            if (radio_int_data->packet_send) // packet has been sent
+            {
+                verbprintf(2, "Sent packet #%d\n", radio_int_data->packet_count++);
+                radio_int_data->packet_send = 0; // De-assert packet transmission after packet has been sent
+            }
         }
     }
 }
@@ -809,6 +816,7 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFTX); // Flush Tx FIFO
     packets_sent = 0;
     data_block->packet_count = 0;
+    data_block->packet_send = 0; 
     radio_int_data = data_block;
     wiringPiISR(WPI_GDO0, INT_EDGE_FALLING, &int_packet_simple); // set interrupt handler for paket interrupts
 
@@ -828,14 +836,12 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
         verbprintf(2, "\n");        
         PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX); // Kick-off Tx
-        data_block->packet_send = 1; 
 
         while (packets_sent == data_block->packet_count)
         {
             usleep(wait_us);    
         }
 
-        data_block->packet_send = 0; 
         packets_sent++;
     }
 }
