@@ -474,7 +474,10 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     int ret = 0;
     uint8_t  reg_word;
 
+    verbprintf(1, "init_radio...\n");
+
     wiringPiSetup(); // initialize Wiring Pi library and GDOx interrupt routines
+    verbprintf(1, "wiringPiSetup done.\n");
 
     // open SPI link
     PI_CC_SPIParmsDefaults(spi_parms);
@@ -485,6 +488,10 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
         fprintf(stderr, "RADIO: cannot open SPI link, RC=%d\n", ret);
         return ret;
     }
+    else
+    {
+        verbprintf(1, "SPI open.\n");        
+    }
 
     ret = PI_CC_PowerupResetCCxxxx(spi_parms); // reset chip
 
@@ -492,6 +499,10 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     {
         fprintf(stderr, "RADIO: cannot reset CC1101 chip, RC=%d\n", ret);
         return ret;
+    }
+    else
+    {
+        verbprintf(1, "CC1101 chip has been reset.\n");        
     }
 
     radio_parms->packet_length = arguments->packet_length;  // Packet length
