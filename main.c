@@ -100,9 +100,6 @@ static struct argp_option options[] = {
     {0}
 };
 
-void toto(void)
-{}
-
 static void delete_args(arguments_t *arguments);
 
 // ------------------------------------------------------------------------------------------------
@@ -197,7 +194,7 @@ static void print_args(arguments_t *arguments)
     fprintf(stderr, "Rate ................: %d Baud\n", rate_values[arguments->rate]);
     fprintf(stderr, "Modulation index ....: %.2f\n", arguments->modulation_index);
     fprintf(stderr, "Frequency ...........: %d Hz\n", arguments->freq_hz);
-    fprintf(stderr, "Packet length .......: %d bits\n", arguments->packet_length);
+    fprintf(stderr, "Packet length .......: %d bytes\n", arguments->packet_length);
     fprintf(stderr, "Preamble size .......: %d bytes\n", nb_preamble_bytes[arguments->preamble]);
     fprintf(stderr, "FEC .................: %s\n", (arguments->fec ? "on" : "off"));
     fprintf(stderr, "Whitening ...........: %s\n", (arguments->whitening ? "on" : "off"));

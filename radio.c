@@ -1099,7 +1099,7 @@ int radio_receive_test_int_composite(spi_parms_t *spi_parms, arguments_t *argume
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x00); // GDO2 output pin config RX mode
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX); // Flush Rx FIFO
 
-    wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet_simple);         // set interrupt handler for paket interrupts
+    wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet_composite);      // set interrupt handler for paket interrupts
     wiringPiISR(WPI_GDO2, INT_EDGE_RISING, &int_threshold_composite); // set interrupt handler for FIFO threshold interrupts
     
     verbprintf(1, "Wait Rx delay is %d us\n", data_block->wait_us);
