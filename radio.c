@@ -187,7 +187,7 @@ void int_threshold_composite(void)
             }
             else
             {
-                bytes_to_send = TX_FIFO_TRESHOLD    
+                bytes_to_send = TX_FIFO_TRESHOLD;
             }
 
             for (i=0; i<bytes_to_send; i++)
