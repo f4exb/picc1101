@@ -424,7 +424,7 @@ void print_received_packet(radio_int_data_t *data_block)
     crc_lqi  = data_block->rx_buf[data_block->rx_count-1];
     data_block->rx_buf[data_block->rx_count-2] = '\0';
 
-    verbprintf(0, "\"%s\"\n", rx_buf);
+    verbprintf(0, "\"%s\"\n", data_block->rx_buf);
     verbprintf(0, "RSSI: %.1f dBm. LQI=%d. CRC=%d\n", 
         rssi_dbm(rssi_dec),
         0x7F - (crc_lqi & 0x7F),
@@ -1100,7 +1100,7 @@ int radio_receive_test_int_composite(spi_parms_t *spi_parms, arguments_t *argume
     wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet_simple);         // set interrupt handler for paket interrupts
     wiringPiISR(WPI_GDO2, INT_EDGE_RISING, &int_threshold_composite); // set interrupt handler for FIFO threshold interrupts
     
-    verbprintf(1, "Wait Rx delay is %d us\n", wait_us);
+    verbprintf(1, "Wait Rx delay is %d us\n", data_block->wait_us);
     verbprintf(0, "Starting...\n");
 
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX); // Enter Rx mode
