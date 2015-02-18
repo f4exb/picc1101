@@ -106,6 +106,7 @@ void int_packet_simple(void)
         if (int_line)
         {
             verbprintf(2, "GDO0 rising edge\n");
+            radio_int_data->packet_receive = 1; // Assert packet reception after sync has been acknowledged
         }
         else
         {
@@ -147,6 +148,7 @@ void int_packet_simple(void)
                 verbprintf(0, "\"%s\"\n", radio_int_data->rx_buf);
 
                 radio_int_data->packet_count++;
+                radio_int_data->packet_receive = 0; // De-assert packet reception after packet has been received
             }
         }
     }
@@ -947,7 +949,6 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     verbprintf(0, "Starting...\n");
 
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX); // Enter Rx mode
-    data_block->packet_receive = 1;
 
     while((arguments->repetition == 0) || (packets_received < arguments->repetition))
     {
