@@ -26,11 +26,9 @@ radio_parms_t radio_parameters;
 
 char *test_mode_names[] = {
     "No test",
-    "Simple Tx. Packet < 64 bytes",
-    "Simple Tx with packet interrupt handling. Packet < 64 bytes",
+    "Simple Tx with polling. Packet < 64 bytes",
     "Simple Tx with packet interrupt handling. Packet up to 255 bytes",
-    "Simple Rx. Packet < 64 bytes",
-    "Simple Rx with packet interrupt handling. Packet < 64 bytes",
+    "Simple Rx with polling. Packet < 64 bytes",
     "Simple Rx with packet interrupt handling. Packet up to 255 bytes"
 };
 
@@ -62,7 +60,7 @@ uint32_t rate_values[] = {
     500000
 };
 
-uint8_t nb_preamble_bytes[] = {
+uint8_tq nb_preamble_bytes[] = {
     2,
     3,
     4,
@@ -449,14 +447,9 @@ int main (int argc, char **argv)
         radio_transmit_test(&spi_parameters, &arguments);
         return 0;
     }
-    else if (arguments.test_mode == TEST_TX_INT_SIMPLE)
+    else if (arguments.test_mode == TEST_TX_INTERRUPT)
     {
         radio_transmit_test_int(&spi_parameters, &arguments);
-        return 0;
-    }
-    else if (arguments.test_mode == TEST_TX_INT_COMPOSITE)
-    {
-        radio_transmit_test_int_composite(&spi_parameters, &arguments);
         return 0;
     }
     else if (arguments.test_mode == TEST_RX_SIMPLE)
@@ -464,14 +457,9 @@ int main (int argc, char **argv)
         radio_receive_test(&spi_parameters, &arguments);
         return 0;
     }
-    else if (arguments.test_mode == TEST_RX_INT_SIMPLE)
+    else if (arguments.test_mode == TEST_RX_INTERRUPT)
     {
         radio_receive_test_int(&spi_parameters, &arguments);
-        return 0;
-    }
-    else if (arguments.test_mode == TEST_RX_INT_COMPOSITE)
-    {
-        radio_receive_test_int_composite(&spi_parameters, &arguments);
         return 0;
     }
 

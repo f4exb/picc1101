@@ -101,10 +101,10 @@ int     print_radio_status(spi_parms_t *spi_parms);
 int     radio_set_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len);
 uint8_t radio_get_packet_length(spi_parms_t *spi_parms);
 int     radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments);
+int     radio_transmit_test_int_single_fifo(spi_parms_t *spi_parms, arguments_t *arguments);
 int     radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments);
-int     radio_transmit_test_int_composite(spi_parms_t *spi_parms, arguments_t *arguments);
 int     radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments);
+int     radio_receive_test_int_single_fifo(spi_parms_t *spi_parms, arguments_t *arguments);
 int     radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments);
-int     radio_receive_test_int_composite(spi_parms_t *spi_parms, arguments_t *arguments);
 
 #endif

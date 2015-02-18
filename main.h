@@ -7,11 +7,9 @@
 typedef enum test_mode_e {
     TEST_NONE = 0,
     TEST_TX_SIMPLE,
-    TEST_TX_INT_SIMPLE,
-    TEST_TX_INT_COMPOSITE,
+    TEST_TX_INTERRUPT,
     TEST_RX_SIMPLE,
-    TEST_RX_INT_SIMPLE,
-    TEST_RX_INT_COMPOSITE,
+    TEST_RX_INTERRUPT,
     NUM_TEST
 } test_mode_t;
 

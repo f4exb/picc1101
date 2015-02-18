@@ -171,8 +171,8 @@ void int_packet_simple(void)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Processes packets that do not fit inside the Rx or Tx FIFO
-void int_packet_composite(void)
+// Processes packets up to 255 bytes
+void int_packet(void)
 // ------------------------------------------------------------------------------------------------
 {
     uint8_t x_byte, int_line, rssi_dec, crc_lqi;
@@ -236,7 +236,7 @@ void int_packet_composite(void)
 // ------------------------------------------------------------------------------------------------
 // Processes packets that do not fit in Rx or Tx FIFOs and 255 bytes long maximum
 // FIFO threshold interrupt handler 
-void int_threshold_composite(void)
+void int_threshold(void)
 // ------------------------------------------------------------------------------------------------
 {
     uint8_t i, bytes_to_send, x_byte;
@@ -914,7 +914,7 @@ uint8_t radio_get_packet_length(spi_parms_t *spi_parms)
 
 // ------------------------------------------------------------------------------------------------
 // Transmission test with interrupt handling
-int radio_transmit_test_int_composite(spi_parms_t *spi_parms, arguments_t *arguments)
+int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
     uint32_t packets_sent;
@@ -975,7 +975,7 @@ int radio_transmit_test_int_composite(spi_parms_t *spi_parms, arguments_t *argum
 
 // ------------------------------------------------------------------------------------------------
 // Transmission test with interrupt handling
-int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
+int radio_transmit_test_int_single_fifo(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
     uint32_t packets_sent;
@@ -1110,7 +1110,7 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 
 // ------------------------------------------------------------------------------------------------
 // Reception test with interrupt handling
-int radio_receive_test_int_composite(spi_parms_t *spi_parms, arguments_t *arguments)
+int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
     uint32_t packets_received;
@@ -1152,7 +1152,7 @@ int radio_receive_test_int_composite(spi_parms_t *spi_parms, arguments_t *argume
 
 // ------------------------------------------------------------------------------------------------
 // Reception test with interrupt handling
-int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
+int radio_receive_test_int_single_fifo(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
     uint32_t packets_received;
