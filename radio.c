@@ -818,7 +818,7 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     data_block->packet_count = 0;
     data_block->packet_send = 0; 
     radio_int_data = data_block;
-    wiringPiISR(WPI_GDO0, INT_EDGE_FALLING, &int_packet_simple); // set interrupt handler for paket interrupts
+    wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet_simple); // set interrupt handler for paket interrupts
 
     verbprintf(0, "Sending %d test packets of size %d\n", arguments->repetition, data_block->tx_count);
     verbprintf(1, "Wait Tx delay is %d us\n", wait_us);
