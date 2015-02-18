@@ -191,6 +191,8 @@ void int_packet_composite(void)
             PI_CC_SPIReadStatus(radio_int_data->spi_parms, PI_CCxxx0_RXBYTES, &rx_bytes);
             rx_bytes &= PI_CCxxx0_NUM_RXBYTES;
 
+            verbprintf(2, "%d bytes to read\n", rx_bytes);
+
             radio_int_data->bytes_remaining = rx_bytes;
             radio_int_data->byte_index = 0;
             radio_int_data->packet_receive = 1; // reception is in progress
@@ -213,6 +215,23 @@ void int_packet_composite(void)
             }            
         }        
     }    
+    else if (radio_int_data->mode == RADIOMODE_TX)
+    {
+        if (int_line)
+        {
+            verbprintf(2, "GDO0 rising edge\n");
+            radio_int_data->packet_send = 1; // Assert packet transmission after sync has been sent
+        }
+        else
+        {
+            verbprintf(2, "GDO0 falling edge\n");
+            if (radio_int_data->packet_send) // packet has been sent
+            {
+                verbprintf(2, "Sent packet #%d\n", radio_int_data->packet_count++);
+                radio_int_data->packet_send = 0; // De-assert packet transmission after packet has been sent
+            }
+        }
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1109,6 +1128,8 @@ int radio_receive_test_int_composite(spi_parms_t *spi_parms, arguments_t *argume
 
     while((arguments->repetition == 0) || (packets_received < arguments->repetition))
     {
+        data_block->threshold_hits = 0;
+
         while(packets_received == data_block->packet_count) // wait for one more packet received
         {
             usleep(data_block->wait_us);
