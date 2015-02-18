@@ -811,7 +811,7 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
         verbprintf(2, "\n");        
         PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX); // Kick-off Tx
-        data_block->packet_sent = 1; 
+        data_block->packet_send = 1; 
 
         while (packets_sent == data_block->packet_count)
         {
