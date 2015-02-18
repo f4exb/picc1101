@@ -286,8 +286,6 @@ void get_rate_words(rate_t rate_code, modulation_t modulation_code, float modula
 void init_radio_int_data(radio_int_data_t *radio_int_data)
 // ------------------------------------------------------------------------------------------------
 {
-    radio_int_data->terminate = 0;
-    radio_int_data->packet_count = 0;
     radio_int_data->packet_receive = 0;
     radio_int_data->packet_send = 0;
 }
@@ -789,7 +787,8 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     radio_set_packet_length(spi_parms, data_block->tx_count);
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x02); // GDO2 output pin config TX mode
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFTX); // Flush Tx FIFO
-    packets_sent = data_block->packet_count;
+    packets_sent = 0;
+    data_block->packet_count = 0;
     radio_int_data = data_block;
     wiringPiISR(5, INT_EDGE_FALLING, &int_packet_simple); // set interrupt handler for paket interrupts
 
@@ -921,7 +920,8 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x00); // GDO2 output pin config RX mode
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX); // Flush Rx FIFO
-    packets_received = data_block->packet_count;
+    packets_received = 0;
+    data_block->packet_count = 0;
     radio_int_data = data_block;
     wiringPiISR(5, INT_EDGE_FALLING, &int_packet_simple); // set interrupt handler for paket interrupts
     

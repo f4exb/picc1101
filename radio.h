@@ -75,7 +75,6 @@ typedef volatile struct radio_int_data_s
 {
 	spi_parms_t  *spi_parms;
 	radio_mode_t mode;
-	uint8_t      terminate;
 	uint32_t     packet_count;
 	uint8_t      tx_buf[PACKET_BUFSIZE];
 	uint8_t      tx_count;
