@@ -189,6 +189,7 @@ void int_packet_composite(void)
             // wait a bit to get packet length information
             usleep(radio_int_data->wait_us);
             rx_bytes = radio_get_packet_length(radio_int_data->spi_parms);
+            rx_bytes += 2; // Add RSSI + LQI/CRC bytes
             verbprintf(2, "%d bytes to read\n", rx_bytes);
 
             radio_int_data->bytes_remaining = rx_bytes;
