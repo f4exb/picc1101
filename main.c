@@ -131,6 +131,14 @@ static void print_long_help()
         fprintf(stderr, "%2d\t%d\n", i, rate_values[i]);
     }
 
+    fprintf(stderr, "Test scheme option -t values\n");
+    fprintf(stderr, "Value:\tScheme:\n");
+
+    for (i=0; i<NUM_TEST; i++)
+    {
+        fprintf(stderr, "%d\t%s\n", i, test_mode_names[i]);
+    }
+
     fprintf(stderr, "\nRepetition factor option -n values\n");    
     fprintf(stderr, "- for test transmissions (-t option) this is the repetition of the same test packet\n");
 
