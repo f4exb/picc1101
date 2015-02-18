@@ -921,11 +921,12 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x00); // GDO2 output pin config RX mode
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX); // Flush Rx FIFO
+    radio_int_data = data_block;
+    wiringPiISR(5, INT_EDGE_FALLING, &int_packet_simple); // set interrupt handler for paket interrupts
+    
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX); // Enter Rx mode
     data_block->packet_receive = 1;
 
-    radio_int_data = data_block;
-    wiringPiISR(5, INT_EDGE_FALLING, &int_packet_simple); // set interrupt handler for paket interrupts
 
     verbprintf(1, "Wait Rx delay is %d us\n", wait_us);
     verbprintf(0, "Starting...\n");
