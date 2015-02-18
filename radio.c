@@ -187,7 +187,7 @@ void int_packet_composite(void)
             verbprintf(2, "GDO0 rising edge\n");
 
             // wait a bit to get packet length information
-            udelay(radio_int_data->wait_us);
+            usleep(radio_int_data->wait_us);
             PI_CC_SPIReadStatus(radio_int_data->spi_parms, PI_CCxxx0_RXBYTES, &rx_bytes);
             rx_bytes &= PI_CCxxx0_NUM_RXBYTES;
 
