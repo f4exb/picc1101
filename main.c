@@ -30,8 +30,8 @@ char *test_mode_names[] = {
     "Simple Tx with packet interrupt handling. Packet < 64 bytes",
     "Simple Tx with packet interrupt handling. Packet up to 255 bytes",
     "Simple Rx. Packet < 64 bytes",
-    "Simple Rx with packet interrupt handling. Packet < 64 bytes"
-    "Simple Rx with packet interrupt handling. Packet up to 255 bytes",
+    "Simple Rx with packet interrupt handling. Packet < 64 bytes",
+    "Simple Rx with packet interrupt handling. Packet up to 255 bytes"
 };
 
 char *modulation_names[] = {
@@ -474,7 +474,7 @@ int main (int argc, char **argv)
     }
     else if (arguments.test_mode == TEST_RX_INT_COMPOSITE)
     {
-        radio_receive_test_int(&spi_parameters, &arguments); // TODO: replace by actual function
+        radio_receive_test_int_composite(&spi_parameters, &arguments);
         return 0;
     }
 
