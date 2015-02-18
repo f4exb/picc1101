@@ -11,6 +11,7 @@
 #define _RADIO_H_
 
 #include "pi_cc_spi.h"
+#include "pi_cc_cc1100-cc2500.h"
 
 #define WPI_GDO0 5 // For Wiring Pi, 5 is GPIO_24 connected to GDO0
 #define WPI_GDO2 6 // For Wiring Pi, 6 is GPIO_25 connected to GDO2
