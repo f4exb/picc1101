@@ -15,6 +15,9 @@
 #define WPI_GDO0 5 // For Wiring Pi, 5 is GPIO_24 connected to GDO0
 #define WPI_GDO2 6 // For Wiring Pi, 6 is GPIO_25 connected to GDO2
 
+#define TX_FIFO_TRESHOLD 60 // With the default FIFO thresholds selected this is the upper limit in Tx FIFO
+#define RX_FIFO_TRESHOLD  5 // With the default FIFO thresholds selected this is the lower limit in Rx FIFO
+
 #define PACKET_BUFSIZE 256
 
 typedef enum sync_word_e
@@ -73,15 +76,17 @@ typedef enum radio_mode_e
 
 typedef volatile struct radio_int_data_s 
 {
-	spi_parms_t  *spi_parms;
-	radio_mode_t mode;
-	uint32_t     packet_count;
-	uint8_t      tx_buf[PACKET_BUFSIZE];
-	uint8_t      tx_count;
-	uint8_t      rx_buf[PACKET_BUFSIZE];
-	uint8_t      rx_count;
-	uint8_t      packet_receive;
-	uint8_t      packet_send;
+	spi_parms_t  *spi_parms;             // SPI link parameters
+	radio_mode_t mode;                   // Radio mode (essentially Rx or Tx)
+	uint32_t     packet_count;           // Number of packets sent or received since put into action
+	uint8_t      tx_buf[PACKET_BUFSIZE]; // Tx buffer
+	uint8_t      tx_count;               // Number of bytes in Tx buffer
+	uint8_t      rx_buf[PACKET_BUFSIZE]; // Rx buffer
+	uint8_t      rx_count;               // Number of bytes in Rx buffer
+	uint8_t      bytes_remaining;        // Bytes remaining to be read from or written to buffer (composite mode)
+	uint8_t      byte_index;             // Current byte index in buffer
+	uint8_t      packet_receive;         // Indicates reception of a packet is in progress
+	uint8_t      packet_send;            // Indicates transmission of a packet is in progress
 } radio_int_data_t;
 
 extern char  *state_names[];
@@ -95,6 +100,7 @@ int   print_radio_status(spi_parms_t *spi_parms);
 int   radio_set_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len);
 int   radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments);
 int   radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments);
+int   radio_transmit_test_int_composite(spi_parms_t *spi_parms, arguments_t *arguments);
 int   radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments);
 int   radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments);
 
