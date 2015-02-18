@@ -86,6 +86,7 @@ static uint32_t get_if_word(uint32_t freq_xtal, uint32_t if_hz);
 static void get_chanbw_words(float bw, radio_parms_t *radio_parms);
 static void get_rate_words(rate_t rate_code, modulation_t modulation_code, float modulation_index, radio_parms_t *radio_parms);
 static void init_test_tx_block(radio_int_data_t *data_block, arguments_t *arguments);
+static void print_received_packet(radio_int_data_t *data_block);
 
 // === Interupt handlers ==========================================================================
 
@@ -170,14 +171,70 @@ void int_packet_simple(void)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Processes packets that do not fit inside the Rx or Tx FIFO
+void int_packet_composite(void)
+// ------------------------------------------------------------------------------------------------
+{
+    uint8_t x_byte, int_line, rx_bytes, rssi_dec, crc_lqi;
+    int i;
+
+    int_line = digitalRead(WPI_GDO0); // Sense interrupt line to determine if it was a raising or falling edge
+
+    if (radio_int_data->mode == RADIOMODE_RX)
+    {
+        if (int_line)
+        {
+            verbprintf(2, "GDO0 rising edge\n");
+
+            // wait a bit to get packet length information
+            udelay(radio_int_data->wait_us);
+            PI_CC_SPIReadStatus(radio_int_data->spi_parms, PI_CCxxx0_RXBYTES, &rx_bytes);
+            rx_bytes &= PI_CCxxx0_NUM_RXBYTES;
+
+            radio_int_data->bytes_remaining = rx_bytes;
+            radio_int_data->byte_index = 0;
+            radio_int_data->packet_receive = 1; // reception is in progress
+        }
+        else
+        {
+            verbprintf(2, "GDO0 falling edge\n");
+
+            if (radio_int_data->packet_receive) // packet has been received
+            {        
+                while (radio_int_data->bytes_remaining > 0) // flush remaining bytes
+                {
+                    PI_CC_SPIReadReg(radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &x_byte);
+                    radio_int_data->rx_buf[radio_int_data->byte_index++];
+                    radio_int_data->bytes_remaining--;
+                }
+
+                radio_int_data->packet_count++;
+                radio_int_data->packet_receive = 0; // reception is done
+            }            
+        }        
+    }    
+}
+
+// ------------------------------------------------------------------------------------------------
 // Processes packets that do not fit in Rx or Tx FIFOs and 255 bytes long maximum
 // FIFO threshold interrupt handler 
 void int_threshold_composite(void)
 // ------------------------------------------------------------------------------------------------
 {
-    uint8_t i, bytes_to_send;
+    uint8_t i, bytes_to_send, x_byte;
 
-    if (radio_int_data->mode == RADIOMODE_TX) // Depletion of Tx FIFO - Write at most next 60 bytes
+    radio_int_data->threshold_hits++;
+
+    if (radio_int_data->mode == RADIOMODE_RX) // Filling of Rx FIFO - Read next 59 bytes
+    {
+        for (i=0; i<RX_FIFO_UNLOAD; i++)
+        {
+            PI_CC_SPIReadReg(radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &x_byte);
+            radio_int_data->rx_buf[radio_int_data->byte_index++];
+            radio_int_data->bytes_remaining--;
+        }
+    }
+    else if (radio_int_data->mode == RADIOMODE_TX) // Depletion of Tx FIFO - Write at most next 60 bytes
     {
         if (radio_int_data->bytes_remaining > 0) // bytes left to send
         {
@@ -354,6 +411,24 @@ void init_test_tx_block(radio_int_data_t *data_block, arguments_t *arguments)
     {
         data_block->tx_count = PI_CCxxx0_PACKET_COUNT_SIZE;
     }
+}
+
+// ------------------------------------------------------------------------------------------------
+void print_received_packet(radio_int_data_t *data_block)
+// Print a received packet stored in the interrupt data block
+// ------------------------------------------------------------------------------------------------
+{
+    uint8_t rssi_dec, crc_lqi;
+
+    rssi_dec = data_block->rx_buf[data_block->rx_count-2];
+    crc_lqi  = data_block->rx_buf[data_block->rx_count-1];
+    data_block->rx_buf[data_block->rx_count-2] = '\0';
+
+    verbprintf(0, "\"%s\"\n", rx_buf);
+    verbprintf(0, "RSSI: %.1f dBm. LQI=%d. CRC=%d\n", 
+        rssi_dbm(rssi_dec),
+        0x7F - (crc_lqi & 0x7F),
+        (crc_lqi & PI_CCxxx0_CRC_OK)>>7);
 }
 
 // === Public functions ===========================================================================
@@ -824,7 +899,7 @@ int radio_transmit_test_int_composite(spi_parms_t *spi_parms, arguments_t *argum
     data_block->spi_parms = spi_parms;
     data_block->mode = RADIOMODE_TX;
     data_block->packet_count = 0;
-    data_block->packet_send = 0; 
+    data_block->packet_send = 0;
     packets_sent = 0;
     radio_int_data = data_block;
 
@@ -845,6 +920,7 @@ int radio_transmit_test_int_composite(spi_parms_t *spi_parms, arguments_t *argum
     while(packets_sent < arguments->repetition)
     {
         verbprintf(0, "Packet #%d\n", packets_sent);
+        data_block->threshold_hits = 0;
 
         // Initial fill of TX FIFO
         for (i=0; i<initial_tx_count; i++)
@@ -862,6 +938,7 @@ int radio_transmit_test_int_composite(spi_parms_t *spi_parms, arguments_t *argum
             usleep(wait_us);    
         }
 
+        verbprintf(2, "FIFO threshold was hit %d times\n", data_block->threshold_hits);
         packets_sent++;
     }        
 }
@@ -998,6 +1075,46 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
         usleep(tx_delay);
 
         print_radio_status(spi_parms);
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Reception test with interrupt handling
+int radio_receive_test_int_composite(spi_parms_t *spi_parms, arguments_t *arguments)
+// ------------------------------------------------------------------------------------------------
+{
+    uint32_t packets_received;
+    radio_int_data_t data_block_space;
+    radio_int_data_t *data_block = &data_block_space;
+
+    data_block->spi_parms = spi_parms;
+    data_block->mode = RADIOMODE_RX;
+    packets_received = 0;
+    data_block->packet_count = 0;
+    data_block->wait_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
+    radio_int_data = data_block;
+
+    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x00); // GDO2 output pin config RX mode
+    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX); // Flush Rx FIFO
+
+    wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet_simple);         // set interrupt handler for paket interrupts
+    wiringPiISR(WPI_GDO2, INT_EDGE_RISING, &int_threshold_composite); // set interrupt handler for FIFO threshold interrupts
+    
+    verbprintf(1, "Wait Rx delay is %d us\n", wait_us);
+    verbprintf(0, "Starting...\n");
+
+    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX); // Enter Rx mode
+
+    while((arguments->repetition == 0) || (packets_received < arguments->repetition))
+    {
+        while(packets_received == data_block->packet_count) // wait for one more packet received
+        {
+            usleep(data_block->wait_us);
+        }
+
+        print_received_packet(data_block);
+        verbprintf(2, "FIFO threshold was hit %d times\n", data_block->threshold_hits);
+        packets_received++;
     }
 }
 
