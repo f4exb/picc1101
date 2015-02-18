@@ -175,7 +175,7 @@ void int_packet_simple(void)
 void int_packet_composite(void)
 // ------------------------------------------------------------------------------------------------
 {
-    uint8_t x_byte, int_line, rx_bytes, rssi_dec, crc_lqi;
+    uint8_t x_byte, int_line, rssi_dec, crc_lqi;
     int i;
 
     int_line = digitalRead(WPI_GDO0); // Sense interrupt line to determine if it was a raising or falling edge
@@ -188,11 +188,11 @@ void int_packet_composite(void)
 
             // wait a bit to get packet length information
             usleep(radio_int_data->wait_us);
-            rx_bytes = radio_get_packet_length(radio_int_data->spi_parms);
-            rx_bytes += 2; // Add RSSI + LQI/CRC bytes
-            verbprintf(2, "%d bytes to read\n", rx_bytes);
+            radio_int_data->rx_count = radio_get_packet_length(radio_int_data->spi_parms);
+            radio_int_data->rx_count += 2; // Add RSSI + LQI/CRC bytes
+            verbprintf(2, "%d bytes to read\n", radio_int_data->rx_count);
 
-            radio_int_data->bytes_remaining = rx_bytes;
+            radio_int_data->bytes_remaining = radio_int_data->rx_count;
             radio_int_data->byte_index = 0;
             radio_int_data->packet_receive = 1; // reception is in progress
         }
