@@ -94,52 +94,60 @@ static void init_radio_int_data(radio_int_data_t *radio_int_data);
 void int_packet_simple(void)
 // ------------------------------------------------------------------------------------------------
 {
-    uint8_t x_byte, int_packet, rx_bytes, rssi_dec, crc_lqi;
+    uint8_t x_byte, int_line, rx_bytes, rssi_dec, crc_lqi;
     int i;
 
     //PI_CC_SPIReadStatus(radio_int_data->spi_parms, PI_CCxxx0_PKTSTATUS, &x_byte); // sense interrupt lines
-    //int_packet = x_byte & 0x01; // GDO0 (& 0x01) packet interrupt
+    //int_line = x_byte & 0x01; // GDO0 (& 0x01) packet interrupt
+    int_line = digitalRead (WPI_GDO0);
 
     if (radio_int_data->mode == RADIOMODE_RX)
     {
-        verbprintf(2, "GDO0 falling edge\n");
-        if (radio_int_data->packet_receive) // packet has been received
+        if (int_line)
         {
-            verbprintf(0, "Packet #%d\n", radio_int_data->packet_count);
-
-            PI_CC_SPIReadStatus(radio_int_data->spi_parms, PI_CCxxx0_RXBYTES, &rx_bytes);
-            rx_bytes &= PI_CCxxx0_NUM_RXBYTES;
-            verbprintf(1, "Received %d bytes\n", rx_bytes);
-            memset((uint8_t *)radio_int_data->rx_buf, '\0', PACKET_BUFSIZE);
-
-            for (i=0; i<rx_bytes; i++)
+            verbprintf(2, "GDO0 rising edge\n");
+        }
+        else
+        {
+            verbprintf(2, "GDO0 falling edge\n");
+            if (radio_int_data->packet_receive) // packet has been received
             {
-                if (i<(rx_bytes-2)) // packet bytes
+                verbprintf(0, "Packet #%d\n", radio_int_data->packet_count);
+
+                PI_CC_SPIReadStatus(radio_int_data->spi_parms, PI_CCxxx0_RXBYTES, &rx_bytes);
+                rx_bytes &= PI_CCxxx0_NUM_RXBYTES;
+                verbprintf(1, "Received %d bytes\n", rx_bytes);
+                memset((uint8_t *)radio_int_data->rx_buf, '\0', PACKET_BUFSIZE);
+
+                for (i=0; i<rx_bytes; i++)
                 {
-                    PI_CC_SPIReadReg(radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &x_byte);
-                    radio_int_data->rx_buf[i] = x_byte;
-                }
-                else if (i == (rx_bytes-2)) // RSSI
-                {
-                    PI_CC_SPIReadReg(radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &rssi_dec); 
-                }
-                else // LQI + CRC
-                {
-                    PI_CC_SPIReadReg(radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &crc_lqi);
+                    if (i<(rx_bytes-2)) // packet bytes
+                    {
+                        PI_CC_SPIReadReg(radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &x_byte);
+                        radio_int_data->rx_buf[i] = x_byte;
+                    }
+                    else if (i == (rx_bytes-2)) // RSSI
+                    {
+                        PI_CC_SPIReadReg(radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &rssi_dec); 
+                    }
+                    else // LQI + CRC
+                    {
+                        PI_CC_SPIReadReg(radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &crc_lqi);
+                    }
+
+                    verbprintf(2, "%X:%02X ", radio_int_data->spi_parms->rx[0] & 0x0F, radio_int_data->spi_parms->rx[1]);   
                 }
 
-                verbprintf(2, "%X:%02X ", radio_int_data->spi_parms->rx[0] & 0x0F, radio_int_data->spi_parms->rx[1]);   
+                verbprintf(2, "\n");
+                verbprintf(0, "RSSI: %.1f dBm. LQI=%d. CRC=%d\n", 
+                    rssi_dbm(rssi_dec),
+                    0x7F - (crc_lqi & 0x7F),
+                    (crc_lqi & PI_CCxxx0_CRC_OK)>>7);
+
+                verbprintf(0, "\"%s\"\n", radio_int_data->rx_buf);
+
+                radio_int_data->packet_count++;
             }
-
-            verbprintf(2, "\n");
-            verbprintf(0, "RSSI: %.1f dBm. LQI=%d. CRC=%d\n", 
-                rssi_dbm(rssi_dec),
-                0x7F - (crc_lqi & 0x7F),
-                (crc_lqi & PI_CCxxx0_CRC_OK)>>7);
-
-            verbprintf(0, "\"%s\"\n", radio_int_data->rx_buf);
-
-            radio_int_data->packet_count++;
         }
     }
     else if (radio_int_data->mode == RADIOMODE_TX)
@@ -154,7 +162,17 @@ void int_packet_simple(void)
 
 // ------------------------------------------------------------------------------------------------
 // Processes packets that do not fit in Rx or Tx FIFOs and 255 bytes long maximum
+// Packet interrupt handler
 void int_packet_composite(void)
+// ------------------------------------------------------------------------------------------------
+{
+
+}
+
+// ------------------------------------------------------------------------------------------------
+// Processes packets that do not fit in Rx or Tx FIFOs and 255 bytes long maximum
+// FIFO threshold interrupt handler 
+void int_threshold_composite(void)
 // ------------------------------------------------------------------------------------------------
 {
 
@@ -790,7 +808,7 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     packets_sent = 0;
     data_block->packet_count = 0;
     radio_int_data = data_block;
-    wiringPiISR(5, INT_EDGE_FALLING, &int_packet_simple); // set interrupt handler for paket interrupts
+    wiringPiISR(WPI_GDO0, INT_EDGE_FALLING, &int_packet_simple); // set interrupt handler for paket interrupts
 
     verbprintf(0, "Sending %d test packets of size %d\n", arguments->repetition, data_block->tx_count);
     verbprintf(1, "Wait Tx delay is %d us\n", wait_us);
@@ -923,7 +941,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     packets_received = 0;
     data_block->packet_count = 0;
     radio_int_data = data_block;
-    wiringPiISR(5, INT_EDGE_FALLING, &int_packet_simple); // set interrupt handler for paket interrupts
+    wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet_simple); // set interrupt handler for paket interrupts
     
     verbprintf(1, "Wait Rx delay is %d us\n", wait_us);
     verbprintf(0, "Starting...\n");
