@@ -443,7 +443,7 @@ void print_received_packet(radio_int_data_t *data_block)
 
     if (verbose_level > 1)
     {
-        fprintf("%d bytes in buffer:\n", data_block->rx_count);
+        fprintf(stderr, "%d bytes in buffer:\n", data_block->rx_count);
 
         for (i=0; i<data_block->rx_count; i++)
         {
