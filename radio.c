@@ -439,11 +439,23 @@ void print_received_packet(radio_int_data_t *data_block)
 // ------------------------------------------------------------------------------------------------
 {
     uint8_t rssi_dec, crc_lqi;
+    int i;
 
-    verbprintf(1, "%d bytes in buffer\n", data_block->rx_count);
+    if (verbose_level > 1)
+    {
+        fprintf("%d bytes in buffer:\n", data_block->rx_count);
+
+        for (i=0; i<data_block->rx_count; i++)
+        {
+            fprintf(stderr, "%02X ", data_block->rx_buf[i]);
+        } 
+
+        fprintf(stderr, "\n");
+    }
+
     rssi_dec = data_block->rx_buf[data_block->rx_count-2];
     crc_lqi  = data_block->rx_buf[data_block->rx_count-1];
-    //data_block->rx_buf[data_block->rx_count] = '\0';
+    data_block->rx_buf[data_block->rx_count-2] = '\0';
 
     verbprintf(0, "\"%s\"\n", data_block->rx_buf);
     verbprintf(0, "RSSI: %.1f dBm. LQI=%d. CRC=%d\n", 
