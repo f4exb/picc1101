@@ -405,6 +405,7 @@ void init_test_tx_block(radio_int_data_t *data_block, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
     uint8_t  phrase_length;
+    int i;
 
     if (strlen(arguments->test_phrase) < PI_CCxxx0_PACKET_COUNT_SIZE)
     {
@@ -430,6 +431,18 @@ void init_test_tx_block(radio_int_data_t *data_block, arguments_t *arguments)
     else
     {
         data_block->tx_count = PI_CCxxx0_PACKET_COUNT_SIZE;
+    }
+
+    if (verbose_level > 1)
+    {
+        fprintf(stderr, "Test block:\n");
+
+        for (i=0; i<data_block->tx_count; i++)
+        {
+            fprintf(stderr, "%02X:%c ", data_block->tx_buf[i], data_block->tx_buf[i]);
+        }
+
+        fprintf(stderr, "\n");
     }
 }
 
