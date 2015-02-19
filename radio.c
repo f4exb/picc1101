@@ -440,7 +440,7 @@ void print_received_packet(radio_int_data_t *data_block)
 {
     uint8_t rssi_dec, crc_lqi;
 
-    verbprintf("%d bytes in buffer\n", data_block->rx_count);
+    verbprintf(1, "%d bytes in buffer\n", data_block->rx_count);
     rssi_dec = data_block->rx_buf[data_block->rx_count-2];
     crc_lqi  = data_block->rx_buf[data_block->rx_count-1];
     data_block->rx_buf[data_block->rx_count] = '\0';
