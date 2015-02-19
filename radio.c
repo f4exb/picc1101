@@ -443,7 +443,7 @@ void print_received_packet(radio_int_data_t *data_block)
     verbprintf(1, "%d bytes in buffer\n", data_block->rx_count);
     rssi_dec = data_block->rx_buf[data_block->rx_count-2];
     crc_lqi  = data_block->rx_buf[data_block->rx_count-1];
-    data_block->rx_buf[data_block->rx_count] = '\0';
+    //data_block->rx_buf[data_block->rx_count] = '\0';
 
     verbprintf(0, "\"%s\"\n", data_block->rx_buf);
     verbprintf(0, "RSSI: %.1f dBm. LQI=%d. CRC=%d\n", 
