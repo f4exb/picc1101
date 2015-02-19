@@ -433,7 +433,7 @@ void init_test_tx_block(radio_int_data_t *data_block, arguments_t *arguments)
         data_block->tx_count = PI_CCxxx0_PACKET_COUNT_SIZE;
     }
 
-    print_block(2, data_block->tx_buf, data_block->tx_count);
+    print_block(2, (uint8_t *) data_block->tx_buf, data_block->tx_count);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -444,17 +444,8 @@ void print_received_packet(radio_int_data_t *data_block)
     uint8_t rssi_dec, crc_lqi;
     int i;
 
-    if (verbose_level > 1)
-    {
-        fprintf(stderr, "%d bytes in buffer:\n", data_block->rx_count);
-
-        for (i=0; i<data_block->rx_count; i++)
-        {
-            fprintf(stderr, "%02X ", data_block->rx_buf[i]);
-        } 
-
-        fprintf(stderr, "\n");
-    }
+    verbprintf(0, "%d bytes in buffer:\n", data_block->rx_count);
+    print_block(2, (uint8_t *) data_block->rx_buf, data_block->rx_count);
 
     rssi_dec = data_block->rx_buf[data_block->rx_count-2];
     crc_lqi  = data_block->rx_buf[data_block->rx_count-1];
