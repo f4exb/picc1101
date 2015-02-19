@@ -42,7 +42,7 @@ void _print_block(int verb_level, const uint8_t *pblock, size_t size)
 
     for (i=0; i<lsize; i++)
     {
-        fprintf(stderr, "   %X ", i);
+        fprintf(stderr, "%X    ", i);
     }
 
     for (i=0; i<size; i++)
