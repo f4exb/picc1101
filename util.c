@@ -26,3 +26,28 @@ void _verbprintf(int verb_level, const char *fmt, ...)
 
     va_end(args);
 }
+
+// -------------------------------------------------------------------------------------------------
+void _print_block(int verb_level, const uint8_t *pblock, size_t size)
+// -------------------------------------------------------------------------------------------------
+{
+    size_t i;
+
+    if (verb_level > verbose_level)
+        return;
+
+    for (i=0; i<size; i++)
+    {
+        if (i % 16 == 0)
+        {
+            if (i != 0)
+            {
+                fprintf(stderr, "\n");
+            }
+
+            fprintf(stderr, "%03X: ", i);
+        }
+
+        fprintf(stderr, "%02X ", pblock[i]);
+    }
+}
