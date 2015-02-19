@@ -248,7 +248,7 @@ void int_threshold(void)
         for (i=0; i<RX_FIFO_UNLOAD; i++)
         {
             PI_CC_SPIReadReg(radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &x_byte);
-            radio_int_data->rx_buf[radio_int_data->byte_index++];
+            radio_int_data->rx_buf[(radio_int_data->byte_index)++];
             radio_int_data->bytes_remaining--;
         }
     }
@@ -269,9 +269,7 @@ void int_threshold(void)
 
             for (i=0; i<bytes_to_send; i++)
             {
-                PI_CC_SPIWriteReg(radio_int_data->spi_parms, PI_CCxxx0_TXFIFO, radio_int_data->tx_buf[radio_int_data->byte_index]);
-
-                radio_int_data->byte_index++;
+                PI_CC_SPIWriteReg(radio_int_data->spi_parms, PI_CCxxx0_TXFIFO, radio_int_data->tx_buf[(radio_int_data->byte_index)++]);
                 radio_int_data->bytes_remaining--;
             }
         }        
