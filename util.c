@@ -32,6 +32,7 @@ void _print_block(int verb_level, const uint8_t *pblock, size_t size)
 // -------------------------------------------------------------------------------------------------
 {
     size_t i;
+    char   c;
 
     if (verb_level > verbose_level)
         return;
@@ -48,7 +49,16 @@ void _print_block(int verb_level, const uint8_t *pblock, size_t size)
             fprintf(stderr, "%03X: ", i);
         }
 
-        fprintf(stderr, "%02X ", pblock[i]);
+        if ((pblock[i] < 0x20) || (pblock[i] >= 0x7F))
+        {
+            c = '.';
+        }
+        else
+        {
+            c = (char) pblock[i];
+        }
+
+        fprintf(stderr, "%02X:%c ", pblock[i], c);
     }
 
     fprintf(stderr, "\n");
