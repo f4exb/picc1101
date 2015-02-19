@@ -50,4 +50,6 @@ void _print_block(int verb_level, const uint8_t *pblock, size_t size)
 
         fprintf(stderr, "%02X ", pblock[i]);
     }
+
+    fprintf(stderr, "\n");
 }
