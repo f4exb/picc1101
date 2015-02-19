@@ -440,9 +440,10 @@ void print_received_packet(radio_int_data_t *data_block)
 {
     uint8_t rssi_dec, crc_lqi;
 
+    verbprintf("%d bytes in buffer\n", data_block->rx_count);
     rssi_dec = data_block->rx_buf[data_block->rx_count-2];
     crc_lqi  = data_block->rx_buf[data_block->rx_count-1];
-    data_block->rx_buf[data_block->rx_count-2] = '\0';
+    data_block->rx_buf[data_block->rx_count] = '\0';
 
     verbprintf(0, "\"%s\"\n", data_block->rx_buf);
     verbprintf(0, "RSSI: %.1f dBm. LQI=%d. CRC=%d\n", 
@@ -474,7 +475,7 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     int ret = 0;
     uint8_t  reg_word;
 
-    verbprintf(1, "init_radio...\n");
+    verbprintf(1, "\ninit_radio...\n");
 
     wiringPiSetup(); // initialize Wiring Pi library and GDOx interrupt routines
     verbprintf(1, "wiringPiSetup done.\n");
