@@ -1146,6 +1146,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     packets_received = 0;
     data_block->packet_count = 0;
     data_block->wait_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
+    memset((uint8_t *) data_block->rx_buf, 0, PI_CCxxx0_PACKET_COUNT_SIZE);
     radio_int_data = data_block;
 
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x00); // GDO2 output pin config RX mode
