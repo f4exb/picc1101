@@ -205,7 +205,7 @@ void int_packet(void)
                 PI_CC_SPIReadStatus(radio_int_data->spi_parms, PI_CCxxx0_RXBYTES, (uint8_t *) &x_byte);
                 x_byte &= PI_CCxxx0_NUM_RXBYTES;
                 verbprintf(2, "Received %d bytes\n", x_byte);
-                    
+
                 while (radio_int_data->bytes_remaining > 0) // flush remaining bytes
                 {
                     PI_CC_SPIReadReg(radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &x_byte);
@@ -441,8 +441,6 @@ void init_test_tx_block(radio_int_data_t *data_block, arguments_t *arguments)
     {
         data_block->tx_count = PI_CCxxx0_PACKET_COUNT_SIZE;
     }
-
-    print_block(2, (uint8_t *) data_block->tx_buf, data_block->tx_count);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -961,15 +959,8 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     radio_int_data = data_block;
 
     radio_set_packet_length(spi_parms, data_block->tx_count);
-    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x02); // GDO2 output pin config TX mode
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFTX); // Flush Tx FIFO
-
-    wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet);       // set interrupt handler for packet interrupts
-
-    if (arguments->packet_length > PI_CCxxx0_FIFO_SIZE-1)
-    {
-        wiringPiISR(WPI_GDO2, INT_EDGE_FALLING, &int_threshold); // set interrupt handler for FIFO threshold interrupts
-    }
+    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x02); // GDO2 output pin config TX mode
 
     verbprintf(0, "Sending %d test packets of size %d\n", arguments->repetition, data_block->tx_count);
     verbprintf(1, "Wait Tx delay is %d us\n", wait_us);
@@ -978,10 +969,19 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     // the smallest
     initial_tx_count = (data_block->tx_count > PI_CCxxx0_FIFO_SIZE-1 ? PI_CCxxx0_FIFO_SIZE-1 : data_block->tx_count);
 
+    wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet);       // set interrupt handler for packet interrupts
+
+    if (arguments->packet_length > PI_CCxxx0_FIFO_SIZE-1)
+    {
+        wiringPiISR(WPI_GDO2, INT_EDGE_FALLING, &int_threshold); // set interrupt handler for FIFO threshold interrupts
+    }
+
     while(packets_sent < arguments->repetition)
     {
         verbprintf(0, "Packet #%d\n", packets_sent);
+        print_block(2, (uint8_t *) data_block->tx_buf, initial_tx_count);
         data_block->threshold_hits = 0;
+
 
         // Initial fill of TX FIFO
         for (i=0; i<initial_tx_count; i++)
@@ -991,6 +991,7 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
         data_block->byte_index = 0;
         data_block->bytes_remaining = data_block->tx_count - initial_tx_count;
+        verbprintf(2, "%d bytes remaining\n", data_block->bytes_remaining);
 
         PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX); // Kick-off Tx
 
