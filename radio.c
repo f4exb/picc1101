@@ -175,7 +175,7 @@ void int_packet_simple(void)
 void int_packet(void)
 // ------------------------------------------------------------------------------------------------
 {
-    uint8_t x_byte, int_line, rssi_dec, crc_lqi, byte_index, count;
+    uint8_t x_byte, int_line, rssi_dec, crc_lqi;
     int i;
 
     int_line = digitalRead(WPI_GDO0); // Sense interrupt line to determine if it was a raising or falling edge
@@ -202,20 +202,12 @@ void int_packet(void)
 
             if (radio_int_data->packet_receive) // packet has been received
             {
-                byte_index = radio_int_data->byte_index;
-                PI_CC_SPIReadStatus(radio_int_data->spi_parms, PI_CCxxx0_RXBYTES, (uint8_t *) &x_byte);
-                x_byte &= PI_CCxxx0_NUM_RXBYTES;
-                verbprintf(2, "Received %d bytes @ %d\n", x_byte, byte_index);
-                count = radio_int_data->bytes_remaining;
-
                 while (radio_int_data->bytes_remaining > 0) // flush remaining bytes
                 {
                     PI_CC_SPIReadReg(radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &x_byte);
                     radio_int_data->rx_buf[radio_int_data->byte_index++] = x_byte;
                     radio_int_data->bytes_remaining--;
                 }
-
-                print_block(2, (const uint8_t *) &(radio_int_data->rx_buf[byte_index]), count);
 
                 radio_int_data->packet_count++;
                 radio_int_data->packet_receive = 0; // reception is done
@@ -254,18 +246,13 @@ void int_threshold(void)
     if (radio_int_data->mode == RADIOMODE_RX) // Filling of Rx FIFO - Read next 59 bytes
     {
         radio_int_data->threshold_hits++;
-        PI_CC_SPIReadStatus(radio_int_data->spi_parms, PI_CCxxx0_RXBYTES, (uint8_t *) &x_byte);
-        x_byte &= PI_CCxxx0_NUM_RXBYTES;
-        verbprintf(2, "Received %d bytes @ %d\n", x_byte, radio_int_data->byte_index);
-    
+
         for (i=0; i<RX_FIFO_UNLOAD; i++)
         {
             PI_CC_SPIReadReg(radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &x_byte);
             radio_int_data->rx_buf[(radio_int_data->byte_index)++] = x_byte;
             radio_int_data->bytes_remaining--;
         }
-
-        print_block(2, (const uint8_t *) radio_int_data->rx_buf, RX_FIFO_UNLOAD);
     }
     else if (radio_int_data->mode == RADIOMODE_TX) // Depletion of Tx FIFO - Write at most next 60 bytes
     {
@@ -956,6 +943,7 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     radio_int_data_t *data_block = &data_block_space;
 
     init_test_tx_block(data_block, arguments);
+    print_block(2, (uint8_t *) data_block->tx_buf, data_block->tx_count);
 
     data_block->spi_parms = spi_parms;
     data_block->mode = RADIOMODE_TX;
@@ -985,9 +973,7 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     while(packets_sent < arguments->repetition)
     {
         verbprintf(0, "Packet #%d\n", packets_sent);
-        print_block(2, (uint8_t *) data_block->tx_buf, initial_tx_count);
         data_block->threshold_hits = 0;
-
 
         // Initial fill of TX FIFO
         for (data_block->byte_index=0; data_block->byte_index<initial_tx_count; (data_block->byte_index)++)
@@ -996,7 +982,6 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
         }
 
         data_block->bytes_remaining = data_block->tx_count - initial_tx_count;
-        verbprintf(2, "%d bytes remaining after first send\n", data_block->bytes_remaining);
 
         PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX); // Kick-off Tx
 
