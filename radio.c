@@ -1263,7 +1263,7 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
                 data_block.rx_count &= PI_CCxxx0_NUM_RXBYTES;
                 verbprintf(1, "Received %d bytes\n", data_block.rx_count);
 
-                PI_CC_SPIReadBurstReg(spi_parms, PI_CCxxx0_RXFIFO, (uint8_t **) &(data_block.rx_buf), data_block.rx_count);
+                PI_CC_SPIReadBurstReg(spi_parms, PI_CCxxx0_RXFIFO, (const uint8_t **) &(data_block.rx_buf), data_block.rx_count);
                 print_received_packet(&data_block);
 
                 /*
