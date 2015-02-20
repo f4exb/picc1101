@@ -241,6 +241,8 @@ void int_threshold(void)
 {
     uint8_t i, bytes_to_send, x_byte;
 
+    verbprintf(2, "GDO2 edge\n");
+
     if (radio_int_data->mode == RADIOMODE_RX) // Filling of Rx FIFO - Read next 59 bytes
     {
         radio_int_data->threshold_hits++;
