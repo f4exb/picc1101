@@ -1259,11 +1259,11 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
 
             if (!(x_byte & 0x01) && pkt_on) // packet received
             {
-                PI_CC_SPIReadStatus(spi_parms, PI_CCxxx0_RXBYTES, &(data_block.rx_bytes));
-                data_block.rx_bytes &= PI_CCxxx0_NUM_RXBYTES;
-                verbprintf(1, "Received %d bytes\n", data_block.rx_bytes);
+                PI_CC_SPIReadStatus(spi_parms, PI_CCxxx0_RXBYTES, &(data_block.rx_count));
+                data_block.rx_count &= PI_CCxxx0_NUM_RXBYTES;
+                verbprintf(1, "Received %d bytes\n", data_block.rx_count);
 
-                PI_CC_SPIReadBurstReg(spi_parms, PI_CCxxx0_RXFIFO, &(data_block.rx_buf), data_block.rx_bytes);
+                PI_CC_SPIReadBurstReg(spi_parms, PI_CCxxx0_RXFIFO, &(data_block.rx_buf), data_block.rx_count);
                 print_received_packet(&data_block);
 
                 /*
