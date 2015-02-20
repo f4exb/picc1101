@@ -175,7 +175,7 @@ void int_packet_simple(void)
 void int_packet(void)
 // ------------------------------------------------------------------------------------------------
 {
-    uint8_t x_byte, int_line, rssi_dec, crc_lqi;
+    uint8_t x_byte, int_line, rssi_dec, crc_lqi, byte_index, count;
     int i;
 
     int_line = digitalRead(WPI_GDO0); // Sense interrupt line to determine if it was a raising or falling edge
@@ -202,9 +202,11 @@ void int_packet(void)
 
             if (radio_int_data->packet_receive) // packet has been received
             {
+                byte_index = radio_int_data->byte_index;
                 PI_CC_SPIReadStatus(radio_int_data->spi_parms, PI_CCxxx0_RXBYTES, (uint8_t *) &x_byte);
                 x_byte &= PI_CCxxx0_NUM_RXBYTES;
-                verbprintf(2, "Received %d bytes\n", x_byte);
+                verbprintf(2, "Received %d bytes @ %d\n", x_byte, byte_index);
+                count = radio_int_data->bytes_remaining;
 
                 while (radio_int_data->bytes_remaining > 0) // flush remaining bytes
                 {
@@ -212,6 +214,8 @@ void int_packet(void)
                     radio_int_data->rx_buf[radio_int_data->byte_index++] = x_byte;
                     radio_int_data->bytes_remaining--;
                 }
+
+                print_block(2, (const uint8_t *) &(radio_int_data->rx_buf[byte_index], count);
 
                 radio_int_data->packet_count++;
                 radio_int_data->packet_receive = 0; // reception is done
