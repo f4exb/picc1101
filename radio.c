@@ -241,10 +241,9 @@ void int_threshold(void)
 {
     uint8_t i, bytes_to_send, x_byte;
 
-    verbprintf(2, "GDO2 edge\n");
-
     if (radio_int_data->mode == RADIOMODE_RX) // Filling of Rx FIFO - Read next 59 bytes
     {
+        verbprintf(2, "GDO2 edge\n");
         radio_int_data->threshold_hits++;
 
         for (i=0; i<RX_FIFO_UNLOAD; i++)
@@ -256,7 +255,7 @@ void int_threshold(void)
     }
     else if (radio_int_data->mode == RADIOMODE_TX) // Depletion of Tx FIFO - Write at most next 60 bytes
     {
-        verbprintf(2, "%d bytes remaining\n", radio_int_data->bytes_remaining);
+        verbprintf(2, "GDO2 edge: %d bytes remaining\n", radio_int_data->bytes_remaining);
 
         if (radio_int_data->bytes_remaining > 0) // bytes left to send
         {
