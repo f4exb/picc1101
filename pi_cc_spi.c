@@ -282,7 +282,7 @@ int PI_CC_SPIReadReg(spi_parms_t *spi_parms, uint8_t addr, uint8_t *byte)
 }
 
 // ------------------------------------------------------------------------------------------------
-int PI_CC_SPIReadBurstReg(spi_parms_t *spi_parms, uint8_t addr, const uint8_t *buffer, uint8_t count)
+int PI_CC_SPIReadBurstReg(spi_parms_t *spi_parms, uint8_t addr, const uint8_t **buffer, uint8_t count)
 // ------------------------------------------------------------------------------------------------
 {
     uint8_t i;
@@ -290,7 +290,7 @@ int PI_CC_SPIReadBurstReg(spi_parms_t *spi_parms, uint8_t addr, const uint8_t *b
     count %= 64;
     spi_parms->tx[0] = addr | PI_CCxxx0_READ_BURST;   // Send address
 
-    for (i=1; i<count+1; i++)
+    for (i=0; i<count+1; i++)
     {
         spi_parms->tx[i] = 0; // Dummy write so we can read data
     }
@@ -304,7 +304,7 @@ int PI_CC_SPIReadBurstReg(spi_parms_t *spi_parms, uint8_t addr, const uint8_t *b
         return 1;
     }
 
-    buffer = spi_parms->rx;
+    *buffer = &spi_parms->rx[1];
     return 0;
 }
 
