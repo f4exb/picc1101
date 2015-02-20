@@ -990,12 +990,11 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
 
         // Initial fill of TX FIFO
-        for (i=0; i<initial_tx_count; i++)
+        for (data_block->byte_index=0; data_block->byte_index<initial_tx_count; (data_block->byte_index)++)
         {
-            PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_TXFIFO, data_block->tx_buf[i]);
+            PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_TXFIFO, data_block->tx_buf[data_block->byte_index]);
         }
 
-        data_block->byte_index = 0;
         data_block->bytes_remaining = data_block->tx_count - initial_tx_count;
         verbprintf(2, "%d bytes remaining after first send\n", data_block->bytes_remaining);
 
