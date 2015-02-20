@@ -1263,12 +1263,13 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
                 data_block.rx_count &= PI_CCxxx0_NUM_RXBYTES;
                 verbprintf(1, "Received %d bytes\n", data_block.rx_count);
 
-                PI_CC_SPIReadBurstReg(spi_parms, PI_CCxxx0_RXFIFO, (const uint8_t **) &(data_block.rx_buf), data_block.rx_count);
-                print_received_packet(&data_block);
+                //PI_CC_SPIReadBurstReg(spi_parms, PI_CCxxx0_RXFIFO, (const uint8_t **) &(data_block.rx_buf), data_block.rx_count);
+                //print_received_packet(&data_block);
 
-                /*
-                for (i=0; i<rx_bytes; i++)
+                for (i=0; i<data_block.rx_count; i++)
                 {
+                    PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RXFIFO, (uint8_t *) &(data_block.rx_buf[i]));
+                    /*
                     if (i<arguments->packet_length) // packet bytes
                     {
                         PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RXFIFO, &rx_buf[i]);    
@@ -1283,14 +1284,10 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
                     }
 
                     verbprintf(2, "%X:%02X ", spi_parms->rx[0] & 0x0F, spi_parms->rx[1]);   
+                    */
                 }
 
-                verbprintf(2, "\n");
-                verbprintf(0, "RSSI: %.1f dBm. LQI=%d. CRC=%d\n", 
-                    rssi_dbm(rssi_dec),
-                    0x7F - (crc_lqi & 0x7F),
-                    (crc_lqi & PI_CCxxx0_CRC_OK)>>7);
-                */
+                print_received_packet(&data_block);
 
                 break;
             }
