@@ -253,6 +253,8 @@ void int_threshold(void)
             radio_int_data->rx_buf[(radio_int_data->byte_index)++];
             radio_int_data->bytes_remaining--;
         }
+
+        print_block(2, radio_int_data->rx_buf, RX_FIFO_UNLOAD);
     }
     else if (radio_int_data->mode == RADIOMODE_TX) // Depletion of Tx FIFO - Write at most next 60 bytes
     {
