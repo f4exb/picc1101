@@ -215,7 +215,7 @@ void int_packet(void)
                     radio_int_data->bytes_remaining--;
                 }
 
-                print_block(2, (const uint8_t *) &(radio_int_data->rx_buf[byte_index], count));
+                print_block(2, (const uint8_t *) &(radio_int_data->rx_buf[byte_index]), count);
 
                 radio_int_data->packet_count++;
                 radio_int_data->packet_receive = 0; // reception is done
