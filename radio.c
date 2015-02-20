@@ -973,11 +973,11 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
     // Initial number of bytes to put in FIFO is either the number of bytes to send or the FIFO size whichever is
     // the smallest
-    initial_tx_count = (data_block->tx_count > PI_CCxxx0_FIFO_SIZE-1 ? PI_CCxxx0_FIFO_SIZE-1 : data_block->tx_count);
+    initial_tx_count = (data_block->tx_count > PI_CCxxx0_FIFO_SIZE ? PI_CCxxx0_FIFO_SIZE : data_block->tx_count);
 
     wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet);       // set interrupt handler for packet interrupts
 
-    if (arguments->packet_length > PI_CCxxx0_FIFO_SIZE-1)
+    if (arguments->packet_length > PI_CCxxx0_FIFO_SIZE)
     {
         wiringPiISR(WPI_GDO2, INT_EDGE_FALLING, &int_threshold); // set interrupt handler for FIFO threshold interrupts
     }
@@ -1167,7 +1167,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
     wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet);      // set interrupt handler for paket interrupts
 
-    if (arguments->packet_length > PI_CCxxx0_FIFO_SIZE-1)
+    if (arguments->packet_length > PI_CCxxx0_FIFO_SIZE)
     {
         wiringPiISR(WPI_GDO2, INT_EDGE_RISING, &int_threshold); // set interrupt handler for FIFO threshold interrupts
     }
