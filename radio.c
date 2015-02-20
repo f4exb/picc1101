@@ -252,7 +252,7 @@ void int_threshold(void)
         radio_int_data->threshold_hits++;
         PI_CC_SPIReadStatus(radio_int_data->spi_parms, PI_CCxxx0_RXBYTES, (uint8_t *) &x_byte);
         x_byte &= PI_CCxxx0_NUM_RXBYTES;
-        verbprintf(2, "Received %d bytes\n", x_byte);
+        verbprintf(2, "Received %d bytes @ %d\n", x_byte, radio_int_data->byte_index);
     
         for (i=0; i<RX_FIFO_UNLOAD; i++)
         {
