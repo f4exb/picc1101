@@ -1031,6 +1031,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
     while((arguments->repetition == 0) || (packets_received < arguments->repetition))
     {
+        verbprintf(0, "*** Packet #%d\n", packets_received);
         data_block->threshold_hits = 0;
 
         while(packets_received == data_block->packet_count) // wait for one more packet received
