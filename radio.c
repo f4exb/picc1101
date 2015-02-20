@@ -246,7 +246,7 @@ void int_threshold(void)
     if (radio_int_data->mode == RADIOMODE_RX) // Filling of Rx FIFO - Read next 59 bytes
     {
         radio_int_data->threshold_hits++;
-        PI_CC_SPIReadStatus(spi_parms, PI_CCxxx0_RXBYTES, (uint8_t *) &x_byte);
+        PI_CC_SPIReadStatus(radio_int_data->spi_parms, PI_CCxxx0_RXBYTES, (uint8_t *) &x_byte);
         x_byte &= PI_CCxxx0_NUM_RXBYTES;
         verbprintf(2, "Received %d bytes\n", x_byte);
     
