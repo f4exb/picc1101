@@ -1269,22 +1269,6 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
                 for (i=0; i<data_block.rx_count; i++)
                 {
                     PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RXFIFO, (uint8_t *) &(data_block.rx_buf[i]));
-                    /*
-                    if (i<arguments->packet_length) // packet bytes
-                    {
-                        PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RXFIFO, &rx_buf[i]);    
-                    }
-                    else if (i == arguments->packet_length) // RSSI
-                    {
-                        PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RXFIFO, &rssi_dec); 
-                    }
-                    else // LQI + CRC
-                    {
-                        PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RXFIFO, &crc_lqi);
-                    }
-
-                    verbprintf(2, "%X:%02X ", spi_parms->rx[0] & 0x0F, spi_parms->rx[1]);   
-                    */
                 }
 
                 print_received_packet(&data_block);
@@ -1294,8 +1278,6 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
 
             usleep(poll_us);
         }
-
-        verbprintf(0, "\"%s\"\n", rx_buf);
     }
 
     verbprintf(0, "Done\n");
