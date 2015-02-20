@@ -265,6 +265,8 @@ void int_threshold(void)
     }
     else if (radio_int_data->mode == RADIOMODE_TX) // Depletion of Tx FIFO - Write at most next 60 bytes
     {
+        verbprintf(2, "%d bytes remaining\n", radio_int_data->bytes_remaining);
+
         if (radio_int_data->bytes_remaining > 0) // bytes left to send
         {
             radio_int_data->threshold_hits++;
@@ -991,7 +993,7 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
         data_block->byte_index = 0;
         data_block->bytes_remaining = data_block->tx_count - initial_tx_count;
-        verbprintf(2, "%d bytes remaining\n", data_block->bytes_remaining);
+        verbprintf(2, "%d bytes remaining after first send\n", data_block->bytes_remaining);
 
         PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX); // Kick-off Tx
 
