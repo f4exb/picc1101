@@ -201,7 +201,11 @@ void int_packet(void)
             verbprintf(2, "GDO0 falling edge\n");
 
             if (radio_int_data->packet_receive) // packet has been received
-            {        
+            {
+                PI_CC_SPIReadStatus(radio_int_data->spi_parms, PI_CCxxx0_RXBYTES, (uint8_t *) &x_byte);
+                x_byte &= PI_CCxxx0_NUM_RXBYTES;
+                verbprintf(2, "Received %d bytes\n", x_byte);
+                    
                 while (radio_int_data->bytes_remaining > 0) // flush remaining bytes
                 {
                     PI_CC_SPIReadReg(radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &x_byte);
