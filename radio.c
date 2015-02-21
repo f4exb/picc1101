@@ -384,7 +384,7 @@ void print_received_packet(radio_int_data_t *data_block)
 int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    uint32_t packets_sent = radio_int_data.packet_count;
+    uint32_t packets_sent;
     uint8_t  initial_tx_count; // Number of bytes to send in first batch
     int      i, ret;
 
@@ -407,6 +407,7 @@ int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments)
     }
 
     radio_int_data.bytes_remaining = radio_int_data.tx_count - initial_tx_count;
+    packets_sent = radio_int_data.packet_count;
 
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX); // Kick-off Tx
 
