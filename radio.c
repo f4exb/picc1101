@@ -916,6 +916,8 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 {
     uint32_t packets_sent = 0;
 
+    p_radio_int_data = &radio_int_data;
+
     while(packets_sent < arguments->repetition)
     {
         radio_send_packet(spi_parms, arguments);
