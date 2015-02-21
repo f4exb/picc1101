@@ -20,7 +20,12 @@
 speed_t get_serial_speed(uint32_t speed, uint32_t *speed_n)
 // ------------------------------------------------------------------------------------------------
 {
-    if (speed >= 230400)
+    if (speed >= 460800)
+    {
+        *speed_n = 460800;
+        return B460800;
+    }
+    else if (speed >= 230400)
     {
         *speed_n = 230400;
         return B230400;
