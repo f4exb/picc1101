@@ -88,6 +88,7 @@ static void get_chanbw_words(float bw, radio_parms_t *radio_parms);
 static void get_rate_words(rate_t rate_code, modulation_t modulation_code, float modulation_index, radio_parms_t *radio_parms);
 static void init_test_tx_block(radio_int_data_t *data_block, arguments_t *arguments);
 static void print_received_packet(radio_int_data_t *data_block);
+static int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments);
 
 // === Interupt handlers ==========================================================================
 
@@ -377,6 +378,64 @@ void print_received_packet(radio_int_data_t *data_block)
         0x7F - (crc_lqi & 0x7F),
         (crc_lqi & PI_CCxxx0_CRC_OK)>>7);
 }
+
+// ------------------------------------------------------------------------------------------------
+// Transmission of a packet
+int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments)
+// ------------------------------------------------------------------------------------------------
+{
+    uint32_t packets_sent = radio_int_data.packet_count;
+    uint8_t  initial_tx_count; // Number of bytes to send in first batch
+    int      i, ret;
+    uint32_t wait_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
+
+    init_test_tx_block(&radio_int_data, arguments);
+    print_block(2, (uint8_t *) radio_int_data.tx_buf, radio_int_data.tx_count);
+
+    radio_int_data.spi_parms = spi_parms;
+    radio_int_data.mode = RADIOMODE_TX;
+    radio_int_data.packet_send = 0;
+    packets_sent = 0;
+
+    radio_set_packet_length(spi_parms, radio_int_data.tx_count);
+    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFTX); // Flush Tx FIFO
+    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x02); // GDO2 output pin config TX mode
+
+    verbprintf(0, "Sending %d test packets of size %d\n", arguments->repetition, radio_int_data.tx_count);
+    verbprintf(1, "Wait Tx delay is %d us\n", wait_us);
+
+    // Initial number of bytes to put in FIFO is either the number of bytes to send or the FIFO size whichever is
+    // the smallest
+    initial_tx_count = (radio_int_data.tx_count > PI_CCxxx0_FIFO_SIZE ? PI_CCxxx0_FIFO_SIZE : radio_int_data.tx_count);
+
+    wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet);       // set interrupt handler for packet interrupts
+
+    if (arguments->packet_length > PI_CCxxx0_FIFO_SIZE)
+    {
+        wiringPiISR(WPI_GDO2, INT_EDGE_FALLING, &int_threshold); // set interrupt handler for FIFO threshold interrupts
+    }
+
+    verbprintf(0, "Packet #%d\n", packets_sent);
+    radio_int_data.threshold_hits = 0;
+
+    // Initial fill of TX FIFO
+    for (radio_int_data.byte_index=0; radio_int_data.byte_index<initial_tx_count; (radio_int_data.byte_index)++)
+    {
+        PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_TXFIFO, radio_int_data.tx_buf[radio_int_data.byte_index]);
+    }
+
+    radio_int_data.bytes_remaining = radio_int_data.tx_count - initial_tx_count;
+
+    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX); // Kick-off Tx
+
+    while (packets_sent == radio_int_data.packet_count)
+    {
+        usleep(wait_us);    
+    }
+
+    verbprintf(2, "FIFO threshold was hit %d times\n", radio_int_data.threshold_hits);
+}
+
 
 // === Public functions ===========================================================================
 
@@ -855,62 +914,13 @@ uint8_t radio_get_packet_length(spi_parms_t *spi_parms)
 int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    uint32_t packets_sent;
-    uint8_t  initial_tx_count; // Number of bytes to send in first batch
-    int      i, ret;
-    uint32_t wait_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
-
-    init_test_tx_block(&radio_int_data, arguments);
-    print_block(2, (uint8_t *) radio_int_data.tx_buf, radio_int_data.tx_count);
-
-    radio_int_data.spi_parms = spi_parms;
-    radio_int_data.mode = RADIOMODE_TX;
-    radio_int_data.packet_count = 0;
-    radio_int_data.packet_send = 0;
-    packets_sent = 0;
-    p_radio_int_data = &radio_int_data;
-
-    radio_set_packet_length(spi_parms, radio_int_data.tx_count);
-    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFTX); // Flush Tx FIFO
-    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x02); // GDO2 output pin config TX mode
-
-    verbprintf(0, "Sending %d test packets of size %d\n", arguments->repetition, radio_int_data.tx_count);
-    verbprintf(1, "Wait Tx delay is %d us\n", wait_us);
-
-    // Initial number of bytes to put in FIFO is either the number of bytes to send or the FIFO size whichever is
-    // the smallest
-    initial_tx_count = (radio_int_data.tx_count > PI_CCxxx0_FIFO_SIZE ? PI_CCxxx0_FIFO_SIZE : radio_int_data.tx_count);
-
-    wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet);       // set interrupt handler for packet interrupts
-
-    if (arguments->packet_length > PI_CCxxx0_FIFO_SIZE)
-    {
-        wiringPiISR(WPI_GDO2, INT_EDGE_FALLING, &int_threshold); // set interrupt handler for FIFO threshold interrupts
-    }
+    uint32_t packets_sent = 0;
 
     while(packets_sent < arguments->repetition)
     {
-        verbprintf(0, "Packet #%d\n", packets_sent);
-        radio_int_data.threshold_hits = 0;
-
-        // Initial fill of TX FIFO
-        for (radio_int_data.byte_index=0; radio_int_data.byte_index<initial_tx_count; (radio_int_data.byte_index)++)
-        {
-            PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_TXFIFO, radio_int_data.tx_buf[radio_int_data.byte_index]);
-        }
-
-        radio_int_data.bytes_remaining = radio_int_data.tx_count - initial_tx_count;
-
-        PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX); // Kick-off Tx
-
-        while (packets_sent == radio_int_data.packet_count)
-        {
-            usleep(wait_us);    
-        }
-
-        verbprintf(2, "FIFO threshold was hit %d times\n", radio_int_data.threshold_hits);
+        radio_send_packet(spi_parms, arguments);
         packets_sent++;
-    }        
+    } 
 }
 
 // ------------------------------------------------------------------------------------------------
