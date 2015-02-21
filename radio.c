@@ -392,8 +392,6 @@ int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments)
     init_test_tx_block(&radio_int_data, arguments);
     print_block(2, (uint8_t *) radio_int_data.tx_buf, radio_int_data.tx_count);
 
-    radio_int_data.spi_parms = spi_parms;
-    radio_int_data.mode = RADIOMODE_TX;
     radio_int_data.packet_send = 0;
     packets_sent = 0;
 
@@ -916,6 +914,10 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 {
     uint32_t packets_sent = 0;
 
+    radio_int_data.packet_count = 0;
+    radio_int_data.spi_parms = spi_parms;
+    radio_int_data.mode = RADIOMODE_TX;
+        
     p_radio_int_data = &radio_int_data;
 
     while(packets_sent < arguments->repetition)
