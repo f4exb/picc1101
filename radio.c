@@ -389,9 +389,6 @@ int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments)
     int      i, ret;
     uint32_t wait_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
 
-    init_test_tx_block(&radio_int_data, arguments);
-    print_block(2, (uint8_t *) radio_int_data.tx_buf, radio_int_data.tx_count);
-
     radio_int_data.packet_send = 0;
     packets_sent = 0;
 
@@ -399,7 +396,6 @@ int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments)
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFTX); // Flush Tx FIFO
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x02); // GDO2 output pin config TX mode
 
-    verbprintf(0, "Sending %d test packets of size %d\n", arguments->repetition, radio_int_data.tx_count);
     verbprintf(1, "Wait Tx delay is %d us\n", wait_us);
 
     // Initial number of bytes to put in FIFO is either the number of bytes to send or the FIFO size whichever is
@@ -917,7 +913,11 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     radio_int_data.packet_count = 0;
     radio_int_data.spi_parms = spi_parms;
     radio_int_data.mode = RADIOMODE_TX;
-        
+
+    init_test_tx_block(&radio_int_data, arguments);
+    print_block(2, (uint8_t *) radio_int_data.tx_buf, radio_int_data.tx_count);    
+    verbprintf(0, "Sending %d test packets of size %d\n", arguments->repetition, radio_int_data.tx_count);
+
     p_radio_int_data = &radio_int_data;
 
     while(packets_sent < arguments->repetition)
