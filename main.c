@@ -479,8 +479,7 @@ int main (int argc, char **argv)
         
         if (ser_read > 0)
         {
-            response[ser_read] = '\0';
-            printf("%s", response);
+            print_block(0, response, ser_read);
         }
         else
         {
