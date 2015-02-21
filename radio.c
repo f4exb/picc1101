@@ -416,7 +416,6 @@ int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments)
         usleep(radio_int_data.wait_us);    
     }
 
-    verbprintf(2, "Packet count: %d\n", radio_int_data.packet_count);
     verbprintf(2, "FIFO threshold was hit %d times\n", radio_int_data.threshold_hits);
 }
 
