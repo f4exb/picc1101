@@ -10,6 +10,7 @@
 #define _KISS_H_
 
 #include <stdint.h>
+#include <stdlib.h>
 
 void pack_kiss(uint8_t *kiss_block, uint8_t *packed_block, size_t *size);
 void unpack_kiss(uint8_t *kiss_block, uint8_t *packed_block, size_t *size);
