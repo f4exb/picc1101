@@ -957,8 +957,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
     uint32_t packets_received;
-    radio_int_data_t data_block_space;
-    radio_int_data_t *data_block = &data_block_space;
+    radio_int_data_t *data_block = &radio_int_data;
 
     data_block->spi_parms = spi_parms;
     data_block->mode = RADIOMODE_RX;
