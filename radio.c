@@ -901,7 +901,7 @@ uint8_t radio_get_packet_length(spi_parms_t *spi_parms)
 
 // ------------------------------------------------------------------------------------------------
 // Wait for a change
-void radio_wait_a_bit(spi_parms_t *spi_parms)
+void radio_wait_a_bit()
 // ------------------------------------------------------------------------------------------------
 {
     usleep(radio_int_data.wait_us);
