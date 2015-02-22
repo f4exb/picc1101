@@ -908,9 +908,9 @@ uint8_t radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, uin
     }
     else // packet received
     {
-        memcpy(packet, (uint8_t *) radio_int_data.rx_buf, radio_int_data.rx_count);
+        memcpy(packet, (uint8_t *) &radio_int_data.rx_buf[1], radio_int_data.rx_buf[0]);
         packets_received == radio_int_data.packet_rx_count;
-        return radio_int_data.rx_count;
+        return radio_int_data.rx_buf[0];
     }
 }
 
