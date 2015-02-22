@@ -957,15 +957,14 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
     uint32_t packets_received;
-    radio_int_data_t *data_block = &radio_int_data;
 
-    data_block->spi_parms = spi_parms;
-    data_block->mode = RADIOMODE_RX;
+    radio_int_data.spi_parms = spi_parms;
+    radio_int_data.mode = RADIOMODE_RX;
     packets_received = 0;
-    data_block->packet_rx_count = 0;
-    data_block->wait_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
-    memset((uint8_t *) data_block->rx_buf, 0, PI_CCxxx0_PACKET_COUNT_SIZE);
-    p_radio_int_data = data_block;
+    radio_int_data.packet_rx_count = 0;
+    radio_int_data.wait_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
+    memset((uint8_t *) radio_int_data.rx_buf, 0, PI_CCxxx0_PACKET_COUNT_SIZE);
+    p_radio_int_data = &radio_int_data;
 
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x00); // GDO2 output pin config RX mode
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX); // Flush Rx FIFO
@@ -977,7 +976,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
         wiringPiISR(WPI_GDO2, INT_EDGE_RISING, &int_threshold); // set interrupt handler for FIFO threshold interrupts
     }
     
-    verbprintf(1, "Wait Rx delay is %d us\n", data_block->wait_us);
+    verbprintf(1, "Wait Rx delay is %d us\n", radio_int_data.wait_us);
     verbprintf(0, "Starting...\n");
 
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX); // Enter Rx mode
@@ -985,15 +984,15 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     while((arguments->repetition == 0) || (packets_received < arguments->repetition))
     {
         verbprintf(0, "*** Packet #%d\n", packets_received);
-        data_block->threshold_hits = 0;
+        radio_int_data.threshold_hits = 0;
 
-        while(packets_received == data_block->packet_rx_count) // wait for one more packet received
+        while(packets_received == radio_int_data.packet_rx_count) // wait for one more packet received
         {
-            usleep(data_block->wait_us);
+            usleep(radio_int_data.wait_us);
         }
 
-        print_received_packet(data_block);
-        verbprintf(2, "FIFO threshold was hit %d times\n", data_block->threshold_hits);
+        print_received_packet(p_radio_int_data);
+        verbprintf(2, "FIFO threshold was hit %d times\n", radio_int_data.threshold_hits);
         packets_received++;
     }
 }
