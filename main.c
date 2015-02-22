@@ -496,6 +496,7 @@ int main (int argc, char **argv)
 
         if (read_bytes > 0)
         {
+            print_block(1, read_buffer, read_bytes);
             write_serial(&serial_parameters, read_buffer, read_bytes);
         }        
 
