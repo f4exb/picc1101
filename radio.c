@@ -990,17 +990,13 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 {
     init_radio_int(spi_parms, arguments);
 
-    packets_received = 0;
-    radio_int_data.mode = RADIOMODE_RX;
     memset((uint8_t *) radio_int_data.rx_buf, 0, PI_CCxxx0_PACKET_COUNT_SIZE);
-
-    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x00); // GDO2 output pin config RX mode
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX); // Flush Rx FIFO
-    
+
     verbprintf(1, "Wait Rx delay is %d us\n", radio_int_data.wait_us);
     verbprintf(0, "Starting...\n");
 
-    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX); // Enter Rx mode
+    init_radio_rx(spi_parms);
 
     while((arguments->repetition == 0) || (packets_received < arguments->repetition))
     {
