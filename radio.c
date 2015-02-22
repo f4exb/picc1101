@@ -165,9 +165,11 @@ void int_threshold(void)
 {
     uint8_t i, bytes_to_send, x_byte;
 
-    if (p_radio_int_data->mode == RADIOMODE_RX) // Filling of Rx FIFO - Read next 59 bytes
+    int_line = digitalRead(WPI_GDO2); // Sense interrupt line to determine if it was a raising or falling edge
+
+    if ((p_radio_int_data->mode == RADIOMODE_RX) && (int_line)) // Filling of Rx FIFO - Read next 59 bytes
     {
-        verbprintf(2, "GDO2 edge\n");
+        verbprintf(2, "GDO2 rising edge\n");
         p_radio_int_data->threshold_hits++;
 
         for (i=0; i<RX_FIFO_UNLOAD; i++)
@@ -177,9 +179,9 @@ void int_threshold(void)
             p_radio_int_data->bytes_remaining--;
         }
     }
-    else if (p_radio_int_data->mode == RADIOMODE_TX) // Depletion of Tx FIFO - Write at most next 60 bytes
+    else if ((p_radio_int_data->mode == RADIOMODE_TX) && (!int_line)) // Depletion of Tx FIFO - Write at most next 60 bytes
     {
-        verbprintf(2, "GDO2 edge: %d bytes remaining\n", p_radio_int_data->bytes_remaining);
+        verbprintf(2, "GDO2 falling edge: %d bytes remaining\n", p_radio_int_data->bytes_remaining);
 
         if (p_radio_int_data->bytes_remaining > 0) // bytes left to send
         {
@@ -424,7 +426,7 @@ void init_radio_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
     if (arguments->packet_length > PI_CCxxx0_FIFO_SIZE)
     {
-        wiringPiISR(WPI_GDO2, INT_EDGE_FALLING, &int_threshold); // set interrupt handler for FIFO threshold interrupts
+        wiringPiISR(WPI_GDO2, INT_EDGE_BOTH, &int_threshold); // set interrupt handler for FIFO threshold interrupts
     }
 }
 
@@ -986,19 +988,7 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    radio_int_data.mode = RADIOMODE_NONE;
-    radio_int_data.packet_rx_count = 0;
-    radio_int_data.packet_tx_count = 0;
-    radio_int_data.spi_parms = spi_parms;
-    radio_int_data.wait_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
-    p_radio_int_data = &radio_int_data;
-
-    wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet);       // set interrupt handler for packet interrupts
-
-    if (arguments->packet_length > PI_CCxxx0_FIFO_SIZE)
-    {
-        wiringPiISR(WPI_GDO2, INT_EDGE_FALLING, &int_threshold); // set interrupt handler for FIFO threshold interrupts
-    }
+    init_radio_int(spi_parms, arguments);
 
     packets_received = 0;
     radio_int_data.mode = RADIOMODE_RX;
