@@ -987,7 +987,6 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
     radio_int_data.spi_parms = spi_parms;
-    packets_received = 0;
     radio_int_data.packet_rx_count = 0;
     radio_int_data.wait_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
     p_radio_int_data = &radio_int_data;
@@ -999,6 +998,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
         wiringPiISR(WPI_GDO2, INT_EDGE_RISING, &int_threshold); // set interrupt handler for FIFO threshold interrupts
     }
 
+    packets_received = 0;
     radio_int_data.mode = RADIOMODE_RX;
     memset((uint8_t *) radio_int_data.rx_buf, 0, PI_CCxxx0_PACKET_COUNT_SIZE);
 
