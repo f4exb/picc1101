@@ -901,7 +901,7 @@ uint8_t radio_get_packet_length(spi_parms_t *spi_parms)
 
 // ------------------------------------------------------------------------------------------------
 // Receive of a packet
-uint8_t radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *packet)
+int radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *packet)
 // ------------------------------------------------------------------------------------------------
 {
     if (packets_received == radio_int_data.packet_rx_count) // no packet received
