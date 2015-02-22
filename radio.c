@@ -77,6 +77,8 @@ float chanbw_limits[] = {
 
 static radio_int_data_t *p_radio_int_data = 0;
 static radio_int_data_t radio_int_data;
+static uint32_t packets_sent;
+static uint32_t packets_received;
 
 // === Static functions declarations ==============================================================
 
@@ -890,7 +892,6 @@ uint8_t radio_get_packet_length(spi_parms_t *spi_parms)
 int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *packet, uint8_t size)
 // ------------------------------------------------------------------------------------------------
 {
-    uint32_t packets_sent;
     uint8_t  initial_tx_count; // Number of bytes to send in first batch
     int      i, ret;
 
@@ -935,7 +936,7 @@ int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *p
 int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    uint32_t packets_sent = 0;
+    packets_sent = 0;
 
     init_radio_int(spi_parms, arguments);
 
@@ -956,8 +957,6 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    uint32_t packets_received;
-
     radio_int_data.spi_parms = spi_parms;
     radio_int_data.mode = RADIOMODE_RX;
     packets_received = 0;
