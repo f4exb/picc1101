@@ -472,6 +472,7 @@ int main (int argc, char **argv)
     }
 
     set_serial_parameters(&serial_parameters, &arguments);
+    init_radio_int(&spi_parameters, &arguments);
 
     while (1)
     {
@@ -479,7 +480,8 @@ int main (int argc, char **argv)
         
         if (ser_read > 0)
         {
-            print_block(0, response, ser_read);
+            //print_block(0, response, ser_read);
+            radio_send_packet(&spi_parameters, &arguments, response, ser_read);
         }
         else
         {
