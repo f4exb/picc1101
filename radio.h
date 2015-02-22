@@ -68,7 +68,8 @@ typedef enum radio_int_scheme_e
 
 typedef enum radio_mode_e
 {
-	RADIOMODE_RX = 0,
+	RADIOMODE_NONE = 0,
+	RADIOMODE_RX,
 	RADIOMODE_TX,
 	NUM_RADIOMODE
 } radio_mode_t;
