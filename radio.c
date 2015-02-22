@@ -131,7 +131,7 @@ void int_packet(void)
                     p_radio_int_data->bytes_remaining--;
                 }
 
-                p_radio_int_data->packet_count++;
+                verbprintf(2, "Received packet #%d\n", p_radio_int_data->packet_rx_count++);
                 p_radio_int_data->packet_receive = 0; // reception is done
             }            
         }        
@@ -148,7 +148,7 @@ void int_packet(void)
             verbprintf(2, "GDO0 falling edge\n");
             if (p_radio_int_data->packet_send) // packet has been sent
             {
-                verbprintf(2, "Sent packet #%d\n", p_radio_int_data->packet_count++);
+                verbprintf(2, "Sent packet #%d\n", p_radio_int_data->packet_tx_count++);
                 p_radio_int_data->packet_send = 0; // De-assert packet transmission after packet has been sent
             }
         }
@@ -401,7 +401,8 @@ void init_radio_int(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
     radio_int_data.mode = RADIOMODE_NONE;
-    radio_int_data.packet_count = 0;
+    radio_int_data.packet_rx_count = 0;
+    radio_int_data.packet_tx_count = 0;
     radio_int_data.spi_parms = spi_parms;
     radio_int_data.wait_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
     p_radio_int_data = &radio_int_data;
@@ -914,13 +915,13 @@ int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *p
     }
 
     radio_int_data.bytes_remaining = radio_int_data.tx_count - initial_tx_count;
-    packets_sent = radio_int_data.packet_count;
+    packets_sent = radio_int_data.packet_tx_count;
 
     verbprintf(0, "Packet #%d\n", packets_sent);
 
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX); // Kick-off Tx
 
-    while (packets_sent == radio_int_data.packet_count)
+    while (packets_sent == radio_int_data.packet_tx_count)
     {
         usleep(radio_int_data.wait_us);    
     }
@@ -1045,7 +1046,6 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     data_block->spi_parms = spi_parms;
     data_block->mode = RADIOMODE_RX;
     packets_received = 0;
-    data_block->packet_count = 0;
     data_block->wait_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
     memset((uint8_t *) data_block->rx_buf, 0, PI_CCxxx0_PACKET_COUNT_SIZE);
     p_radio_int_data = data_block;
@@ -1070,7 +1070,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
         verbprintf(0, "*** Packet #%d\n", packets_received);
         data_block->threshold_hits = 0;
 
-        while(packets_received == data_block->packet_count) // wait for one more packet received
+        while(packets_received == data_block->packet_rx_count) // wait for one more packet received
         {
             usleep(data_block->wait_us);
         }
