@@ -1078,8 +1078,6 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX); // Flush Rx FIFO
 
-    radio_int_data.mode = RADIOMODE_RX;
-
     verbprintf(1, "Wait Rx delay is %d us\n", radio_int_data.wait_us);
     verbprintf(0, "Starting...\n");
 
