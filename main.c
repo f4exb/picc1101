@@ -391,11 +391,11 @@ static struct argp argp = {options, parse_opt, args_doc, doc};
 int main (int argc, char **argv)
 // ------------------------------------------------------------------------------------------------
 {
-    int i, ret, ser_read;
+    int i, ret, read_bytes;
 
-    // Whole response
-    char response[1<<12];
-    memset(response, '\0', sizeof(response));
+    // Whole read_buffer
+    char read_buffer[1<<11];
+    memset(read_buffer, '\0', sizeof(read_buffer));
 
     // unsolicited termination handling
     struct sigaction sa;
@@ -480,20 +480,27 @@ int main (int argc, char **argv)
 
     set_serial_parameters(&serial_parameters, &arguments);
     init_radio_int(&spi_parameters, &arguments);
+    init_radio_rx();
 
     while (1)
     {
-        ser_read = read_serial(&serial_parameters, response, sizeof(response));
+        read_bytes = read_serial(&serial_parameters, read_buffer, sizeof(read_buffer));
         
-        if (ser_read > 0)
+        if (read_bytes > 0)
         {
-            //print_block(0, response, ser_read);
-            radio_send_packet(&spi_parameters, &arguments, response, ser_read);
+            //print_block(0, read_buffer, read_bytes);
+            radio_send_packet(&spi_parameters, &arguments, read_buffer, read_bytes);
+            init_radio_rx(); // back to Rx
         }
-        else
+
+        read_bytes = radio_receive_packet(&spi_parameters, &arguments, read_buffer);
+
+        if (read_bytes > 0)
         {
-            usleep(100000);
+            write_serial(&serial_parameters, read_buffer, read_bytes);
         }
+
+        usleep(100000);
     }
 
     delete_args(&arguments);

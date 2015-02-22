@@ -77,6 +77,7 @@ float chanbw_limits[] = {
 
 static radio_int_data_t *p_radio_int_data = 0;
 static radio_int_data_t radio_int_data;
+static uint32_t packets_received;
 
 // === Static functions declarations ==============================================================
 
@@ -394,6 +395,15 @@ void print_received_packet()
 
 
 // === Public functions ===========================================================================
+
+// ------------------------------------------------------------------------------------------------
+// Initialize radio receive mode
+void init_radio_rx()
+// ------------------------------------------------------------------------------------------------
+{
+    packets_received = radio_int_data.packet_rx_count;
+    radio_int_data.mode = RADIOMODE_RX;
+}
 
 // ------------------------------------------------------------------------------------------------
 // Initialize interrupt data and mechanism
@@ -888,6 +898,23 @@ uint8_t radio_get_packet_length(spi_parms_t *spi_parms)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Receive of a packet
+uint8_t radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *packet)
+// ------------------------------------------------------------------------------------------------
+{
+    if (packets_received == radio_int_data.packet_rx_count) // no packet received
+    {
+        return 0;
+    }
+    else // packet received
+    {
+        memcpy(packet, radio_int_data.rx_buf, radio_int_data.rx_count);
+        packets_received == radio_int_data.packet_rx_count;
+        return radio_int_data.rx_count;
+    }
+}
+
+// ------------------------------------------------------------------------------------------------
 // Transmission of a packet
 int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *packet, uint8_t size)
 // ------------------------------------------------------------------------------------------------
@@ -1041,7 +1068,7 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    uint32_t packets_received = 0;
+    packets_received = 0;
 
     init_radio_int(spi_parms, arguments);
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX); // Flush Rx FIFO
