@@ -163,7 +163,7 @@ void int_packet(void)
 void int_threshold(void)
 // ------------------------------------------------------------------------------------------------
 {
-    uint8_t i, bytes_to_send, x_byte;
+    uint8_t i, int_line, bytes_to_send, x_byte;
 
     int_line = digitalRead(WPI_GDO2); // Sense interrupt line to determine if it was a raising or falling edge
 
