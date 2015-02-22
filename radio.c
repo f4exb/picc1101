@@ -1089,7 +1089,6 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
     uint8_t rx_buf[PI_CCxxx0_FIFO_SIZE+1];
     int i;
     uint32_t poll_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
-    radio_int_data_t data_block;
 
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x00); // GDO2 output pin config RX mode
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX);
@@ -1114,7 +1113,7 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
     {
         verbprintf(0, "Packet #%d\n", iterations+1);
         pkt_on = 0; // wait for packet start
-        memset(&(data_block.rx_buf), '\0', PI_CCxxx0_FIFO_SIZE+1);
+        memset((uint8_t *) radio_int_data.rx_buf, '\0', PI_CCxxx0_FIFO_SIZE+1);
 
         while(1)
         {
@@ -1127,19 +1126,16 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
 
             if (!(x_byte & 0x01) && pkt_on) // packet received
             {
-                PI_CC_SPIReadStatus(spi_parms, PI_CCxxx0_RXBYTES, (uint8_t *) &(data_block.rx_count));
-                data_block.rx_count &= PI_CCxxx0_NUM_RXBYTES;
-                verbprintf(1, "Received %d bytes\n", data_block.rx_count);
+                PI_CC_SPIReadStatus(spi_parms, PI_CCxxx0_RXBYTES, (uint8_t *) &(radio_int_data.rx_count));
+                radio_int_data.rx_count &= PI_CCxxx0_NUM_RXBYTES;
+                verbprintf(1, "Received %d bytes\n", radio_int_data.rx_count);
 
-                //PI_CC_SPIReadBurstReg(spi_parms, PI_CCxxx0_RXFIFO, (const uint8_t **) &(data_block.rx_buf), data_block.rx_count);
-                //print_received_packet(&data_block);
-
-                for (i=0; i<data_block.rx_count; i++)
+                for (i=0; i<radio_int_data.rx_count; i++)
                 {
-                    PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RXFIFO, (uint8_t *) &(data_block.rx_buf[i]));
+                    PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RXFIFO, (uint8_t *) &(radio_int_data.rx_buf[i]));
                 }
 
-                print_received_packet(&data_block);
+                print_received_packet(&radio_int_data);
 
                 break;
             }
