@@ -490,6 +490,3 @@ int main (int argc, char **argv)
     delete_args(&arguments);
     return 0;
 }
-
-
-
