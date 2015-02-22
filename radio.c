@@ -987,15 +987,10 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
     radio_int_data.spi_parms = spi_parms;
-    radio_int_data.mode = RADIOMODE_RX;
     packets_received = 0;
     radio_int_data.packet_rx_count = 0;
     radio_int_data.wait_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
-    memset((uint8_t *) radio_int_data.rx_buf, 0, PI_CCxxx0_PACKET_COUNT_SIZE);
     p_radio_int_data = &radio_int_data;
-
-    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x00); // GDO2 output pin config RX mode
-    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX); // Flush Rx FIFO
 
     wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet);      // set interrupt handler for paket interrupts
 
@@ -1003,6 +998,12 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     {
         wiringPiISR(WPI_GDO2, INT_EDGE_RISING, &int_threshold); // set interrupt handler for FIFO threshold interrupts
     }
+
+    radio_int_data.mode = RADIOMODE_RX;
+    memset((uint8_t *) radio_int_data.rx_buf, 0, PI_CCxxx0_PACKET_COUNT_SIZE);
+
+    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x00); // GDO2 output pin config RX mode
+    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX); // Flush Rx FIFO
     
     verbprintf(1, "Wait Rx delay is %d us\n", radio_int_data.wait_us);
     verbprintf(0, "Starting...\n");
