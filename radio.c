@@ -371,21 +371,21 @@ void init_test_tx_block(radio_int_data_t *data_block, arguments_t *arguments)
 }
 
 // ------------------------------------------------------------------------------------------------
-void print_received_packet(radio_int_data_t *data_block)
+void print_received_packet()
 // Print a received packet stored in the interrupt data block
 // ------------------------------------------------------------------------------------------------
 {
     uint8_t rssi_dec, crc_lqi;
     int i;
 
-    verbprintf(0, "%d bytes in buffer:\n", data_block->rx_count);
-    print_block(2, (uint8_t *) data_block->rx_buf, data_block->rx_count);
+    verbprintf(0, "%d bytes in buffer:\n", radio_int_data.rx_count);
+    print_block(2, (uint8_t *) radio_int_data.rx_buf, radio_int_data.rx_count);
 
-    rssi_dec = data_block->rx_buf[data_block->rx_count-2];
-    crc_lqi  = data_block->rx_buf[data_block->rx_count-1];
-    data_block->rx_buf[data_block->rx_count-2] = '\0';
+    rssi_dec = radio_int_data.rx_buf[radio_int_data.rx_count-2];
+    crc_lqi  = radio_int_data.rx_buf[radio_int_data.rx_count-1];
+    radio_int_data.rx_buf[radio_int_data.rx_count-2] = '\0';
 
-    verbprintf(0, "(%03d) \"%s\"\n", data_block->rx_buf[0], &data_block->rx_buf[1]);
+    verbprintf(0, "(%03d) \"%s\"\n", radio_int_data.rx_buf[0], &radio_int_data.rx_buf[1]);
     verbprintf(0, "RSSI: %.1f dBm. LQI=%d. CRC=%d\n", 
         rssi_dbm(rssi_dec),
         0x7F - (crc_lqi & 0x7F),
@@ -991,7 +991,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
             usleep(radio_int_data.wait_us);
         }
 
-        print_received_packet(p_radio_int_data);
+        print_received_packet();
         verbprintf(2, "FIFO threshold was hit %d times\n", radio_int_data.threshold_hits);
         packets_received++;
     }
@@ -1135,7 +1135,7 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
                     PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RXFIFO, (uint8_t *) &(radio_int_data.rx_buf[i]));
                 }
 
-                print_received_packet(&radio_int_data);
+                print_received_packet();
 
                 break;
             }
