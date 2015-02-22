@@ -913,7 +913,7 @@ int radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t
         verbprintf(1, "*** Packet #%d\n", radio_int_data.packet_rx_count);
         print_received_packet(1);
         memcpy(packet, (uint8_t *) &radio_int_data.rx_buf[1], radio_int_data.rx_buf[0]);
-        packets_received == radio_int_data.packet_rx_count;
+        packets_received = radio_int_data.packet_rx_count;
         return radio_int_data.rx_buf[0];
     }
 }
