@@ -88,7 +88,7 @@ static void get_chanbw_words(float bw, radio_parms_t *radio_parms);
 static void get_rate_words(arguments_t *arguments, radio_parms_t *radio_parms);
 static void init_tx_block_packet(arguments_t *arguments, uint8_t *packet, uint8_t size);
 static void init_test_tx_block(radio_int_data_t *data_block, arguments_t *arguments);
-static void print_received_packet(radio_int_data_t *data_block);
+static void print_received_packet();
 
 // === Interupt handlers ==========================================================================
 
