@@ -986,16 +986,18 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    radio_int_data.spi_parms = spi_parms;
+    radio_int_data.mode = RADIOMODE_NONE;
     radio_int_data.packet_rx_count = 0;
+    radio_int_data.packet_tx_count = 0;
+    radio_int_data.spi_parms = spi_parms;
     radio_int_data.wait_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
     p_radio_int_data = &radio_int_data;
 
-    wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet);      // set interrupt handler for paket interrupts
+    wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet);       // set interrupt handler for packet interrupts
 
     if (arguments->packet_length > PI_CCxxx0_FIFO_SIZE)
     {
-        wiringPiISR(WPI_GDO2, INT_EDGE_RISING, &int_threshold); // set interrupt handler for FIFO threshold interrupts
+        wiringPiISR(WPI_GDO2, INT_EDGE_FALLING, &int_threshold); // set interrupt handler for FIFO threshold interrupts
     }
 
     packets_received = 0;
