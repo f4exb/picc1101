@@ -480,6 +480,7 @@ int main (int argc, char **argv)
 
     set_serial_parameters(&serial_parameters, &arguments);
     init_radio_int(&spi_parameters, &arguments);
+    init_radio_rx(&spi_parameters); // init radio in Rx mode
 
     while (1)
     {
