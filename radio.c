@@ -372,22 +372,22 @@ void init_test_tx_block(radio_int_data_t *data_block, arguments_t *arguments)
 }
 
 // ------------------------------------------------------------------------------------------------
-void print_received_packet()
+void print_received_packet(int verbose_min)
 // Print a received packet stored in the interrupt data block
 // ------------------------------------------------------------------------------------------------
 {
     uint8_t rssi_dec, crc_lqi;
     int i;
 
-    verbprintf(0, "%d bytes in buffer:\n", radio_int_data.rx_count);
+    verbprintf(verbose_min, "%d bytes in buffer:\n", radio_int_data.rx_count);
     print_block(2, (uint8_t *) radio_int_data.rx_buf, radio_int_data.rx_count);
 
     rssi_dec = radio_int_data.rx_buf[radio_int_data.rx_count-2];
     crc_lqi  = radio_int_data.rx_buf[radio_int_data.rx_count-1];
     radio_int_data.rx_buf[radio_int_data.rx_count-2] = '\0';
 
-    verbprintf(0, "(%03d) \"%s\"\n", radio_int_data.rx_buf[0], &radio_int_data.rx_buf[1]);
-    verbprintf(0, "RSSI: %.1f dBm. LQI=%d. CRC=%d\n", 
+    verbprintf(verbose_min, "(%03d) \"%s\"\n", radio_int_data.rx_buf[0], &radio_int_data.rx_buf[1]);
+    verbprintf(verbose_min, "RSSI: %.1f dBm. LQI=%d. CRC=%d\n", 
         rssi_dbm(rssi_dec),
         0x7F - (crc_lqi & 0x7F),
         (crc_lqi & PI_CCxxx0_CRC_OK)>>7);
@@ -908,6 +908,8 @@ uint8_t radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, uin
     }
     else // packet received
     {
+        verbprintf(1, "*** Packet #%d\n", radio_int_data.packet_rx_count);
+        print_received_packet(1);
         memcpy(packet, (uint8_t *) &radio_int_data.rx_buf[1], radio_int_data.rx_buf[0]);
         packets_received == radio_int_data.packet_rx_count;
         return radio_int_data.rx_buf[0];
@@ -1092,7 +1094,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
             usleep(radio_int_data.wait_us);
         }
 
-        print_received_packet();
+        print_received_packet(0);
         verbprintf(2, "FIFO threshold was hit %d times\n", radio_int_data.threshold_hits);
         packets_received++;
     }
