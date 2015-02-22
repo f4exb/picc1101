@@ -112,7 +112,7 @@ speed_t get_serial_speed(uint32_t speed, uint32_t *speed_n)
 void set_serial_parameters(serial_t *serial_parameters, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    serial_parameters->SERIAL_TNC = open(arguments->serial_device, O_RDWR | O_NOCTTY);
+    serial_parameters->SERIAL_TNC = open(arguments->serial_device, O_RDWR | O_NOCTTY | O_NONBLOCK);
 
     memset (&serial_parameters->tty, 0, sizeof serial_parameters->tty);
 
