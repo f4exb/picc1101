@@ -371,21 +371,21 @@ void init_test_tx_block(radio_int_data_t *data_block, arguments_t *arguments)
 }
 
 // ------------------------------------------------------------------------------------------------
-void print_received_packet(radio_int_data_t *data_block)
+void print_received_packet()
 // Print a received packet stored in the interrupt data block
 // ------------------------------------------------------------------------------------------------
 {
     uint8_t rssi_dec, crc_lqi;
     int i;
 
-    verbprintf(0, "%d bytes in buffer:\n", data_block->rx_count);
-    print_block(2, (uint8_t *) data_block->rx_buf, data_block->rx_count);
+    verbprintf(0, "%d bytes in buffer:\n", radio_int_data.rx_count);
+    print_block(2, (uint8_t *) radio_int_data.rx_buf, radio_int_data.rx_count);
 
-    rssi_dec = data_block->rx_buf[data_block->rx_count-2];
-    crc_lqi  = data_block->rx_buf[data_block->rx_count-1];
-    data_block->rx_buf[data_block->rx_count-2] = '\0';
+    rssi_dec = radio_int_data.rx_buf[radio_int_data.rx_count-2];
+    crc_lqi  = radio_int_data.rx_buf[radio_int_data.rx_count-1];
+    data_block->rx_buf[radio_int_data.rx_count-2] = '\0';
 
-    verbprintf(0, "(%03d) \"%s\"\n", data_block->rx_buf[0], &data_block->rx_buf[1]);
+    verbprintf(0, "(%03d) \"%s\"\n", radio_int_data.rx_buf[0], &radio_int_data.rx_buf[1]);
     verbprintf(0, "RSSI: %.1f dBm. LQI=%d. CRC=%d\n", 
         rssi_dbm(rssi_dec),
         0x7F - (crc_lqi & 0x7F),
@@ -405,6 +405,8 @@ void init_radio_int(spi_parms_t *spi_parms, arguments_t *arguments)
     radio_int_data.packet_tx_count = 0;
     radio_int_data.spi_parms = spi_parms;
     radio_int_data.wait_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
+    memset((uint8_t *) radio_int_data.rx_buf, 0, PI_CCxxx0_PACKET_COUNT_SIZE);
+
     p_radio_int_data = &radio_int_data;
 
     wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet);       // set interrupt handler for packet interrupts
@@ -1039,44 +1041,32 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    uint32_t packets_received;
-    radio_int_data_t data_block_space;
-    radio_int_data_t *data_block = &data_block_space;
+    uint32_t packets_received = 0;
 
-    data_block->spi_parms = spi_parms;
-    data_block->mode = RADIOMODE_RX;
-    packets_received = 0;
-    data_block->wait_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
-    memset((uint8_t *) data_block->rx_buf, 0, PI_CCxxx0_PACKET_COUNT_SIZE);
-    p_radio_int_data = data_block;
-
-    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x00); // GDO2 output pin config RX mode
+    init_radio_int(spi_parms, arguments);
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX); // Flush Rx FIFO
 
-    wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet);      // set interrupt handler for paket interrupts
+    radio_int_data.mode = RADIOMODE_RX;
 
-    if (arguments->packet_length > PI_CCxxx0_FIFO_SIZE)
-    {
-        wiringPiISR(WPI_GDO2, INT_EDGE_RISING, &int_threshold); // set interrupt handler for FIFO threshold interrupts
-    }
-    
     verbprintf(1, "Wait Rx delay is %d us\n", data_block->wait_us);
     verbprintf(0, "Starting...\n");
+
+    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x00); // GDO2 output pin config RX mode
 
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX); // Enter Rx mode
 
     while((arguments->repetition == 0) || (packets_received < arguments->repetition))
     {
         verbprintf(0, "*** Packet #%d\n", packets_received);
-        data_block->threshold_hits = 0;
+        radio_int_data.threshold_hits = 0;
 
-        while(packets_received == data_block->packet_rx_count) // wait for one more packet received
+        while(packets_received == radio_int_data.packet_rx_count) // wait for one more packet received
         {
-            usleep(data_block->wait_us);
+            usleep(radio_int_data.wait_us);
         }
 
-        print_received_packet(data_block);
-        verbprintf(2, "FIFO threshold was hit %d times\n", data_block->threshold_hits);
+        print_received_packet();
+        verbprintf(2, "FIFO threshold was hit %d times\n", radio_int_data.threshold_hits);
         packets_received++;
     }
 }
