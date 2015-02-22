@@ -402,6 +402,7 @@ void init_radio_rx(spi_parms_t *spi_parms)
 // ------------------------------------------------------------------------------------------------
 {
     packets_received = radio_int_data.packet_rx_count;
+    verbprintf(1, "Current packet #%d\n", packets_received);
     radio_int_data.mode = RADIOMODE_RX;
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX); // Enter Rx mode
 }
