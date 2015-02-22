@@ -88,7 +88,7 @@ static void get_chanbw_words(float bw, radio_parms_t *radio_parms);
 static void get_rate_words(arguments_t *arguments, radio_parms_t *radio_parms);
 static void init_tx_block_packet(arguments_t *arguments, uint8_t *packet, uint8_t size);
 static void init_test_tx_block(radio_int_data_t *data_block, arguments_t *arguments);
-static void print_received_packet(radio_int_data_t *data_block);
+static void print_received_packet();
 
 // === Interupt handlers ==========================================================================
 
@@ -1048,7 +1048,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
     radio_int_data.mode = RADIOMODE_RX;
 
-    verbprintf(1, "Wait Rx delay is %d us\n", data_block->wait_us);
+    verbprintf(1, "Wait Rx delay is %d us\n", radio_int_data.wait_us);
     verbprintf(0, "Starting...\n");
 
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x00); // GDO2 output pin config RX mode
