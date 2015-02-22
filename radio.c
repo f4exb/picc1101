@@ -383,7 +383,7 @@ void print_received_packet()
 
     rssi_dec = radio_int_data.rx_buf[radio_int_data.rx_count-2];
     crc_lqi  = radio_int_data.rx_buf[radio_int_data.rx_count-1];
-    data_block->rx_buf[radio_int_data.rx_count-2] = '\0';
+    radio_int_data.rx_buf[radio_int_data.rx_count-2] = '\0';
 
     verbprintf(0, "(%03d) \"%s\"\n", radio_int_data.rx_buf[0], &radio_int_data.rx_buf[1]);
     verbprintf(0, "RSSI: %.1f dBm. LQI=%d. CRC=%d\n", 
