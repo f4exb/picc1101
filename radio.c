@@ -1072,6 +1072,9 @@ int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
 int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
+    uint8_t received_bytes[256];
+    int read_bytes; 
+
     init_radio_int(spi_parms, arguments);
 
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX); // Flush Rx FIFO
@@ -1090,6 +1093,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
         verbprintf(0, "*** Packet #%d\n", packets_received);
         radio_int_data.threshold_hits = 0;
 
+        /*
         while(packets_received == radio_int_data.packet_rx_count) // wait for one more packet received
         {
             usleep(radio_int_data.wait_us);
@@ -1098,6 +1102,20 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
         print_received_packet(0);
         verbprintf(2, "FIFO threshold was hit %d times\n", radio_int_data.threshold_hits);
         packets_received++;
+        */
+        while (1)
+        {
+            read_bytes = radio_receive_packet(spi_parms, arguments, received_bytes);
+            
+            if (read_bytes > 0)
+            {
+                print_received_packet(0);
+                verbprintf(2, "FIFO threshold was hit %d times\n", radio_int_data.threshold_hits);
+                packets_received++;
+            }
+
+            usleep(radio_int_data.wait_us);   
+        }
     }
 }
 
