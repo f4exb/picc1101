@@ -75,6 +75,7 @@ typedef struct arguments_s {
     uint8_t      print_radio_status; // Print radio status and exit
     modulation_t modulation;         // Radio modulation scheme
     rate_t       rate;               // Data rate (Baud)
+    float        rate_skew;          // Data rate skew multiplier from nominal
     float        modulation_index;   // Modulation index
     uint32_t     freq_hz;            // Frequency in Hz
     uint8_t      packet_length;      // Fixed packet length

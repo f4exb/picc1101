@@ -86,6 +86,7 @@ static struct argp_option options[] = {
     {"spi-device",  'd', "SPI_DEVICE", 0, "SPI device, (default : /dev/spidev0.0)"},
     {"modulation",  'M', "MODULATION_SCHEME", 0, "Radio modulation scheme, See long help (-H) option"},
     {"rate",  'R', "DATA_RATE_INDEX", 0, "Data rate index, See long help (-H) option"},
+    {"rate-skew",  'w', "RATE_MULTIPLIER", 0, "Data rate skew multiplier. (default 1.0 = no skew)"},
     {"modulation-index",  'm', "MODULATION_INDEX", 0, "Modulation index (default 0.5)"},
     {"fec",  'F', 0, 0, "Activate FEC (default off)"},
     {"whitening",  'W', 0, 0, "Activate whitening (default off)"},
@@ -158,6 +159,7 @@ static void init_args(arguments_t *arguments)
     arguments->print_radio_status = 0;
     arguments->modulation = MOD_FSK2;
     arguments->rate = RATE_9600;
+    arguments->rate_skew = 1.0;
     arguments->modulation_index = 0.5;
     arguments->freq_hz = 433600000;
     arguments->packet_length = 250;
@@ -197,7 +199,7 @@ static void print_args(arguments_t *arguments)
     fprintf(stderr, "Verbosity ...........: %d\n", arguments->verbose_level);
     fprintf(stderr, "--- radio ---\n");
     fprintf(stderr, "Modulation ..........: %s\n", modulation_names[arguments->modulation]);
-    fprintf(stderr, "Rate ................: %d Baud\n", rate_values[arguments->rate]);
+    fprintf(stderr, "Rate ................: %d Baud\n", rate_values[arguments->rate] * arguments->rate_skew);
     fprintf(stderr, "Modulation index ....: %.2f\n", arguments->modulation_index);
     fprintf(stderr, "Frequency ...........: %d Hz\n", arguments->freq_hz);
     fprintf(stderr, "Packet length .......: %d bytes\n", arguments->packet_length);
@@ -367,6 +369,10 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
         // Modulation index
         case 'm':
             arguments->modulation_index = atof(arg);
+            break;
+        // Rate skew multiplier
+        case 'w':
+            arguments->rate_skew = atof(arg);
             break;
         default:
             return ARGP_ERR_UNKNOWN;

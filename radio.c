@@ -85,7 +85,7 @@ static uint32_t get_freq_word(uint32_t freq_xtal, uint32_t freq_hz);
 static uint8_t get_mod_word(modulation_t modulation_code);
 static uint32_t get_if_word(uint32_t freq_xtal, uint32_t if_hz);
 static void get_chanbw_words(float bw, radio_parms_t *radio_parms);
-static void get_rate_words(rate_t rate_code, modulation_t modulation_code, float modulation_index, radio_parms_t *radio_parms);
+static void get_rate_words(arguments_t *arguments, radio_parms_t *radio_parms);
 static void init_tx_block_packet(arguments_t *arguments, uint8_t *packet, uint8_t size);
 static void init_test_tx_block(radio_int_data_t *data_block, arguments_t *arguments);
 static void print_received_packet(radio_int_data_t *data_block);
@@ -292,20 +292,21 @@ void get_chanbw_words(float bw, radio_parms_t *radio_parms)
 //   o DRATE = (Fxosc / 2^28) * (256 + DRATE_M) * 2^DRATE_E
 //   o CHANBW = Fxosc / (8(4+CHANBW_M) * 2^CHANBW_E)
 //   o DEVIATION = (Fxosc / 2^17) * (8 + DEVIATION_M) * 2^DEVIATION_E
-void get_rate_words(rate_t rate_code, modulation_t modulation_code, float modulation_index, radio_parms_t *radio_parms)
+void get_rate_words(arguments_t *arguments, radio_parms_t *radio_parms)
 // ------------------------------------------------------------------------------------------------
 {
     double drate, deviat, f_xtal;
 
-    drate = (double) rate_values[rate_code];
+    drate = (double) rate_values[arguments->rate];
+    drate *= arguments->rate_skew;
 
-    if ((modulation_code == MOD_FSK4) && (drate > 300000.0))
+    if ((arguments->modulation == MOD_FSK4) && (drate > 300000.0))
     {
         fprintf(stderr, "RADIO: forcibly set data rate to 300 kBaud for 4-FSK\n");
         drate = 300000.0;
     }
 
-    deviat = drate * modulation_index;
+    deviat = drate * arguments->modulation_index;
     f_xtal = (double) radio_parms->f_xtal;
 
     get_chanbw_words(2.0*(deviat + drate), radio_parms); // Apply Carson's rule for bandwidth
@@ -466,7 +467,7 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     }
 
     radio_parms->packet_length = arguments->packet_length;  // Packet length
-    get_rate_words(arguments->rate, arguments->modulation, arguments->modulation_index, radio_parms);
+    get_rate_words(arguments, radio_parms);
 
     // Write register settings
 
