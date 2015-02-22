@@ -327,11 +327,11 @@ void get_rate_words(rate_t rate_code, modulation_t modulation_code, float modula
 void init_tx_block_packet(arguments_t *arguments, uint8_t *packet, uint8_t size)
 // ------------------------------------------------------------------------------------------------
 {
-    uint8_t effective_size = (size > arguments->packet_length ? arguments->packet_length : size);
+    uint8_t effective_size = (size > arguments->packet_length - 1 ? arguments->packet_length - 1 : size);
     memset((uint8_t *) radio_int_data.tx_buf, 0, arguments->packet_length);
     memcpy((uint8_t *) &radio_int_data.tx_buf[1], packet, effective_size);
     radio_int_data.tx_buf[0] = effective_size;
-    radio_int_data.tx_count = arguments->packet_length + 1;
+    radio_int_data.tx_count = arguments->packet_length;
 }
 
 // ------------------------------------------------------------------------------------------------
