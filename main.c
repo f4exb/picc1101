@@ -499,7 +499,7 @@ int main (int argc, char **argv)
             write_serial(&serial_parameters, read_buffer, read_bytes);
         }        
 
-        usleep(100000);
+        radio_wait_a_bit();
     }
 
     delete_args(&arguments);

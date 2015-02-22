@@ -901,6 +901,14 @@ uint8_t radio_get_packet_length(spi_parms_t *spi_parms)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Wait for a change
+void radio_wait_a_bit(spi_parms_t *spi_parms)
+// ------------------------------------------------------------------------------------------------
+{
+    usleep(radio_int_data.wait_us);
+}
+
+// ------------------------------------------------------------------------------------------------
 // Receive of a packet
 int radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *packet)
 // ------------------------------------------------------------------------------------------------
@@ -955,7 +963,7 @@ int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *p
 
     while (packets_sent == radio_int_data.packet_tx_count)
     {
-        usleep(radio_int_data.wait_us);    
+        radio_wait_a_bit();
     }
 
     radio_int_data.mode = RADIOMODE_NONE;
@@ -1005,7 +1013,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
         while(packets_received == radio_int_data.packet_rx_count) // wait for one more packet received
         {
-            usleep(radio_int_data.wait_us);
+            radio_wait_a_bit();
         }
 
         print_received_packet(0);

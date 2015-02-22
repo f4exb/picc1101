@@ -105,6 +105,7 @@ int     print_radio_status(spi_parms_t *spi_parms);
 
 int     radio_set_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len);
 uint8_t radio_get_packet_length(spi_parms_t *spi_parms);
+void    radio_wait_a_bit();
 int     radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *packet, uint8_t size);
 int     radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *packet);
 
