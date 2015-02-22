@@ -1109,9 +1109,8 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
             
             if (read_bytes > 0)
             {
-                print_received_packet(0);
+                print_block(0, received_bytes, read_bytes);
                 verbprintf(2, "FIFO threshold was hit %d times\n", radio_int_data.threshold_hits);
-                packets_received++;
             }
 
             usleep(radio_int_data.wait_us);   
