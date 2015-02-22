@@ -894,7 +894,7 @@ int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *p
 
     radio_int_data.mode = RADIOMODE_TX;
     radio_int_data.packet_send = 0;
-    packets_sent = 0;
+    radio_int_data.threshold_hits = 0;
 
     init_tx_block_packet(arguments, packet, size);
     print_block(2, (uint8_t *) radio_int_data.tx_buf, radio_int_data.tx_count);
@@ -906,9 +906,6 @@ int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *p
     // the smallest
     initial_tx_count = (radio_int_data.tx_count > PI_CCxxx0_FIFO_SIZE ? PI_CCxxx0_FIFO_SIZE : radio_int_data.tx_count);
 
-    verbprintf(0, "Packet #%d\n", packets_sent);
-    radio_int_data.threshold_hits = 0;
-
     // Initial fill of TX FIFO
     for (radio_int_data.byte_index=0; radio_int_data.byte_index<initial_tx_count; (radio_int_data.byte_index)++)
     {
@@ -917,6 +914,8 @@ int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *p
 
     radio_int_data.bytes_remaining = radio_int_data.tx_count - initial_tx_count;
     packets_sent = radio_int_data.packet_count;
+
+    verbprintf(0, "Packet #%d\n", packets_sent);
 
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX); // Kick-off Tx
 
