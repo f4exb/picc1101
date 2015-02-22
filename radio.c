@@ -398,11 +398,12 @@ void print_received_packet(int verbose_min)
 
 // ------------------------------------------------------------------------------------------------
 // Initialize radio receive mode
-void init_radio_rx()
+void init_radio_rx(spi_parms_t *spi_parms)
 // ------------------------------------------------------------------------------------------------
 {
     packets_received = radio_int_data.packet_rx_count;
     radio_int_data.mode = RADIOMODE_RX;
+    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX); // Enter Rx mode
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1081,8 +1082,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x00); // GDO2 output pin config RX mode
 
-    init_radio_rx();
-    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX); // Enter Rx mode
+    init_radio_rx(spi_parms);
 
     while((arguments->repetition == 0) || (packets_received < arguments->repetition))
     {
