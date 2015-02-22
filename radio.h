@@ -78,7 +78,8 @@ typedef volatile struct radio_int_data_s
 {
 	spi_parms_t  *spi_parms;             // SPI link parameters
 	radio_mode_t mode;                   // Radio mode (essentially Rx or Tx)
-	uint32_t     packet_count;           // Number of packets sent or received since put into action
+	uint32_t     packet_rx_count;        // Number of packets received since put into action
+	uint32_t     packet_tx_count;        // Number of packets sent since put into action
 	uint8_t      tx_buf[PI_CCxxx0_PACKET_COUNT_SIZE+2]; // Tx buffer
 	uint8_t      tx_count;               // Number of bytes in Tx buffer
 	uint8_t      rx_buf[PI_CCxxx0_PACKET_COUNT_SIZE+2]; // Rx buffer
