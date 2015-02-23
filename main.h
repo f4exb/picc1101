@@ -79,6 +79,7 @@ typedef struct arguments_s {
     float        modulation_index;   // Modulation index
     uint32_t     freq_hz;            // Frequency in Hz
     uint8_t      packet_length;      // Fixed packet length
+    uint8_t      variable_length;    // Set variable length packet mode. Fixed packet argument becomes maximum packet size
     test_mode_t  test_mode;          // Enter testing mode with specified test scheme 
     char         *test_phrase;       // Test phrase to transmit
     uint8_t      test_rx;            // Reception test. Exits after receiving number of repetition packets

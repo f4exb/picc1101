@@ -332,11 +332,22 @@ void get_rate_words(arguments_t *arguments, radio_parms_t *radio_parms)
 void init_tx_block_packet(arguments_t *arguments, uint8_t *packet, uint8_t size)
 // ------------------------------------------------------------------------------------------------
 {
-    uint8_t effective_size = (size > arguments->packet_length - 1 ? arguments->packet_length - 1 : size);
-    memset((uint8_t *) radio_int_data.tx_buf, 0, arguments->packet_length);
+    uint8_t effective_size;
+
+    if (arguments->variable_length)
+    {
+        effective_size = size;
+        radio_int_data.tx_count = size + 1;
+    }
+    else
+    {
+        effective_size = (size > arguments->packet_length - 1 ? arguments->packet_length - 1 : size);
+        memset((uint8_t *) radio_int_data.tx_buf, 0, arguments->packet_length);
+        radio_int_data.tx_count = arguments->packet_length;
+    }
+
     memcpy((uint8_t *) &radio_int_data.tx_buf[1], packet, effective_size);
     radio_int_data.tx_buf[0] = effective_size;
-    radio_int_data.tx_count = arguments->packet_length;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -432,7 +443,7 @@ void init_radio_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
 // ------------------------------------------------------------------------------------------------
 // Initialize constant radio parameters
-void init_radio_parms(radio_parms_t *radio_parms)
+void init_radio_parms(radio_parms_t *radio_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
 	radio_parms->f_xtal        = 26000000;         // 26 MHz Xtal
@@ -440,7 +451,15 @@ void init_radio_parms(radio_parms_t *radio_parms)
 	radio_parms->sync_ctl      = SYNC_30_over_32;  // 30/32 sync word bits detected
     radio_parms->chanspc_m     = 0;                // Do not use channel spacing for the moment defaulting to 0
     radio_parms->chanspc_e     = 0;                // Do not use channel spacing for the moment defaulting to 0
-    radio_parms->packet_config = PKTLEN_FIXED;     // Use fixed packet length
+
+    if (arguments->variable_length)
+    {
+        radio_parms->packet_config = PKTLEN_VARIABLE;  // Use variable packet length
+    }
+    else
+    {
+        radio_parms->packet_config = PKTLEN_FIXED;     // Use fixed packet length
+    }
 }
 
 // ------------------------------------------------------------------------------------------------

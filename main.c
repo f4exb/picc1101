@@ -92,6 +92,7 @@ static struct argp_option options[] = {
     {"whitening",  'W', 0, 0, "Activate whitening (default off)"},
     {"frequency",  'f', "FREQUENCY_HZ", 0, "Frequency in Hz (default: 433600000)"},
     {"packet-length",  'P', "PACKET_LENGTH", 0, "Packet length, 0 is variable (default: 250)"},
+    {"variable-length",  'V', 0, 0, "Variable packet length. Given packet length becomes maximum length (default off)"},
     {"test-mode",  't', "TEST_SCHEME", 0, "Test scheme, See long help (-H) option fpr details (default : 0 no test)"},
     {"test-phrase",  'y', "TEST_PHRASE", 0, "Set a test phrase to be used in test (default : \"Hello, World!\")"},
     {"repetition",  'n', "REPETITION", 0, "Repetiton factor wherever appropriate, see long Help (-H) option (default : 1 single)"},
@@ -163,6 +164,7 @@ static void init_args(arguments_t *arguments)
     arguments->modulation_index = 0.5;
     arguments->freq_hz = 433600000;
     arguments->packet_length = 250;
+    arguments->variable_length = 0;
     arguments->test_mode = TEST_NONE;
     arguments->test_phrase = strdup("Hello, World!");
     arguments->repetition = 1;
@@ -204,6 +206,7 @@ static void print_args(arguments_t *arguments)
     fprintf(stderr, "Modulation index ....: %.2f\n", arguments->modulation_index);
     fprintf(stderr, "Frequency ...........: %d Hz\n", arguments->freq_hz);
     fprintf(stderr, "Packet length .......: %d bytes\n", arguments->packet_length);
+    fprintf(stderr, "Variable length .....: %s\n", (arguments->variable_length ? "yes" : "no"));
     fprintf(stderr, "Preamble size .......: %d bytes\n", nb_preamble_bytes[arguments->preamble]);
     fprintf(stderr, "FEC .................: %s\n", (arguments->fec ? "on" : "off"));
     fprintf(stderr, "Whitening ...........: %s\n", (arguments->whitening ? "on" : "off"));
@@ -442,7 +445,7 @@ int main (int argc, char **argv)
 
     print_args(&arguments);
 
-    init_radio_parms(&radio_parameters);
+    init_radio_parms(&radio_parameters, &arguments);
     ret = init_radio(&radio_parameters, &spi_parameters, &arguments);
 
     if (ret != 0)
