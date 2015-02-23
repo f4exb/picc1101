@@ -1034,7 +1034,7 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
         
         if (arguments->variable_length)
         {
-        	udelay(10 * radio_int_data.wait_us); // wait before sending next packet when in variable length mode
+        	usleep(10 * radio_int_data.wait_us); // wait before sending next packet when in variable length mode
         }
     } 
 }
