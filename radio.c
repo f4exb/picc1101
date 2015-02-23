@@ -1047,7 +1047,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     verbprintf(1, "Wait Rx delay is %d us\n", radio_int_data.wait_us);
     verbprintf(0, "Starting...\n");
 
-    init_radio_rx(spi_parms);
+    init_radio_rx(spi_parms, arguments);
 
     while((arguments->repetition == 0) || (packets_received < arguments->repetition))
     {
@@ -1062,6 +1062,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
         print_received_packet(0);
         verbprintf(2, "FIFO threshold was hit %d times\n", radio_int_data.threshold_hits);
         packets_received++;
+        init_radio_rx(spi_parms, arguments);
     }
 }
 
