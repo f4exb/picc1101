@@ -114,8 +114,6 @@ void int_packet(void)
 
             if (p_radio_int_data->packet_config == PKTLEN_VARIABLE) // variable: read first payload byte
             {
-                radio_set_packet_length(p_radio_int_data->spi_parms, PI_CCxxx0_PACKET_COUNT_SIZE);
-
                 // wait a bit to get packet length information
                 usleep(2 * p_radio_int_data->wait_us);
     
@@ -430,11 +428,17 @@ void print_received_packet(int verbose_min)
 
 // ------------------------------------------------------------------------------------------------
 // Initialize radio receive mode
-void init_radio_rx(spi_parms_t *spi_parms)
+void init_radio_rx(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
     packets_received = radio_int_data.packet_rx_count;
     radio_int_data.mode = RADIOMODE_RX;
+
+    if (arguments->variable_length)
+    {
+        radio_set_packet_length(p_radio_int_data->spi_parms, PI_CCxxx0_PACKET_COUNT_SIZE); // set to the largest value, actual coutner is first byte of payload
+    }
+
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2, 0x00); // GDO2 output pin config RX mode
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX); // Enter Rx mode
 }

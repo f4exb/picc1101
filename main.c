@@ -488,7 +488,7 @@ int main (int argc, char **argv)
 
     set_serial_parameters(&serial_parameters, &arguments);
     init_radio_int(&spi_parameters, &arguments);
-    init_radio_rx(&spi_parameters); // init radio in Rx mode
+    init_radio_rx(&spi_parameters, &arguments); // init radio in Rx mode
 
     while (1)
     {
@@ -498,7 +498,7 @@ int main (int argc, char **argv)
         {
             //print_block(0, response, ser_read);
             radio_send_packet(&spi_parameters, &arguments, read_buffer, read_bytes);
-            init_radio_rx(&spi_parameters); // back to Rx
+            init_radio_rx(&spi_parameters, &arguments); // back to Rx
         }
 
         read_bytes = radio_receive_packet(&spi_parameters, &arguments, read_buffer);
@@ -507,6 +507,7 @@ int main (int argc, char **argv)
         {
             print_block(1, read_buffer, read_bytes);
             write_serial(&serial_parameters, read_buffer, read_bytes);
+            init_radio_rx(&spi_parameters, &arguments); // maintain Rx parameters
         }        
 
         radio_wait_a_bit();
