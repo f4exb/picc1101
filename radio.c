@@ -113,6 +113,8 @@ void int_packet(void)
             // wait a bit to get packet length information
             usleep(p_radio_int_data->wait_us);
 
+            p_radio_int_data->byte_index = 0;
+
             if (p_radio_int_data->packet_config == PKTLEN_VARIABLE) // variable: read first payload byte
             {
                 PI_CC_SPIReadReg(p_radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &x_byte);
@@ -129,7 +131,6 @@ void int_packet(void)
             verbprintf(2, "%d bytes to read\n", p_radio_int_data->rx_count);
 
             p_radio_int_data->bytes_remaining = p_radio_int_data->rx_count;
-            p_radio_int_data->byte_index = 0;
             p_radio_int_data->packet_receive = 1; // reception is in progress
         }
         else
