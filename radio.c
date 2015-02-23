@@ -1033,11 +1033,6 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     {
         radio_send_packet(spi_parms, arguments, arguments->test_phrase, strlen(arguments->test_phrase));
         packets_sent++;
-        
-        if (arguments->variable_length)
-        {
-        	usleep(100 * radio_int_data.wait_us); // wait before sending next packet when in variable length mode
-        }
     } 
 }
 
