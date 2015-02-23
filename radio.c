@@ -964,6 +964,7 @@ int radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t
     }
     else // packet received
     {
+        verbprintf(1, "Rx: waiting for packet #%d\n", radio_int_data.packet_rx_count);
         print_received_packet(1);
         memcpy(packet, (uint8_t *) &radio_int_data.rx_buf[1], radio_int_data.rx_buf[0]);
         packets_received = radio_int_data.packet_rx_count;
@@ -1002,7 +1003,7 @@ int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *p
     radio_int_data.bytes_remaining = radio_int_data.tx_count - initial_tx_count;
     packets_sent = radio_int_data.packet_tx_count;
 
-    verbprintf(0, "Packet #%d\n", packets_sent);
+    verbprintf(0, "Tx: packet #%d\n", packets_sent);
 
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX); // Kick-off Tx
 
@@ -1012,7 +1013,7 @@ int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *p
     }
 
     radio_int_data.mode = RADIOMODE_NONE;
-    verbprintf(2, "FIFO threshold was hit %d times\n", radio_int_data.threshold_hits);
+    verbprintf(2,"Tx: FIFO threshold was hit %d times\n", radio_int_data.threshold_hits);
 }
 
 // ------------------------------------------------------------------------------------------------
