@@ -112,8 +112,19 @@ void int_packet(void)
 
             // wait a bit to get packet length information
             usleep(p_radio_int_data->wait_us);
-            p_radio_int_data->rx_count = radio_get_packet_length(p_radio_int_data->spi_parms);
-            p_radio_int_data->rx_count += 2; // Add RSSI + LQI/CRC bytes
+
+            if (p_radio_int_data->packet_config == PKTLEN_VARIABLE) // variable: read first payload byte
+            {
+                PI_CC_SPIReadReg(p_radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &x_byte);
+                p_radio_int_data->rx_count = x_byte;
+                p_radio_int_data->rx_count += 1; // Add RSSI + LQI/CRC bytes - byte count
+            }
+            else // fixed: read PKTLEN register
+            {
+                p_radio_int_data->rx_count = radio_get_packet_length(p_radio_int_data->spi_parms);
+                p_radio_int_data->rx_count += 2; // Add RSSI + LQI/CRC bytes
+            }
+
             verbprintf(2, "%d bytes to read\n", p_radio_int_data->rx_count);
 
             p_radio_int_data->bytes_remaining = p_radio_int_data->rx_count;
