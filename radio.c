@@ -466,10 +466,12 @@ void init_radio_parms(radio_parms_t *radio_parms, arguments_t *arguments)
     if (arguments->variable_length)
     {
         radio_parms->packet_config = PKTLEN_VARIABLE;  // Use variable packet length
+        radio_int_data.packet_config = PKTLEN_VARIABLE;
     }
     else
     {
         radio_parms->packet_config = PKTLEN_FIXED;     // Use fixed packet length
+        radio_int_data.packet_config = PKTLEN_FIXED;
     }
 }
 
