@@ -121,14 +121,16 @@ void int_packet(void)
                 p_radio_int_data->rx_buf[p_radio_int_data->byte_index++] = x_byte; // put back into resulting payoad
                 p_radio_int_data->rx_count = x_byte;
                 p_radio_int_data->rx_count += 3; // Add RSSI + LQI/CRC bytes + count 
+    
+                verbprintf(2, "%d bytes to read (variable)\n", p_radio_int_data->rx_count);
             }
             else // fixed: read PKTLEN register
             {
                 p_radio_int_data->rx_count = radio_get_packet_length(p_radio_int_data->spi_parms);
                 p_radio_int_data->rx_count += 2; // Add RSSI + LQI/CRC bytes
-            }
 
-            verbprintf(2, "%d bytes to read\n", p_radio_int_data->rx_count);
+                verbprintf(2, "%d bytes to read (fixed)\n", p_radio_int_data->rx_count);
+            }
 
             p_radio_int_data->bytes_remaining = p_radio_int_data->rx_count;
             p_radio_int_data->packet_receive = 1; // reception is in progress
