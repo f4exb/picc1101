@@ -116,6 +116,7 @@ void int_packet(void)
             if (p_radio_int_data->packet_config == PKTLEN_VARIABLE) // variable: read first payload byte
             {
                 PI_CC_SPIReadReg(p_radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &x_byte);
+                p_radio_int_data->rx_buf[p_radio_int_data->byte_index++] = x_byte; // put back into resulting payoad
                 p_radio_int_data->rx_count = x_byte;
                 p_radio_int_data->rx_count += 1; // Add RSSI + LQI/CRC bytes - byte count
             }
