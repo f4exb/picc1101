@@ -114,6 +114,8 @@ void int_packet(void)
 
             if (p_radio_int_data->packet_config == PKTLEN_VARIABLE) // variable: read first payload byte
             {
+                radio_set_packet_length(p_radio_int_data->spi_parms, PI_CCxxx0_PACKET_COUNT_SIZE);
+
                 // wait a bit to get packet length information
                 usleep(2 * p_radio_int_data->wait_us);
     
