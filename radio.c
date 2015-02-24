@@ -189,7 +189,7 @@ void int_threshold(void)
 
     if ((p_radio_int_data->mode == RADIOMODE_RX) && (int_line)) // Filling of Rx FIFO - Read next 59 bytes
     {
-        verbprintf(4, "GDO2 rising edge\n");
+        verbprintf(4, "GDO2 rising edge: %d bytes remaining\n", p_radio_int_data->bytes_remaining);
         p_radio_int_data->threshold_hits++;
 
         for (i=0; i<RX_FIFO_UNLOAD; i++)
