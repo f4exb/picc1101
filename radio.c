@@ -936,11 +936,11 @@ uint8_t radio_get_packet_length(spi_parms_t *spi_parms)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Wait for a change
-void radio_wait_a_bit()
+// Wait for a change for approximately 4*amount of 2-FSK symbols
+void radio_wait_a_bit(uint32_t amount)
 // ------------------------------------------------------------------------------------------------
 {
-    usleep(radio_int_data.wait_us);
+    usleep(amount * radio_int_data.wait_us);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1018,7 +1018,7 @@ int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *p
 
     while (packets_sent == radio_int_data.packet_tx_count)
     {
-        radio_wait_a_bit();
+        radio_wait_a_bit(1);
     }
 
     verbprintf(1, "Tx: packet #%d\n", radio_int_data.packet_tx_count);
@@ -1068,7 +1068,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
         while(packets_received == radio_int_data.packet_rx_count) // wait for one more packet received
         {
-            radio_wait_a_bit();
+            radio_wait_a_bit(1);
         }
 
         print_received_packet(0);
