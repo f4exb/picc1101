@@ -964,7 +964,7 @@ int radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t
 // ------------------------------------------------------------------------------------------------
 {
 	radio_int_data.threshold_hits = 0;
-	
+
     if (packets_received == radio_int_data.packet_rx_count) // no packet received
     {
         return 0;
@@ -1046,7 +1046,7 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-	uint8_t nb_rx, *rx_bytes;
+	uint8_t nb_rx, rx_bytes[PI_CCxxx0_PACKET_COUNT_SIZE+1];
 
     init_radio_int(spi_parms, arguments);
 
@@ -1058,7 +1058,6 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
     while((arguments->repetition == 0) || (packets_received < arguments->repetition))
     {
-        verbprintf(0, "*** Packet #%d\n", packets_received);
         radio_receive_listen(spi_parms, arguments); // set in Rx
 
         do
@@ -1067,7 +1066,6 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
         	radio_wait_a_bit(1);
         } while(nb_rx == 0);
 
-        print_received_packet(0);
         verbprintf(2, "FIFO threshold was hit %d times\n", radio_int_data.threshold_hits);
         packets_received++;
     }
