@@ -190,20 +190,24 @@ void int_threshold(void)
     if ((p_radio_int_data->mode == RADIOMODE_RX) && (int_line)) // Filling of Rx FIFO - Read next 59 bytes
     {
         verbprintf(4, "GDO2 rising edge (%d): %d bytes remaining\n", p_radio_int_data->packet_receive, p_radio_int_data->bytes_remaining);
-        p_radio_int_data->threshold_hits++;
 
-        for (i=0; i<RX_FIFO_UNLOAD; i++)
+        if (p_radio_int_data->packet_receive) // if reception has started
         {
-            PI_CC_SPIReadReg(p_radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &x_byte);
-            p_radio_int_data->rx_buf[(p_radio_int_data->byte_index)++] = x_byte;
-            p_radio_int_data->bytes_remaining--;
+            p_radio_int_data->threshold_hits++;
+
+            for (i=0; i<RX_FIFO_UNLOAD; i++)
+            {
+                PI_CC_SPIReadReg(p_radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &x_byte);
+                p_radio_int_data->rx_buf[(p_radio_int_data->byte_index)++] = x_byte;
+                p_radio_int_data->bytes_remaining--;
+            }
         }
     }
     else if ((p_radio_int_data->mode == RADIOMODE_TX) && (!int_line)) // Depletion of Tx FIFO - Write at most next 60 bytes
     {
         verbprintf(4, "GDO2 falling edge (%d): %d bytes remaining\n", p_radio_int_data->packet_send, p_radio_int_data->bytes_remaining);
 
-        if (p_radio_int_data->bytes_remaining > 0) // bytes left to send
+        if ((p_radio_int_data->packet_send) && (p_radio_int_data->bytes_remaining > 0)) // bytes left to send
         {
             p_radio_int_data->threshold_hits++;
 
