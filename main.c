@@ -162,7 +162,7 @@ static void init_args(arguments_t *arguments)
     arguments->modulation = MOD_FSK2;
     arguments->rate = RATE_9600;
     arguments->rate_skew = 1.0;
-    arguments->packet-delay = 30;
+    arguments->packet_delay = 30;
     arguments->modulation_index = 0.5;
     arguments->freq_hz = 433600000;
     arguments->packet_length = 250;
