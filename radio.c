@@ -151,8 +151,9 @@ void int_packet(void)
                     p_radio_int_data->bytes_remaining--;
                 }
 
-                p_radio_int_data->packet_rx_count++;
+                radio_int_data.mode = RADIOMODE_NONE;
                 p_radio_int_data->packet_receive = 0; // reception is done
+                p_radio_int_data->packet_rx_count++;
             }            
         }        
     }    
@@ -168,8 +169,9 @@ void int_packet(void)
             verbprintf(4, "GDO0 falling edge\n");
             if (p_radio_int_data->packet_send) // packet has been sent
             {
-                verbprintf(4, "Sent packet #%d\n", p_radio_int_data->packet_tx_count++);
+                radio_int_data.mode = RADIOMODE_NONE;
                 p_radio_int_data->packet_send = 0; // De-assert packet transmission after packet has been sent
+                verbprintf(4, "Sent packet #%d\n", p_radio_int_data->packet_tx_count++);
             }
         }
     }
@@ -974,7 +976,6 @@ int radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t
     }
     else // packet received
     {
-        radio_int_data.mode = RADIOMODE_NONE;
         verbprintf(1, "Rx: packet #%d\n", radio_int_data.packet_rx_count);
         print_received_packet(2);
         memcpy(packet, (uint8_t *) &radio_int_data.rx_buf[1], radio_int_data.rx_buf[0]);
@@ -1024,7 +1025,6 @@ int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *p
     print_block(3, (uint8_t *) radio_int_data.tx_buf, radio_int_data.tx_count);
 
     packets_sent = radio_int_data.packet_tx_count;
-    radio_int_data.mode = RADIOMODE_NONE;
     verbprintf(2,"Tx: packet length %d, FIFO threshold was hit %d times\n", radio_int_data.tx_count, radio_int_data.threshold_hits);
 }
 
