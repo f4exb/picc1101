@@ -452,6 +452,9 @@ void init_radio_int(spi_parms_t *spi_parms, arguments_t *arguments)
     {
         wiringPiISR(WPI_GDO2, INT_EDGE_BOTH, &int_threshold); // set interrupt handler for FIFO threshold interrupts
     }
+
+    verbprintf(1, "Unit delay .............: %d us\n", radio_int_data.wait_us);
+    verbprintf(1, "Packet delay ...........: %d us\n", arguments->packet_delay * radio_int_data.wait_us);
 }
 
 // ------------------------------------------------------------------------------------------------
