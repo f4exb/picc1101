@@ -431,13 +431,6 @@ void print_received_packet(int verbose_min)
 // === Public functions ===========================================================================
 
 // ------------------------------------------------------------------------------------------------
-// Initialize radio receive mode
-void init_radio_rx(spi_parms_t *spi_parms, arguments_t *arguments)
-// ------------------------------------------------------------------------------------------------
-{
-}
-
-// ------------------------------------------------------------------------------------------------
 // Initialize interrupt data and mechanism
 void init_radio_int(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
@@ -1051,6 +1044,8 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
+	uint8_t nb_rx, *rx_bytes;
+
     init_radio_int(spi_parms, arguments);
 
     memset((uint8_t *) radio_int_data.rx_buf, 0, PI_CCxxx0_PACKET_COUNT_SIZE);
@@ -1059,22 +1054,22 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     verbprintf(1, "Wait Rx delay is %d us\n", radio_int_data.wait_us);
     verbprintf(0, "Starting...\n");
 
-    init_radio_rx(spi_parms, arguments);
+    radio_receive_listen(&spi_parameters, &arguments); // set in Rx
 
     while((arguments->repetition == 0) || (packets_received < arguments->repetition))
     {
         verbprintf(0, "*** Packet #%d\n", packets_received);
-        radio_int_data.threshold_hits = 0;
+        radio_receive_listen(&spi_parameters, &arguments); // set in Rx
 
-        while(packets_received == radio_int_data.packet_rx_count) // wait for one more packet received
+        do
         {
-            radio_wait_a_bit(1);
-        }
+        	nb_rx = radio_receive_packet(spi_parms, arguments, rx_bytes);
+        	radio_wait_a_bit(1);
+        } while(nb_rx == 0);
 
         print_received_packet(0);
         verbprintf(2, "FIFO threshold was hit %d times\n", radio_int_data.threshold_hits);
         packets_received++;
-        init_radio_rx(spi_parms, arguments);
     }
 }
 
