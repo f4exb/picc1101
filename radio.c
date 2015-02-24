@@ -1014,7 +1014,7 @@ int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *p
 
     packets_sent = radio_int_data.packet_tx_count;
     radio_int_data.mode = RADIOMODE_NONE;
-    verbprintf(2,"Tx: FIFO threshold was hit %d times\n", radio_int_data.threshold_hits);
+    verbprintf(2,"Tx: packet length %d, FIFO threshold was hit %d times\n", radio_int_data.tx_count, radio_int_data.threshold_hits);
 }
 
 // ------------------------------------------------------------------------------------------------
