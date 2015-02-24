@@ -996,7 +996,6 @@ int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *p
     radio_int_data.threshold_hits = 0;
 
     init_tx_block_packet(arguments, packet, size);
-    print_block(3, (uint8_t *) radio_int_data.tx_buf, radio_int_data.tx_count);
     radio_set_packet_length(spi_parms, radio_int_data.tx_count);
 
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x02); // GDO2 output pin config TX mode
@@ -1022,6 +1021,7 @@ int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *p
     }
 
     verbprintf(1, "Tx: packet #%d\n", radio_int_data.packet_tx_count);
+    print_block(3, (uint8_t *) radio_int_data.tx_buf, radio_int_data.tx_count);
 
     packets_sent = radio_int_data.packet_tx_count;
     radio_int_data.mode = RADIOMODE_NONE;
