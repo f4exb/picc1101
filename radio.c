@@ -1057,7 +1057,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     while((arguments->repetition == 0) || (packets_received < arguments->repetition))
     {
         verbprintf(0, "*** Packet #%d\n", packets_received);
-        radio_receive_listen(spi_params, arguments); // set in Rx
+        radio_receive_listen(spi_parms, arguments); // set in Rx
 
         do
         {
