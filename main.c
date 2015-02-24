@@ -497,6 +497,7 @@ int main (int argc, char **argv)
 
         if (read_bytes > 0)
         {
+            radio_wait_a_bit(20); // ~ 80 symbols
             write_serial(&serial_parameters, read_buffer, read_bytes);
             radio_receive_listen(&spi_parameters, &arguments); // reset Rx after read
         }        
@@ -507,7 +508,6 @@ int main (int argc, char **argv)
         {
             radio_send_packet(&spi_parameters, &arguments, read_buffer, read_bytes);
             radio_receive_listen(&spi_parameters, &arguments); // back to Rx
-            radio_wait_a_bit(20); // ~ 80 symbols
         }
 
         radio_wait_a_bit(1);
