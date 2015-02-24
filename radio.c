@@ -1010,8 +1010,9 @@ int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *p
         radio_wait_a_bit();
     }
 
-    verbprintf(0, "Tx: packet #%d\n", packets_sent);
+    verbprintf(0, "Tx: packet #%d\n", radio_int_data.packet_tx_count);
 
+    packets_sent = radio_int_data.packet_tx_count;
     radio_int_data.mode = RADIOMODE_NONE;
     verbprintf(2,"Tx: FIFO threshold was hit %d times\n", radio_int_data.threshold_hits);
 }
@@ -1021,8 +1022,6 @@ int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *p
 int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    packets_sent = 0;
-
     init_radio_int(spi_parms, arguments);
 
     verbprintf(0, "Sending %d test packets of size %d\n", arguments->repetition, arguments->packet_length);
@@ -1033,7 +1032,6 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     while(packets_sent < arguments->repetition)
     {
         radio_send_packet(spi_parms, arguments, arguments->test_phrase, strlen(arguments->test_phrase));
-        packets_sent++;
     } 
 }
 
