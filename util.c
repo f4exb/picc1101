@@ -34,6 +34,7 @@ void _print_block(int verb_level, const uint8_t *pblock, size_t size)
     size_t i;
     char   c;
     size_t lsize = 16;
+    int    flush = 1;
 
     if (verb_level > verbose_level)
         return;
@@ -65,4 +66,7 @@ void _print_block(int verb_level, const uint8_t *pblock, size_t size)
     }
 
     fprintf(stderr, "\n");
+
+    if (flush)
+    	fflush(stderr);
 }
