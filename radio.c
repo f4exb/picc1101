@@ -433,16 +433,6 @@ void print_received_packet(int verbose_min)
 void init_radio_rx(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    packets_received = radio_int_data.packet_rx_count;
-    radio_int_data.mode = RADIOMODE_RX;
-
-    if (arguments->variable_length)
-    {
-        radio_set_packet_length(p_radio_int_data->spi_parms, PI_CCxxx0_PACKET_COUNT_SIZE); // set to the largest value, actual coutner is first byte of payload
-    }
-
-    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2, 0x00); // GDO2 output pin config RX mode
-    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX); // Enter Rx mode
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -954,6 +944,26 @@ void radio_wait_a_bit()
 }
 
 // ------------------------------------------------------------------------------------------------
+// Put radio in listen state
+void radio_receive_listen(spi_parms_t *spi_parms, arguments_t *arguments)
+// ------------------------------------------------------------------------------------------------
+{
+    packets_received = radio_int_data.packet_rx_count;
+
+    if (arguments->variable_length)
+    {
+        radio_set_packet_length(spi_parms, PI_CCxxx0_PACKET_COUNT_SIZE); // set to the largest value, actual coutner is first byte of payload
+    }
+
+    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2, 0x00); // GDO2 output pin config RX mode
+
+    radio_int_data.mode = RADIOMODE_RX;
+    radio_int_data.packet_receive = 0;
+
+    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX); // Enter Rx mode
+}
+
+// ------------------------------------------------------------------------------------------------
 // Receive of a packet
 int radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *packet)
 // ------------------------------------------------------------------------------------------------
@@ -964,6 +974,7 @@ int radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t
     }
     else // packet received
     {
+        radio_int_data.mode = RADIOMODE_NONE;
         verbprintf(1, "Rx: packet #%d\n", radio_int_data.packet_rx_count);
         print_received_packet(2);
         memcpy(packet, (uint8_t *) &radio_int_data.rx_buf[1], radio_int_data.rx_buf[0]);

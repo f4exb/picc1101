@@ -99,7 +99,6 @@ extern float chanbw_limits[];
 void    init_radio_parms(radio_parms_t *radio_parms, arguments_t *arguments);
 int     init_radio(radio_parms_t *radio_parms,  spi_parms_t *spi_parms, arguments_t *arguments);
 void    init_radio_int(spi_parms_t *spi_parms, arguments_t *arguments);
-void    init_radio_rx(spi_parms_t *spi_parms, arguments_t *arguments);
 
 void    print_radio_parms(radio_parms_t *radio_parms);
 int     print_radio_status(spi_parms_t *spi_parms);
@@ -108,6 +107,7 @@ int     radio_set_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len);
 uint8_t radio_get_packet_length(spi_parms_t *spi_parms);
 void    radio_wait_a_bit();
 int     radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *packet, uint8_t size);
+void    radio_receive_listen(spi_parms_t *spi_parms, arguments_t *arguments);
 int     radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *packet);
 
 int     radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments);
