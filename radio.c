@@ -108,7 +108,7 @@ void int_packet(void)
     {
         if (int_line)
         {
-            verbprintf(4, "GDO0 rising edge\n");
+            verbprintf(4, "GDO0 rising edge (%d)\n", p_radio_int_data->packet_receive);
 
             p_radio_int_data->byte_index = 0;
 
@@ -140,7 +140,7 @@ void int_packet(void)
         }
         else
         {
-            verbprintf(4, "GDO0 falling edge\n");
+            verbprintf(4, "GDO0 falling edge (%d): %d bytes remaining\n", p_radio_int_data->packet_receive, p_radio_int_data->bytes_remaining);
 
             if (p_radio_int_data->packet_receive) // packet has been received
             {
@@ -161,12 +161,12 @@ void int_packet(void)
     {
         if (int_line)
         {
-            verbprintf(4, "GDO0 rising edge\n");
+            verbprintf(4, "GDO0 rising edge (%d)\n", p_radio_int_data->packet_send);
             p_radio_int_data->packet_send = 1; // Assert packet transmission after sync has been sent
         }
         else
         {
-            verbprintf(4, "GDO0 falling edge\n");
+            verbprintf(4, "GDO0 falling edge (%d)\n", p_radio_int_data->packet_send);
             if (p_radio_int_data->packet_send) // packet has been sent
             {
                 radio_int_data.mode = RADIOMODE_NONE;
@@ -189,7 +189,7 @@ void int_threshold(void)
 
     if ((p_radio_int_data->mode == RADIOMODE_RX) && (int_line)) // Filling of Rx FIFO - Read next 59 bytes
     {
-        verbprintf(4, "GDO2 rising edge: %d bytes remaining\n", p_radio_int_data->bytes_remaining);
+        verbprintf(4, "GDO2 rising edge (%d): %d bytes remaining\n", p_radio_int_data->packet_receive, p_radio_int_data->bytes_remaining);
         p_radio_int_data->threshold_hits++;
 
         for (i=0; i<RX_FIFO_UNLOAD; i++)
@@ -201,7 +201,7 @@ void int_threshold(void)
     }
     else if ((p_radio_int_data->mode == RADIOMODE_TX) && (!int_line)) // Depletion of Tx FIFO - Write at most next 60 bytes
     {
-        verbprintf(4, "GDO2 falling edge: %d bytes remaining\n", p_radio_int_data->bytes_remaining);
+        verbprintf(4, "GDO2 falling edge (%d): %d bytes remaining\n", p_radio_int_data->packet_send, p_radio_int_data->bytes_remaining);
 
         if (p_radio_int_data->bytes_remaining > 0) // bytes left to send
         {
