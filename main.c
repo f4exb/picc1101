@@ -414,8 +414,9 @@ int main (int argc, char **argv)
         if (i == 17)
             continue; 
 
-        // These are uncatchable or harmless 
+        // These are uncatchable or harmless or we want a core dump (SEGV) 
         if (i != SIGKILL
+            && i != SIGSEGV
             && i != SIGSTOP
             && i != SIGVTALRM
             && i != SIGWINCH
