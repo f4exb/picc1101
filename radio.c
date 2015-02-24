@@ -1056,7 +1056,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     verbprintf(1, "Wait Rx delay is %d us\n", radio_int_data.wait_us);
     verbprintf(0, "Starting...\n");
 
-    while((arguments->repetition == 0) || (packets_received < arguments->repetition))
+    while((arguments->repetition == 0) || (radio_int_data.packet_rx_count < arguments->repetition))
     {
         radio_receive_listen(spi_parms, arguments); // set in Rx
 
