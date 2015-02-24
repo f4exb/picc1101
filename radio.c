@@ -444,7 +444,7 @@ void init_radio_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
     wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet);       // set interrupt handler for packet interrupts
 
-    if (arguments->packet_length > PI_CCxxx0_FIFO_SIZE)
+    if (arguments->packet_length >= PI_CCxxx0_FIFO_SIZE)
     {
         wiringPiISR(WPI_GDO2, INT_EDGE_BOTH, &int_threshold); // set interrupt handler for FIFO threshold interrupts
     }
