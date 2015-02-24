@@ -87,6 +87,7 @@ static struct argp_option options[] = {
     {"modulation",  'M', "MODULATION_SCHEME", 0, "Radio modulation scheme, See long help (-H) option"},
     {"rate",  'R', "DATA_RATE_INDEX", 0, "Data rate index, See long help (-H) option"},
     {"rate-skew",  'w', "RATE_MULTIPLIER", 0, "Data rate skew multiplier. (default 1.0 = no skew)"},
+    {"packet-delay",  'l', "DELAY_UNITS", 0, "Delay before sending packet on serial or radio in 4 2-FSK symbols approximately. (default 30)"},
     {"modulation-index",  'm', "MODULATION_INDEX", 0, "Modulation index (default 0.5)"},
     {"fec",  'F', 0, 0, "Activate FEC (default off)"},
     {"whitening",  'W', 0, 0, "Activate whitening (default off)"},
@@ -161,6 +162,7 @@ static void init_args(arguments_t *arguments)
     arguments->modulation = MOD_FSK2;
     arguments->rate = RATE_9600;
     arguments->rate_skew = 1.0;
+    arguments->packet-delay = 30;
     arguments->modulation_index = 0.5;
     arguments->freq_hz = 433600000;
     arguments->packet_length = 250;
@@ -340,6 +342,12 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
             if (*end)
                 argp_usage(state);
             break; 
+        // Packet delay
+        case 'l':
+            arguments->packet_delay = strtol(arg, &end, 10);
+            if (*end)
+                argp_usage(state);
+            break; 
         // Variable length packet
         case 'V':
             arguments->variable_length = 1;
@@ -497,7 +505,7 @@ int main (int argc, char **argv)
 
         if (read_bytes > 0)
         {
-            radio_wait_a_bit(50); // ~ 200 symbols
+            radio_wait_a_bit(arguments.packet_delay); // ~ x4 2-FSK symbols
             write_serial(&serial_parameters, read_buffer, read_bytes);
             radio_receive_listen(&spi_parameters, &arguments); // reset Rx after read
         }        
@@ -506,7 +514,7 @@ int main (int argc, char **argv)
         
         if (read_bytes > 0)
         {
-            radio_wait_a_bit(50); // ~ 200 symbols
+            radio_wait_a_bit(arguments.packet_delay); // ~ x4 2-FSK symbols
             radio_send_packet(&spi_parameters, &arguments, read_buffer, read_bytes);
             radio_receive_listen(&spi_parameters, &arguments); // back to Rx
         }

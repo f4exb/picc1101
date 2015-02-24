@@ -86,7 +86,8 @@ typedef struct arguments_s {
     uint8_t      repetition;         // Repetition factor
     uint8_t      fec;                // Activate FEC
     uint8_t      whitening;          // Activate whitening
-    preamble_t   preamble;           // Preamblescheme (number of preamble bytes) 
+    preamble_t   preamble;           // Preamblescheme (number of preamble bytes)
+    uint32_t     packet_delay;       // Delay before sending packet on serial or radio in 4 2-FSK symbols approximately
 } arguments_t;
 
 #endif
