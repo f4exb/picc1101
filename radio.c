@@ -474,6 +474,8 @@ void init_radio_int(spi_parms_t *spi_parms, arguments_t *arguments)
     radio_int_data.wait_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
     p_radio_int_data = &radio_int_data;
 
+    radio_set_packet_length(spi_parms, arguments->variable_length);
+    
     wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet);       // set interrupt handler for packet interrupts
 
     if (arguments->packet_length >= PI_CCxxx0_FIFO_SIZE)
@@ -983,22 +985,23 @@ void radio_wait_a_bit(uint32_t amount)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Reset state for next reception
+void radio_reset_rx()
+// ------------------------------------------------------------------------------------------------
+{
+    packets_received = radio_int_data.packet_rx_count;
+    radio_int_data.mode = RADIOMODE_RX;
+    radio_int_data.packet_receive = 0;    
+}
+
+// ------------------------------------------------------------------------------------------------
 // Put radio in listen state
 void radio_receive_listen(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    packets_received = radio_int_data.packet_rx_count;
-
-    if (arguments->variable_length)
-    {
-        radio_set_packet_length(spi_parms, PI_CCxxx0_PACKET_COUNT_SIZE); // set to the largest value, actual coutner is first byte of payload
-    }
-
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2, 0x00); // GDO2 output pin config RX mode
 
-    radio_int_data.mode = RADIOMODE_RX;
-    radio_int_data.packet_receive = 0;
-
+    radio_reset_rx();
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX);      // Enter Rx mode
     wait_for_state(spi_parms, CCxxx0_STATE_RX, 10); // Wait max 10ms
 }

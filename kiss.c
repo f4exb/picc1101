@@ -122,70 +122,60 @@ void kiss_unpack(uint8_t *kiss_block, uint8_t *packed_block, size_t *size)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Run the virtual KISS TNC in a loop
+// Run the KISS virtual TNC
 void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    int i, ret, read_bytes;
+	static const size_t bufsize = 1<<11;
+	uint8_t read_buffer[bufsize];
+	int read_count;
 
-    // Whole read buffer
-    char read_buffer[1<<11];
-    memset(read_buffer, '\0', sizeof(read_buffer));
+	init_radio_int(spi_parms, arguments);
+	memset(read_buffer, 0, bufsize);
+	radio_flush_fifos(spi_parms);
+	radio_receive_listen(spi_parms, arguments); // set in Rx
+	
+	verbprintf(1, "Starting...");
 
-    set_serial_parameters(serial_parms, arguments);
-    radio_flush_fifos(spi_parms);
-    init_radio_int(spi_parms, arguments);
-    radio_receive_listen(spi_parms, arguments); // put radio in Rx mode
+	while(1)
+	{
+		read_count = radio_receive_packet(spi_parms, arguments, read_buffer);
 
-    while (1)
-    {
-    	// Process Rx block if any
+		if (read_count > 0)
+		{
+			verbprintf(2, "Received %d bytes\n", read_count);
+			write_serial(serial_parms, read_buffer, read_count);
+			radio_reset_rx();
+			continue; // return to Rx
+		}
 
-        read_bytes = radio_receive_packet(spi_parms, arguments, read_buffer); 
+		read_count = read_serial(serial_parms, read_buffer, bufsize);
 
-        if (read_bytes > 0)
-        {
-            verbprintf(2, "Radio received %d bytes\n", read_bytes);
-            radio_wait_a_bit(arguments->packet_delay); // ~ x4 2-FSK symbols
-            write_serial(serial_parms, read_buffer, read_bytes);
-            radio_receive_listen(spi_parms, arguments); // Do Rx again
-            continue; // back to the loop, This will process a received packet if any
-        }        
+		if (read_count > 0)
+		{
+			verbprintf(2, "%d bytes to send\n", read_count);
 
-        // Process incoming block to transmit if any
-
-        read_bytes = read_serial(serial_parms, read_buffer, sizeof(read_buffer));
-        
-        if (read_bytes > 0)
-        {
-            verbprintf(2, "Serial received %d bytes\n", read_bytes);
-          	radio_wait_a_bit(arguments->packet_delay); // ~ x4 2-FSK symbols
-
-            if (read_bytes > arguments->packet_length) // concatenated KISS frames
-            {
-            	uint8_t *kiss_fend, *kiss_frame = read_buffer;
-
+			if (read_count > arguments->packet_length) // concatenated KISS frames
+			{
+				uint8_t *kiss_fend, *kiss_frame = read_buffer;
+                
                 verbprintf(2, "Concatenated KISS block encountered\n");
-                print_block(4, read_buffer, read_bytes);
-                verbprintf(4, "...\n");
+                print_block(4, read_buffer, read_count);
 
-                while ((kiss_fend = kiss_tok(kiss_frame, (uint8_t *) read_buffer + read_bytes)))
+                while ((kiss_fend = kiss_tok(kiss_frame, (uint8_t *) read_buffer + read_count)))
                 {
                 	verbprintf(2, "Processing KISS block of %d bytes\n", kiss_fend - kiss_frame + 1);
-	                print_block(4, kiss_frame, kiss_fend - kiss_frame + 1);
+                	print_block(4, kiss_frame, kiss_fend - kiss_frame + 1);
                 	radio_send_packet(spi_parms, arguments, kiss_frame, kiss_fend - kiss_frame + 1);
                 	kiss_frame = kiss_fend + 1;
-		          	radio_wait_a_bit(arguments->packet_delay); // ~ x4 2-FSK symbols
                 }
-            }
-            else // single KISS frame
-            {
-	            radio_send_packet(spi_parms, arguments, read_buffer, read_bytes);
-	        }
+			}
+			else // single KISS frame
+			{
+				radio_send_packet(spi_parms, arguments, read_buffer, read_count);
+			}
 
-            radio_receive_listen(spi_parms, arguments); // back to Rx
-        }
-
-        radio_wait_a_bit(1);
-    }
+			radio_receive_listen(spi_parms, arguments); // set in Rx
+		}
+	}
 }
