@@ -88,6 +88,7 @@ static uint8_t get_mod_word(modulation_t modulation_code);
 static uint32_t get_if_word(uint32_t freq_xtal, uint32_t if_hz);
 static void get_chanbw_words(float bw, radio_parms_t *radio_parms);
 static void get_rate_words(arguments_t *arguments, radio_parms_t *radio_parms);
+static void wait_for_state(spi_parms_t *spi_parms, ccxxx0_state_t state, uint32_t timeout);
 static void init_tx_block_packet(arguments_t *arguments, uint8_t *packet, uint8_t size);
 static void init_test_tx_block(radio_int_data_t *data_block, arguments_t *arguments);
 static void print_received_packet(int verbose_min);
@@ -108,7 +109,7 @@ void int_packet(void)
     {
         if (int_line)
         {
-            verbprintf(4, "GDO0 rising edge (%d)\n", p_radio_int_data->packet_receive);
+            verbprintf(3, "GDO0 rising edge (%d)\n", p_radio_int_data->packet_receive);
 
             p_radio_int_data->byte_index = 0;
 
@@ -125,7 +126,7 @@ void int_packet(void)
                 radio_set_packet_length(p_radio_int_data->spi_parms, p_radio_int_data->rx_count);
                 p_radio_int_data->rx_count++; // Add count for the resulting total buffer length
 
-                verbprintf(4, "%d bytes to read (variable)\n", p_radio_int_data->rx_count);
+                verbprintf(3, "%d bytes to read (variable)\n", p_radio_int_data->rx_count);
             }
             else // fixed: read PKTLEN register
             {
@@ -133,14 +134,14 @@ void int_packet(void)
                 p_radio_int_data->rx_count += 2; // Add RSSI + LQI/CRC bytes
 	            p_radio_int_data->bytes_remaining = p_radio_int_data->rx_count;
 
-                verbprintf(4, "%d bytes to read (fixed)\n", p_radio_int_data->rx_count);
+                verbprintf(3, "%d bytes to read (fixed)\n", p_radio_int_data->rx_count);
             }
 
             p_radio_int_data->packet_receive = 1; // reception is in progress
         }
         else
         {
-            verbprintf(4, "GDO0 falling edge (%d): %d bytes remaining\n", p_radio_int_data->packet_receive, p_radio_int_data->bytes_remaining);
+            verbprintf(3, "GDO0 falling edge (%d): %d bytes remaining\n", p_radio_int_data->packet_receive, p_radio_int_data->bytes_remaining);
 
             if (p_radio_int_data->packet_receive) // packet has been received
             {
@@ -161,17 +162,17 @@ void int_packet(void)
     {
         if (int_line)
         {
-            verbprintf(4, "GDO0 rising edge (%d)\n", p_radio_int_data->packet_send);
+            verbprintf(3, "GDO0 rising edge (%d)\n", p_radio_int_data->packet_send);
             p_radio_int_data->packet_send = 1; // Assert packet transmission after sync has been sent
         }
         else
         {
-            verbprintf(4, "GDO0 falling edge (%d)\n", p_radio_int_data->packet_send);
+            verbprintf(3, "GDO0 falling edge (%d)\n", p_radio_int_data->packet_send);
             if (p_radio_int_data->packet_send) // packet has been sent
             {
                 radio_int_data.mode = RADIOMODE_NONE;
                 p_radio_int_data->packet_send = 0; // De-assert packet transmission after packet has been sent
-                verbprintf(4, "Sent packet #%d\n", p_radio_int_data->packet_tx_count++);
+                verbprintf(3, "Sent packet #%d\n", p_radio_int_data->packet_tx_count++);
             }
         }
     }
@@ -189,7 +190,7 @@ void int_threshold(void)
 
     if ((p_radio_int_data->mode == RADIOMODE_RX) && (int_line)) // Filling of Rx FIFO - Read next 59 bytes
     {
-        verbprintf(4, "GDO2 rising edge (%d): %d bytes remaining\n", p_radio_int_data->packet_receive, p_radio_int_data->bytes_remaining);
+        verbprintf(3, "GDO2 rising edge (%d): %d bytes remaining\n", p_radio_int_data->packet_receive, p_radio_int_data->bytes_remaining);
 
         if (p_radio_int_data->packet_receive) // if reception has started
         {
@@ -205,7 +206,7 @@ void int_threshold(void)
     }
     else if ((p_radio_int_data->mode == RADIOMODE_TX) && (!int_line)) // Depletion of Tx FIFO - Write at most next 60 bytes
     {
-        verbprintf(4, "GDO2 falling edge (%d): %d bytes remaining\n", p_radio_int_data->packet_send, p_radio_int_data->bytes_remaining);
+        verbprintf(3, "GDO2 falling edge (%d): %d bytes remaining\n", p_radio_int_data->packet_send, p_radio_int_data->bytes_remaining);
 
         if ((p_radio_int_data->packet_send) && (p_radio_int_data->bytes_remaining > 0)) // bytes left to send
         {
@@ -352,6 +353,33 @@ void get_rate_words(arguments_t *arguments, radio_parms_t *radio_parms)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Poll FSM state waiting for given state until timeout (approx ms)
+void wait_for_state(spi_parms_t *spi_parms, ccxxx0_state_t state, uint32_t timeout)
+// ------------------------------------------------------------------------------------------------
+{
+	uint8_t state;
+
+    while(timeout)
+    {
+        PI_CC_SPIReadStatus(spi_parms, PI_CCxxx0_MARCSTATE, &fsm_state);
+        fsm_state &= 0x1F;
+
+        if (fsm_state == (uint8_t) state)
+        {
+            break;
+        }
+
+        usleep(1000);
+        timeout--;
+    }
+
+    if (!timeout)
+    {
+    	verbprintf(1, "RADIO: timeout reach waiting for state %02X\n", state);
+    }	
+}
+
+// ------------------------------------------------------------------------------------------------
 // Prepare test data block to send
 void init_tx_block_packet(arguments_t *arguments, uint8_t *packet, uint8_t size)
 // ------------------------------------------------------------------------------------------------
@@ -418,7 +446,7 @@ void print_received_packet(int verbose_min)
     int i;
 
     verbprintf(verbose_min, "%d bytes in buffer:\n", radio_int_data.rx_count);
-    print_block(verbose_min+1, (uint8_t *) radio_int_data.rx_buf, radio_int_data.rx_count);
+    print_block(verbose_min+2, (uint8_t *) radio_int_data.rx_buf, radio_int_data.rx_count);
 
     rssi_dec = radio_int_data.rx_buf[radio_int_data.rx_count-2];
     crc_lqi  = radio_int_data.rx_buf[radio_int_data.rx_count-1];
@@ -962,7 +990,8 @@ void radio_receive_listen(spi_parms_t *spi_parms, arguments_t *arguments)
     radio_int_data.mode = RADIOMODE_RX;
     radio_int_data.packet_receive = 0;
 
-    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX); // Enter Rx mode
+    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX);      // Enter Rx mode
+    wait_for_state(spi_parms, CCxxx0_STATE_RX, 10); // Wait max 10ms
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1024,7 +1053,7 @@ int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *p
     }
 
     verbprintf(1, "Tx: packet #%d\n", radio_int_data.packet_tx_count);
-    print_block(3, (uint8_t *) radio_int_data.tx_buf, radio_int_data.tx_count);
+    print_block(4, (uint8_t *) radio_int_data.tx_buf, radio_int_data.tx_count);
 
     packets_sent = radio_int_data.packet_tx_count;
     verbprintf(2,"Tx: packet length %d, FIFO threshold was hit %d times\n", radio_int_data.tx_count, radio_int_data.threshold_hits);
