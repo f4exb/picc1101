@@ -167,7 +167,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
                 print_block(2, read_buffer, read_bytes);
                 verbprintf(2, "...\n");
 
-                while ((kiss_fend = kiss_tok(kiss_frame, read_buffer + read_bytes)))
+                while ((kiss_fend = kiss_tok(kiss_frame, (uint8_t *) read_buffer + read_bytes)))
                 {
 	                print_block(2, kiss_frame, kiss_fend - kiss_frame + 1);
                 	radio_send_packet(spi_parms, arguments, kiss_frame, kiss_fend - kiss_frame + 1);
