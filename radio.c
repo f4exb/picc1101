@@ -357,7 +357,7 @@ void get_rate_words(arguments_t *arguments, radio_parms_t *radio_parms)
 void wait_for_state(spi_parms_t *spi_parms, ccxxx0_state_t state, uint32_t timeout)
 // ------------------------------------------------------------------------------------------------
 {
-	uint8_t state;
+	uint8_t fsm_state;
 
     while(timeout)
     {
