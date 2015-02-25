@@ -510,6 +510,7 @@ int main (int argc, char **argv)
             radio_wait_a_bit(arguments.packet_delay); // ~ x4 2-FSK symbols
             write_serial(&serial_parameters, read_buffer, read_bytes);
             radio_receive_listen(&spi_parameters, &arguments); // reset Rx after read
+            continue; // process any received packet
         }        
 
         read_bytes = read_serial(&serial_parameters, read_buffer, sizeof(read_buffer));
