@@ -109,7 +109,7 @@ void int_packet(void)
     {
         if (int_line)
         {
-            verbprintf(3, "GDO0 rising edge (%d)\n", p_radio_int_data->packet_receive);
+            verbprintf(3, "GDO0 Rx rising edge (%d)\n", p_radio_int_data->packet_receive);
 
             p_radio_int_data->byte_index = 0;
 
@@ -141,7 +141,7 @@ void int_packet(void)
         }
         else
         {
-            verbprintf(3, "GDO0 falling edge (%d): %d bytes remaining\n", p_radio_int_data->packet_receive, p_radio_int_data->bytes_remaining);
+            verbprintf(3, "GDO0 Rx falling edge (%d): %d bytes remaining\n", p_radio_int_data->packet_receive, p_radio_int_data->bytes_remaining);
 
             if (p_radio_int_data->packet_receive) // packet has been received
             {
@@ -162,12 +162,12 @@ void int_packet(void)
     {
         if (int_line)
         {
-            verbprintf(3, "GDO0 rising edge (%d)\n", p_radio_int_data->packet_send);
+            verbprintf(3, "GDO0 Tx rising edge (%d)\n", p_radio_int_data->packet_send);
             p_radio_int_data->packet_send = 1; // Assert packet transmission after sync has been sent
         }
         else
         {
-            verbprintf(3, "GDO0 falling edge (%d)\n", p_radio_int_data->packet_send);
+            verbprintf(3, "GDO0 Tx falling edge (%d)\n", p_radio_int_data->packet_send);
             if (p_radio_int_data->packet_send) // packet has been sent
             {
                 radio_int_data.mode = RADIOMODE_NONE;
