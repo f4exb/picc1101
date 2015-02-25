@@ -518,6 +518,12 @@ int main (int argc, char **argv)
         if (read_bytes > 0)
         {
             verbprintf(2, "Serial received %d bytes\n", read_bytes);
+            if (read_bytes > arguments->packet_length)
+            {
+                verbprintf(2, "Too large packet discarded:\n");
+                print_block(2, read_buffer, read_bytes);
+                continue; // discard large packets (test). TODO: split into KISS blocks
+            }
             radio_wait_a_bit(arguments.packet_delay); // ~ x4 2-FSK symbols
             radio_send_packet(&spi_parameters, &arguments, read_buffer, read_bytes);
             radio_receive_listen(&spi_parameters, &arguments); // back to Rx
