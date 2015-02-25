@@ -474,7 +474,7 @@ void init_radio_int(spi_parms_t *spi_parms, arguments_t *arguments)
     radio_int_data.wait_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
     p_radio_int_data = &radio_int_data;
 
-    radio_set_packet_length(spi_parms, arguments->variable_length);
+    radio_set_packet_length(spi_parms, arguments->packet_length);
     
     wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet);       // set interrupt handler for packet interrupts
 
