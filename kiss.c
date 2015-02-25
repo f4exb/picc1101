@@ -7,19 +7,21 @@
 /*                                                                            */
 /******************************************************************************/
 
+#include <string.h>
+
 #include "kiss.h"
 #include "radio.h"
 #include "util.h"
 
 // === Static functions declarations ==============================================================
 
-uint8_t *kiss_tok(uint8_t *block, size_t size); // utility to unconcatenate KISS blocks similar to strtok but based on KISS delimiter (0xC0)
+uint8_t *kiss_tok(uint8_t *block, uint8_t *end);
 
 // === Static functions ===========================================================================
 
 // ------------------------------------------------------------------------------------------------
 // Utility to unconcatenate KISS blocks. Returns pointer on next KISS delimiter past first byte (KISS_FEND = 0xC0)
-// Assumes the pointer is currently on the opening KISS_FEND
+// Assumes the pointer is currently on the opening KISS_FEND. Give pointer to first byte of block and past end pointer
 uint8_t *kiss_tok(uint8_t *block, uint8_t *end) 
 // ------------------------------------------------------------------------------------------------
 {
@@ -30,7 +32,7 @@ uint8_t *kiss_tok(uint8_t *block, uint8_t *end)
 	{
 		if (p_cur == block)
 		{
-			if (*p_cur == KISS_FEND))
+			if (*p_cur == KISS_FEND)
 			{
 				continue;
 			}
