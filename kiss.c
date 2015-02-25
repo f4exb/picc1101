@@ -164,6 +164,8 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
             	uint8_t *kiss_fend, *kiss_frame = read_buffer;
 
                 verbprintf(2, "Concatenated KISS block encountered\n");
+                print_block(2, read_buffer, read_bytes);
+                verbprintf(2, "...\n");
 
                 while ((kiss_fend = kiss_tok(kiss_frame, read_buffer + read_bytes)))
                 {
