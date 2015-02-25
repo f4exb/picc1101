@@ -10,7 +10,7 @@ int verbose_level = 0;
 void _verbprintf(int verb_level, const char *fmt, ...)
 // -------------------------------------------------------------------------------------------------
 {
-	int dont_flush = 1;
+	int flush = 1;
 
     if (verb_level > verbose_level)
         return;
@@ -20,7 +20,7 @@ void _verbprintf(int verb_level, const char *fmt, ...)
 
     {
         vfprintf(stderr, fmt, args);
-        if(!dont_flush)
+        if(flush)
             fflush(stderr);
     }
 
