@@ -15,7 +15,7 @@
 
 // === Static functions declarations ==============================================================
 
-uint8_t *kiss_tok(uint8_t *block, uint8_t *end);
+static uint8_t *kiss_tok(uint8_t *block, uint8_t *end);
 
 // === Static functions ===========================================================================
 
@@ -45,6 +45,7 @@ uint8_t *kiss_tok(uint8_t *block, uint8_t *end)
 		if (*p_cur == KISS_FEND)
 		{
 			p_ret = p_cur;
+			break;
 		}
 	}
 
