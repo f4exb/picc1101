@@ -99,6 +99,7 @@ extern float chanbw_limits[];
 void    init_radio_parms(radio_parms_t *radio_parms, arguments_t *arguments);
 int     init_radio(radio_parms_t *radio_parms,  spi_parms_t *spi_parms, arguments_t *arguments);
 void    init_radio_int(spi_parms_t *spi_parms, arguments_t *arguments);
+void    radio_flush_fifos(spi_parms_t *spi_parms);
 
 void    print_radio_parms(radio_parms_t *radio_parms);
 int     print_radio_status(spi_parms_t *spi_parms);

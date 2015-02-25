@@ -375,7 +375,7 @@ void wait_for_state(spi_parms_t *spi_parms, ccxxx0_state_t state, uint32_t timeo
 
     if (!timeout)
     {
-    	verbprintf(1, "RADIO: timeout reach waiting for state %02X\n", state);
+    	verbprintf(1, "RADIO: timeout reached in state %s waiting for state %s\n", state_names[fsm_state], state_names[state]);
     }	
 }
 
@@ -483,6 +483,15 @@ void init_radio_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
     verbprintf(1, "Unit delay .............: %d us\n", radio_int_data.wait_us);
     verbprintf(1, "Packet delay ...........: %d us\n", arguments->packet_delay * radio_int_data.wait_us);
+}
+
+// ------------------------------------------------------------------------------------------------
+// Flush Rx and Tx FIFOs
+void radio_flush_fifos(spi_parms_t *spi_parms)
+// ------------------------------------------------------------------------------------------------
+{
+    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX); // Flush Rx FIFO
+    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFTX); // Flush Tx FIFO
 }
 
 // ------------------------------------------------------------------------------------------------

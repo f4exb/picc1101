@@ -133,6 +133,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
     memset(read_buffer, '\0', sizeof(read_buffer));
 
     set_serial_parameters(serial_parms, arguments);
+    radio_flush_fifos(spi_parms);
     init_radio_int(spi_parms, arguments);
     radio_receive_listen(spi_parms, arguments); // put radio in Rx mode
 
