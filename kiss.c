@@ -8,12 +8,52 @@
 /******************************************************************************/
 
 #include "kiss.h"
+#include "radio.h"
+#include "util.h"
+
+// === Static functions declarations ==============================================================
+
+uint8_t *kiss_tok(uint8_t *block, size_t size); // utility to unconcatenate KISS blocks similar to strtok but based on KISS delimiter (0xC0)
+
+// === Static functions ===========================================================================
+
+// ------------------------------------------------------------------------------------------------
+// Utility to unconcatenate KISS blocks. Returns pointer on next KISS delimiter past first byte (KISS_FEND = 0xC0)
+// Assumes the pointer is currently on the opening KISS_FEND
+uint8_t *kiss_tok(uint8_t *block, uint8_t *end) 
+// ------------------------------------------------------------------------------------------------
+{
+	uint8_t *p_cur, *p_ret = NULL;
+
+
+	for (p_cur = block; p_cur < end; p_cur++)
+	{
+		if (p_cur == block)
+		{
+			if (*p_cur == KISS_FEND))
+			{
+				continue;
+			}
+			else
+			{
+				break; // will return NULL
+			}
+		}
+
+		if (*p_cur == KISS_FEND)
+		{
+			p_ret = p_cur;
+		}
+	}
+
+	return p_ret;
+}
 
 // === Public functions ===========================================================================
 
 // ------------------------------------------------------------------------------------------------
 // Remove KISS signalling
-void pack_kiss(uint8_t *kiss_block, uint8_t *packed_block, size_t *size)
+void kiss_pack(uint8_t *kiss_block, uint8_t *packed_block, size_t *size)
 // ------------------------------------------------------------------------------------------------
 {
 	size_t  new_size = 0, i;
@@ -21,20 +61,20 @@ void pack_kiss(uint8_t *kiss_block, uint8_t *packed_block, size_t *size)
 
 	for (i=1; i<*size-1; i++)
 	{
-		if (kiss_block[i] == 0xDB) // FESC
+		if (kiss_block[i] == KISS_FESC) // FESC
 		{
 			fesc = 1;
 			continue;
 		}
 		if (fesc)
 		{
-			if (kiss_block[i] == 0xDC) // TFEND
+			if (kiss_block[i] == KISS_TFEND) // TFEND
 			{
-				packed_block[new_size++] = 0x0C; // FEND
+				packed_block[new_size++] = KISS_FEND; // FEND
 			}
-			else if (kiss_block[i] == 0xDD) // TFESC
+			else if (kiss_block[i] == KISS_TFESC) // TFESC
 			{
-				packed_block[new_size++] = 0xDB; // FESC	
+				packed_block[new_size++] = KISS_FESC; // FESC	
 			}
 
 	 		fesc = 0;
@@ -49,24 +89,24 @@ void pack_kiss(uint8_t *kiss_block, uint8_t *packed_block, size_t *size)
 
 // ------------------------------------------------------------------------------------------------
 // Restore KISS signalling
-void unpack_kiss(uint8_t *kiss_block, uint8_t *packed_block, size_t *size)
+void kiss_unpack(uint8_t *kiss_block, uint8_t *packed_block, size_t *size)
 // ------------------------------------------------------------------------------------------------
 {
 	size_t  new_size = 0, i;
 
-	kiss_block[0] = 0x0C; // FEND
+	kiss_block[0] = KISS_FEND; // FEND
 
 	for (i=0; i<*size; i++)
 	{
-		if (packed_block[i] == 0x0C) // FEND
+		if (packed_block[i] == KISS_FEND) // FEND
 		{
-			kiss_block[new_size++] = 0xDB; // FESC
-			kiss_block[new_size++] = 0xDC; // TFEND
+			kiss_block[new_size++] = KISS_FESC; // FESC
+			kiss_block[new_size++] = KISS_TFEND; // TFEND
 		}
-		else if (packed_block[i] == 0xDB) // FESC
+		else if (packed_block[i] == KISS_FESC) // FESC
 		{
-			kiss_block[new_size++] = 0xDB; // FESC
-			kiss_block[new_size++] = 0xDD; // TFESC
+			kiss_block[new_size++] = KISS_FESC; // FESC
+			kiss_block[new_size++] = KISS_TFESC; // TFESC
 		}
 		else
 		{
@@ -74,6 +114,70 @@ void unpack_kiss(uint8_t *kiss_block, uint8_t *packed_block, size_t *size)
 		}
 	}
 
-	kiss_block[new_size++] = 0x0C; // FEND
+	kiss_block[new_size++] = KISS_FEND; // FEND
 	*size = new_size;
+}
+
+// ------------------------------------------------------------------------------------------------
+// Run the virtual KISS TNC in a loop
+void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *arguments)
+// ------------------------------------------------------------------------------------------------
+{
+    int i, ret, read_bytes;
+
+    // Whole read buffer
+    char read_buffer[1<<11];
+    memset(read_buffer, '\0', sizeof(read_buffer));
+
+    set_serial_parameters(serial_parms, arguments);
+    init_radio_int(spi_parms, arguments);
+    radio_receive_listen(spi_parms, arguments); // put radio in Rx mode
+
+    while (1)
+    {
+    	// Process Rx block if any
+
+        read_bytes = radio_receive_packet(spi_parms, arguments, read_buffer); 
+
+        if (read_bytes > 0)
+        {
+            verbprintf(2, "Radio received %d bytes\n", read_bytes);
+            radio_wait_a_bit(arguments->packet_delay); // ~ x4 2-FSK symbols
+            write_serial(serial_parms, read_buffer, read_bytes);
+            radio_receive_listen(spi_parms, arguments); // Do Rx again
+            continue; // back to the loop, This will process a received packet if any
+        }        
+
+        // Process incoming block to transmit if any
+
+        read_bytes = read_serial(serial_parms, read_buffer, sizeof(read_buffer));
+        
+        if (read_bytes > 0)
+        {
+            verbprintf(2, "Serial received %d bytes\n", read_bytes);
+          	radio_wait_a_bit(arguments->packet_delay); // ~ x4 2-FSK symbols
+
+            if (read_bytes > arguments->packet_length) // concatenated KISS frames
+            {
+            	uint8_t *kiss_fend, *kiss_frame = read_buffer;
+
+                verbprintf(2, "Concatenated KISS block encountered\n");
+
+                while ((kiss_fend = kiss_tok(kiss_frame, read_buffer + read_bytes)))
+                {
+	                print_block(2, kiss_frame, kiss_fend - kiss_frame + 1);
+                	radio_send_packet(spi_parms, arguments, kiss_frame, kiss_fend - kiss_frame + 1);
+                	kiss_frame = kiss_fend + 1;
+                }
+            }
+            else // single KISS frame
+            {
+	            radio_send_packet(spi_parms, arguments, read_buffer, read_bytes);
+	        }
+
+            radio_receive_listen(spi_parms, arguments); // back to Rx
+        }
+
+        radio_wait_a_bit(1);
+    }
 }

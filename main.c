@@ -18,6 +18,7 @@
 #include "serial.h"
 #include "pi_cc_spi.h"
 #include "radio.h"
+#include "kiss.h"
 
 arguments_t   arguments;
 serial_t      serial_parameters;
@@ -408,11 +409,7 @@ static struct argp argp = {options, parse_opt, args_doc, doc};
 int main (int argc, char **argv)
 // ------------------------------------------------------------------------------------------------
 {
-    int i, ret, read_bytes;
-
-    // Whole read buffer
-    char read_buffer[1<<11];
-    memset(read_buffer, '\0', sizeof(read_buffer));
+    int i, ret;
 
     // unsolicited termination handling
     struct sigaction sa;
@@ -496,41 +493,7 @@ int main (int argc, char **argv)
         return 0;
     }
 
-    set_serial_parameters(&serial_parameters, &arguments);
-    init_radio_int(&spi_parameters, &arguments);
-    radio_receive_listen(&spi_parameters, &arguments); // put radio in Rx mode
-
-    while (1)
-    {
-        read_bytes = radio_receive_packet(&spi_parameters, &arguments, read_buffer);
-
-        if (read_bytes > 0)
-        {
-            verbprintf(2, "Radio received %d bytes\n", read_bytes);
-            radio_wait_a_bit(arguments.packet_delay); // ~ x4 2-FSK symbols
-            write_serial(&serial_parameters, read_buffer, read_bytes);
-            radio_receive_listen(&spi_parameters, &arguments); // reset Rx after read
-            continue; // process any received packet
-        }        
-
-        read_bytes = read_serial(&serial_parameters, read_buffer, sizeof(read_buffer));
-        
-        if (read_bytes > 0)
-        {
-            verbprintf(2, "Serial received %d bytes\n", read_bytes);
-            if (read_bytes > arguments.packet_length)
-            {
-                verbprintf(2, "Too large packet discarded:\n");
-                print_block(2, read_buffer, read_bytes);
-                continue; // discard large packets (test). TODO: split into KISS blocks
-            }
-            radio_wait_a_bit(arguments.packet_delay); // ~ x4 2-FSK symbols
-            radio_send_packet(&spi_parameters, &arguments, read_buffer, read_bytes);
-            radio_receive_listen(&spi_parameters, &arguments); // back to Rx
-        }
-
-        radio_wait_a_bit(1);
-    }
+    kiss_run(&serial_parameters, &spi_parameters, &arguments);
 
     delete_args(&arguments);
     return 0;
