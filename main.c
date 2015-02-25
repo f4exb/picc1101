@@ -518,7 +518,7 @@ int main (int argc, char **argv)
         if (read_bytes > 0)
         {
             verbprintf(2, "Serial received %d bytes\n", read_bytes);
-            if (read_bytes > arguments->packet_length)
+            if (read_bytes > arguments.packet_length)
             {
                 verbprintf(2, "Too large packet discarded:\n");
                 print_block(2, read_buffer, read_bytes);
