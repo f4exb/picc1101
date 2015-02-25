@@ -16,7 +16,7 @@
 #include "pi_cc_spi.h"
 #include "serial.h"
 
-#define KISS_FEND  0x0C
+#define KISS_FEND  0xC0
 #define KISS_TFEND 0xDC
 #define KISS_FESC  0xDB
 #define KISS_TFESC 0xDD
