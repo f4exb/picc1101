@@ -172,7 +172,7 @@ void int_packet(void)
             {
                 radio_int_data.mode = RADIOMODE_NONE;
                 p_radio_int_data->packet_send = 0; // De-assert packet transmission after packet has been sent
-                verbprintf(3, "Sent packet #%d\n", p_radio_int_data->packet_tx_count++);
+                verbprintf(3, "Sent packet #%d. Remaining bytes to send: %d\n", p_radio_int_data->packet_tx_count++, p_radio_int_data->bytes_remaining);
             }
         }
     }
