@@ -174,6 +174,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 	                print_block(3, kiss_frame, kiss_fend - kiss_frame + 1);
                 	radio_send_packet(spi_parms, arguments, kiss_frame, kiss_fend - kiss_frame + 1);
                 	kiss_frame = kiss_fend + 1;
+		          	radio_wait_a_bit(arguments->packet_delay); // ~ x4 2-FSK symbols
                 }
             }
             else // single KISS frame
