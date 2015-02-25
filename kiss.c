@@ -130,6 +130,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 	uint8_t read_buffer[bufsize];
 	int read_count;
 
+	set_serial_parameters(serial_parms, arguments);
 	init_radio_int(spi_parms, arguments);
 	memset(read_buffer, 0, bufsize);
 	radio_flush_fifos(spi_parms);
