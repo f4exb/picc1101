@@ -182,7 +182,7 @@ void int_packet(void)
                 // If there are remaining bytes then something went wrong and chanvesa are the chip is in a TX overflow state
                 if (p_radio_int_data->bytes_remaining)
                 {
-                    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFTX); // Flush Tx FIFO
+                    PI_CC_SPIStrobe(p_radio_int_data->spi_parms, PI_CCxxx0_SFTX); // Flush Tx FIFO
                 }
 
                 radio_int_data.mode = RADIOMODE_NONE;
