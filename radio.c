@@ -395,6 +395,7 @@ void wait_for_state(spi_parms_t *spi_parms, ccxxx0_state_t state, uint32_t timeo
         if (fsm_state == CCxxx0_STATE_RXFIFO_OVERFLOW)
         {
             PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX); // Flush Rx FIFO
+            PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFTX); // Flush Tx FIFO
         }
     }	
 }
