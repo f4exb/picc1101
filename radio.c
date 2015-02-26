@@ -991,7 +991,7 @@ void radio_wait_a_bit(uint32_t amount)
 void radio_wait_free()
 // ------------------------------------------------------------------------------------------------
 {
-    while(radio_int_data.mode != RADIOMODE_NONE)
+    while((radio_int_data.packet_receive) || (radio_int_data.packet_send))
     {
         radio_wait_a_bit(1);
     }
