@@ -151,14 +151,6 @@ void int_packet(void)
 
             if (p_radio_int_data->packet_receive) // packet has been received
             {
-            	/*
-                while (p_radio_int_data->bytes_remaining > 0) // flush remaining bytes
-                {
-                    PI_CC_SPIReadReg(p_radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &x_byte);
-                    p_radio_int_data->rx_buf[p_radio_int_data->byte_index++] = x_byte;
-                    p_radio_int_data->bytes_remaining--;
-                }
-                */
                 PI_CC_SPIReadBurstReg(p_radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &p_byte, p_radio_int_data->bytes_remaining);
                 memcpy((uint8_t *) &(p_radio_int_data->rx_buf[p_radio_int_data->byte_index]), p_byte, p_radio_int_data->bytes_remaining);
                 p_radio_int_data->byte_index += p_radio_int_data->bytes_remaining;
@@ -186,13 +178,6 @@ void int_packet(void)
                 p_radio_int_data->packet_send);
             if (p_radio_int_data->packet_send) // packet has been sent
             {
-                // If there are remaining bytes then something went wrong and chanvesa are the chip is in a TX overflow state
-                if (p_radio_int_data->bytes_remaining)
-                {
-                    PI_CC_SPIStrobe(p_radio_int_data->spi_parms, PI_CCxxx0_SFRX); // Flush Tx FIFO
-                    PI_CC_SPIStrobe(p_radio_int_data->spi_parms, PI_CCxxx0_SFTX); // Flush Tx FIFO
-                }
-
                 radio_int_data.mode = RADIOMODE_NONE;
                 p_radio_int_data->packet_send = 0; // De-assert packet transmission after packet has been sent
                 verbprintf(3, "Sent packet #%d. Remaining bytes to send: %d\n", p_radio_int_data->packet_tx_count++, p_radio_int_data->bytes_remaining);
@@ -222,14 +207,6 @@ void int_threshold(void)
         {
             p_radio_int_data->threshold_hits++;
 
-            /*
-            for (i=0; i<RX_FIFO_UNLOAD; i++)
-            {
-                PI_CC_SPIReadReg(p_radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &x_byte);
-                p_radio_int_data->rx_buf[(p_radio_int_data->byte_index)++] = x_byte;
-                p_radio_int_data->bytes_remaining--;
-            }
-            */
             PI_CC_SPIReadBurstReg(p_radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &p_byte, RX_FIFO_UNLOAD);
             memcpy((uint8_t *) &(p_radio_int_data->rx_buf[p_radio_int_data->byte_index]), p_byte, RX_FIFO_UNLOAD);
             p_radio_int_data->byte_index += RX_FIFO_UNLOAD;
