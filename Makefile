@@ -6,8 +6,8 @@ clean:
 	rm -f *.o picc1101
 	 
 
-picc1101: main.o serial.o pi_cc_spi.o radio.o kiss.o util.o
-	$(CCPREFIX)gcc $(LDFLAGS) -s -lm -lwiringPi -o picc1101 main.o serial.o pi_cc_spi.o radio.o kiss.o util.o
+picc1101: main.o serial.o pi_cc_spi.o radio.o kiss.o util.o test.o
+	$(CCPREFIX)gcc $(LDFLAGS) -s -lm -lwiringPi -o picc1101 main.o serial.o pi_cc_spi.o radio.o kiss.o util.o test.o
 
 main.o: main.h main.c
 	$(CCPREFIX)gcc $(CFLAGS) $(EXTRA_CFLAGS) -c -o main.o main.c
@@ -23,6 +23,9 @@ radio.o: main.h radio.h radio.c
 
 kiss.o: main.h kiss.h kiss.c
 	$(CCPREFIX)gcc $(CFLAGS) $(EXTRA_CFLAGS) -c -o kiss.o kiss.c
+
+test.o: test.h test.c
+	$(CCPREFIX)gcc $(CFLAGS) $(EXTRA_CFLAGS) -c -o test.o test.c
 
 util.o: util.h util.c
 	$(CCPREFIX)gcc $(CFLAGS) $(EXTRA_CFLAGS) -c -o util.o util.c

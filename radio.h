@@ -114,11 +114,4 @@ int     radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_
 void    radio_receive_listen(spi_parms_t *spi_parms, arguments_t *arguments);
 int     radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *packet);
 
-int     radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments);
-int     radio_transmit_test_int_single_fifo(spi_parms_t *spi_parms, arguments_t *arguments);
-int     radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments);
-int     radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments);
-int     radio_receive_test_int_single_fifo(spi_parms_t *spi_parms, arguments_t *arguments);
-int     radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments);
-
 #endif
