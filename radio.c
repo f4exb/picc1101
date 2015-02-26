@@ -161,7 +161,7 @@ void int_packet(void)
 				*/
 	            PI_CC_SPIReadBurstReg(p_radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &p_byte, p_radio_int_data->bytes_remaining);
 	            memcpy((uint8_t *) &(p_radio_int_data->rx_buf[p_radio_int_data->byte_index]), p_byte, p_radio_int_data->bytes_remaining);
-	            (uint8_t *) p_radio_int_data->byte_index += p_radio_int_data->bytes_remaining;
+	            p_radio_int_data->byte_index += p_radio_int_data->bytes_remaining;
 	            p_radio_int_data->bytes_remaining = 0;
 
                 radio_int_data.mode = RADIOMODE_NONE;
@@ -232,7 +232,7 @@ void int_threshold(void)
             */
             PI_CC_SPIReadBurstReg(p_radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &x_byte, RX_FIFO_UNLOAD);
             memcpy((uint8_t *) &(p_radio_int_data->rx_buf[p_radio_int_data->byte_index]), x_byte, RX_FIFO_UNLOAD);
-            (uint8_t *) p_radio_int_data->byte_index += RX_FIFO_UNLOAD;
+            p_radio_int_data->byte_index += RX_FIFO_UNLOAD;
             p_radio_int_data->bytes_remaining -= RX_FIFO_UNLOAD;
         }
     }
@@ -263,7 +263,7 @@ void int_threshold(void)
             }
 			*/
             PI_CC_SPIWriteBurstReg(p_radio_int_data->spi_parms, PI_CCxxx0_TXFIFO, (uint8_t *) &(p_radio_int_data->tx_buf[p_radio_int_data->byte_index]), bytes_to_send);
-            (uint8_t *) p_radio_int_data->byte_index += bytes_to_send;
+            p_radio_int_data->byte_index += bytes_to_send;
             p_radio_int_data->bytes_remaining -= bytes_to_send;
         }        
     }
@@ -1114,7 +1114,7 @@ int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *p
         PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_TXFIFO, radio_int_data.tx_buf[radio_int_data.byte_index]);
     }
     */
-    PI_CC_SPIWriteBurstReg(spi_parms, PI_CCxxx0_TXFIFO, radio_int_data.tx_buf, initial_tx_count);
+    PI_CC_SPIWriteBurstReg(spi_parms, PI_CCxxx0_TXFIFO, (uint8_t *) radio_int_data.tx_buf, initial_tx_count);
     radio_int_data.byte_index += initial_tx_count;
     radio_int_data.bytes_remaining = radio_int_data.tx_count - initial_tx_count;
     packets_sent = radio_int_data.packet_tx_count;
