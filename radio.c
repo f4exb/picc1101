@@ -244,11 +244,15 @@ void int_threshold(void)
                 bytes_to_send = TX_FIFO_REFILL;
             }
 
+            /*
             for (i=0; i<bytes_to_send; i++)
             {
                 PI_CC_SPIWriteReg(p_radio_int_data->spi_parms, PI_CCxxx0_TXFIFO, p_radio_int_data->tx_buf[(p_radio_int_data->byte_index)++]);
-                p_radio_int_data->bytes_remaining--;
             }
+			*/
+            PI_CC_SPIWriteBurstReg(p_radio_int_data->spi_parms, PI_CCxxx0_TXFIFO, &p_radio_int_data->tx_buf[p_radio_int_data->byte_index], bytes_to_send);
+
+            p_radio_int_data->bytes_remaining -= bytes_to_send;
         }        
     }
 }
