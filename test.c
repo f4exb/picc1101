@@ -199,7 +199,7 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
                     PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RXFIFO, &(rx_buf[i]));
                 }
 
-                print_received_packet(0);
+                print_block(0, rx_buf, rx_count);
 
                 break;
             }
