@@ -250,7 +250,7 @@ void int_threshold(void)
                 PI_CC_SPIWriteReg(p_radio_int_data->spi_parms, PI_CCxxx0_TXFIFO, p_radio_int_data->tx_buf[(p_radio_int_data->byte_index)++]);
             }
 			*/
-            PI_CC_SPIWriteBurstReg(p_radio_int_data->spi_parms, PI_CCxxx0_TXFIFO, &p_radio_int_data->tx_buf[p_radio_int_data->byte_index], bytes_to_send);
+            PI_CC_SPIWriteBurstReg(p_radio_int_data->spi_parms, PI_CCxxx0_TXFIFO, (uint8_t *) &(p_radio_int_data->tx_buf[p_radio_int_data->byte_index]), bytes_to_send);
 
             p_radio_int_data->bytes_remaining -= bytes_to_send;
         }        
