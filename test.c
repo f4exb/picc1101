@@ -31,6 +31,7 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
     while(packets_sent < arguments->repetition)
     {
+        radio_wait_free(); // make sure no radio operation is in progress
         radio_send_packet(spi_parms, arguments, arguments->test_phrase, strlen(arguments->test_phrase));
     } 
 }
@@ -47,7 +48,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
     verbprintf(0, "Starting...\n");
 
-    while((arguments->repetition == 0) || (radio_int_data.packet_rx_count < arguments->repetition))
+    while((arguments->repetition == 0) || (packets_received < arguments->repetition))
     {
         radio_receive_listen(spi_parms, arguments); // set in Rx
 
@@ -58,7 +59,6 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
         } while(nb_rx == 0);
 
         verbprintf(2, "FIFO threshold was hit %d times\n", radio_int_data.threshold_hits);
-        packets_received++;
     }
 }
 
