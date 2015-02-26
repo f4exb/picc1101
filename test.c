@@ -33,6 +33,7 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     {
         radio_wait_free(); // make sure no radio operation is in progress
         radio_send_packet(spi_parms, arguments, arguments->test_phrase, strlen(arguments->test_phrase));
+        radio_wait_a_bit(arguments->packet_length / 4);
     } 
 }
 
