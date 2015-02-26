@@ -376,6 +376,11 @@ void wait_for_state(spi_parms_t *spi_parms, ccxxx0_state_t state, uint32_t timeo
     if (!timeout)
     {
     	verbprintf(1, "RADIO: timeout reached in state %s waiting for state %s\n", state_names[fsm_state], state_names[state]);
+        
+        if (fsm_state == CCxxx0_STATE_RXFIFO_OVERFLOW)
+        {
+            PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX); // Flush Rx FIFO
+        }
     }	
 }
 
