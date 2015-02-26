@@ -1092,8 +1092,8 @@ int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *p
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x02); // GDO2 output pin config TX mode
 
     // Initial number of bytes to put in FIFO is either the number of bytes to send or the FIFO size whichever is
-    // the smallest
-    initial_tx_count = (radio_int_data.tx_count > PI_CCxxx0_FIFO_SIZE ? PI_CCxxx0_FIFO_SIZE : radio_int_data.tx_count);
+    // the smallest. Actual size blocks you need to take size minus one byte.
+    initial_tx_count = (radio_int_data.tx_count > PI_CCxxx0_FIFO_SIZE-1 ? PI_CCxxx0_FIFO_SIZE-1 : radio_int_data.tx_count);
 
     // Initial fill of TX FIFO
     /*
