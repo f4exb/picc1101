@@ -140,14 +140,15 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 
 	while(1)
 	{
+		radio_wait_free(); // make sure no radio operation is in progress
 		read_count = radio_receive_packet(spi_parms, arguments, read_buffer);
 
 		if (read_count > 0)
 		{
 			verbprintf(2, "Received %d bytes\n", read_count);
 			write_serial(serial_parms, read_buffer, read_count);
-			radio_reset_rx();
-			continue; // return to Rx
+			radio_receive_listen((spi_parms, arguments); // return to Rx
+			continue; 
 		}
 
 		read_count = read_serial(serial_parms, read_buffer, bufsize);
@@ -155,7 +156,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 		if (read_count > 0)
 		{
 			verbprintf(2, "%d bytes to send\n", read_count);
-			radio_wait_free(); // Wait for current operations to finish
+			radio_wait_free(); // Wait for current Rx/Tx operations to finish
 
 			if (read_count > arguments->packet_length) // concatenated KISS frames
 			{

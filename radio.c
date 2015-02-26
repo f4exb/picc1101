@@ -695,7 +695,7 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     //   2 (10): Always claar unless receiving a packet
     //   3 (11): Claar if RSSI below threshold unless receiving a packet
     // o bits 3:2: RXOFF_MODE: Select to what state it should go when a packet has been received
-    //   0 (00): IDLE
+    //   0 (00): IDLE <== 
     //   1 (01): FSTXON
     //   2 (10): TX
     //   3 (11): RX (stay)
@@ -703,8 +703,8 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     //   0 (00): IDLE
     //   1 (01): FSTXON
     //   2 (10): TX (stay)
-    //   3 (11): RX
-    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_MCSM1 ,   0x3F); //MainRadio Cntrl State Machine
+    //   3 (11): RX <==
+    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_MCSM1 ,   0x33); //MainRadio Cntrl State Machine
 
     // MCSM0: Main Radio State Machine.
     // o bits 7:6: not used
