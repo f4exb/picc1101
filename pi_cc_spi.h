@@ -85,7 +85,7 @@ int  PI_CC_SPISetup(spi_parms_t *spi_parms, arguments_t *arguments);
 int  PI_CC_SPIWriteReg(spi_parms_t *spi_parms, uint8_t addr, uint8_t byte);
 int  PI_CC_SPIWriteBurstReg(spi_parms_t *spi_parms, uint8_t addr, const uint8_t *bytes, uint8_t count);
 int  PI_CC_SPIReadReg(spi_parms_t *spi_parms, uint8_t addr, uint8_t *byte);
-int  PI_CC_SPIReadBurstReg(spi_parms_t *spi_parms, uint8_t addr, uint8_t **bytes const, uint8_t count);
+int  PI_CC_SPIReadBurstReg(spi_parms_t *spi_parms, uint8_t addr, uint8_t **bytes, uint8_t count);
 int  PI_CC_SPIReadStatus(spi_parms_t *spi_parms, uint8_t addr, uint8_t *status);
 int  PI_CC_SPIStrobe(spi_parms_t *spi_parms, uint8_t strobe);
 int  PI_CC_PowerupResetCCxxxx(spi_parms_t *spi_parms);

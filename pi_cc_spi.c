@@ -282,7 +282,7 @@ int PI_CC_SPIReadReg(spi_parms_t *spi_parms, uint8_t addr, uint8_t *byte)
 }
 
 // ------------------------------------------------------------------------------------------------
-int PI_CC_SPIReadBurstReg(spi_parms_t *spi_parms, uint8_t addr, uint8_t **buffer const, uint8_t count)
+int PI_CC_SPIReadBurstReg(spi_parms_t *spi_parms, uint8_t addr, uint8_t **buffer, uint8_t count)
 // ------------------------------------------------------------------------------------------------
 {
     uint8_t i;
