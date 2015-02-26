@@ -155,6 +155,7 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
 {
     uint8_t iterations, rx_bytes, fsm_state, rssi_dec, crc_lqi, x_byte, pkt_on;
     uint8_t rx_buf[PI_CCxxx0_FIFO_SIZE+1];
+    uint8_t rx_count;
     int i;
     uint32_t poll_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
 
@@ -181,7 +182,7 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
     {
         verbprintf(0, "Packet #%d\n", iterations+1);
         pkt_on = 0; // wait for packet start
-        //memset((uint8_t *) radio_int_data.rx_buf, '\0', PI_CCxxx0_FIFO_SIZE+1);
+        memset(rx_buf, '\0', PI_CCxxx0_FIFO_SIZE+1);
 
         while(1)
         {
@@ -194,13 +195,13 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
 
             if (!(x_byte & 0x01) && pkt_on) // packet received
             {
-                PI_CC_SPIReadStatus(spi_parms, PI_CCxxx0_RXBYTES, (uint8_t *) &(radio_int_data.rx_count));
-                radio_int_data.rx_count &= PI_CCxxx0_NUM_RXBYTES;
-                verbprintf(1, "Received %d bytes\n", radio_int_data.rx_count);
+                PI_CC_SPIReadStatus(spi_parms, PI_CCxxx0_RXBYTES, &rx_count);
+                rx_count &= PI_CCxxx0_NUM_RXBYTES;
+                verbprintf(1, "Received %d bytes\n", rx_count);
 
                 for (i=0; i<radio_int_data.rx_count; i++)
                 {
-                    PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RXFIFO, (uint8_t *) &(radio_int_data.rx_buf[i]));
+                    PI_CC_SPIReadReg(spi_parms, PI_CCxxx0_RXFIFO, &(rx_buf[i]));
                 }
 
                 print_received_packet(0);
