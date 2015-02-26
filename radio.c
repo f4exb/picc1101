@@ -77,8 +77,8 @@ float chanbw_limits[] = {
 
 static radio_int_data_t *p_radio_int_data = 0;
 static radio_int_data_t radio_int_data;
-static uint32_t packets_sent;
-static uint32_t packets_received;
+uint32_t packets_sent;
+uint32_t packets_received;
 
 // === Static functions declarations ==============================================================
 

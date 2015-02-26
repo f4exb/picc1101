@@ -27,7 +27,6 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     init_radio_int(spi_parms, arguments);
 
     verbprintf(0, "Sending %d test packets of size %d\n", arguments->repetition, arguments->packet_length);
-    verbprintf(1, "Wait Tx delay is %d us\n", radio_int_data.wait_us);
 
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFTX); // Flush Tx FIFO
 
@@ -46,7 +45,6 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
     init_radio_int(spi_parms, arguments);
 
-    memset((uint8_t *) radio_int_data.rx_buf, 0, PI_CCxxx0_PACKET_COUNT_SIZE);
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX); // Flush Rx FIFO
 
     verbprintf(1, "Wait Rx delay is %d us\n", radio_int_data.wait_us);
@@ -183,7 +181,7 @@ int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments)
     {
         verbprintf(0, "Packet #%d\n", iterations+1);
         pkt_on = 0; // wait for packet start
-        memset((uint8_t *) radio_int_data.rx_buf, '\0', PI_CCxxx0_FIFO_SIZE+1);
+        //memset((uint8_t *) radio_int_data.rx_buf, '\0', PI_CCxxx0_FIFO_SIZE+1);
 
         while(1)
         {
