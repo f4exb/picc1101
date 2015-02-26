@@ -236,7 +236,7 @@ int PI_CC_SPIWriteReg(spi_parms_t *spi_parms, uint8_t addr, uint8_t value)
 }
 
 // ------------------------------------------------------------------------------------------------
-int PI_CC_SPIWriteBurstReg(spi_parms_t *spi_parms, uint8_t addr, uint8_t *buffer, uint8_t count)
+int PI_CC_SPIWriteBurstReg(spi_parms_t *spi_parms, uint8_t addr, const uint8_t *buffer, uint8_t count)
 // ------------------------------------------------------------------------------------------------
 {
     uint8_t i;
