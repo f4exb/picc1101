@@ -136,7 +136,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 	radio_flush_fifos(spi_parms);
 	radio_receive_listen(spi_parms, arguments); // set in Rx
 	
-	verbprintf(1, "Starting...");
+	verbprintf(1, "Starting...\n");
 
 	while(1)
 	{

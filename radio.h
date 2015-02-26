@@ -16,8 +16,8 @@
 #define WPI_GDO0 5 // For Wiring Pi, 5 is GPIO_24 connected to GDO0
 #define WPI_GDO2 6 // For Wiring Pi, 6 is GPIO_25 connected to GDO2
 
-#define TX_FIFO_REFILL 60 // With the default FIFO thresholds selected this is the number of bytes to refill the Tx FIFO
-#define RX_FIFO_UNLOAD 59 // With the default FIFO thresholds selected this is the number of bytes to unload from the Rx FIFO
+#define TX_FIFO_REFILL 56 // With the default FIFO thresholds selected this is the number of bytes to refill the Tx FIFO
+#define RX_FIFO_UNLOAD 55 // With the default FIFO thresholds selected this is the number of bytes to unload from the Rx FIFO
 
 typedef enum sync_word_e
 {
