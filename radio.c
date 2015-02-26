@@ -1096,11 +1096,14 @@ int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *p
     initial_tx_count = (radio_int_data.tx_count > PI_CCxxx0_FIFO_SIZE ? PI_CCxxx0_FIFO_SIZE : radio_int_data.tx_count);
 
     // Initial fill of TX FIFO
+    /*
     for (radio_int_data.byte_index=0; radio_int_data.byte_index<initial_tx_count; (radio_int_data.byte_index)++)
     {
         PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_TXFIFO, radio_int_data.tx_buf[radio_int_data.byte_index]);
     }
-
+    */
+    PI_CC_SPIWriteBurstReg(spi_parms, PI_CCxxx0_TXFIFO, (uint8_t *) radio_int_data.tx_buf, initial_tx_count);
+    radio_int_data.byte_index += initial_tx_count;
     radio_int_data.bytes_remaining = radio_int_data.tx_count - initial_tx_count;
     packets_sent = radio_int_data.packet_tx_count;
 
