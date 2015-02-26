@@ -57,8 +57,6 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
             radio_wait_free(); // make sure no radio operation is in progress
         	nb_rx = radio_receive_packet(spi_parms, arguments, rx_bytes);
         } while(nb_rx == 0);
-
-        verbprintf(2, "FIFO threshold was hit %d times\n", radio_int_data.threshold_hits);
     }
 }
 
