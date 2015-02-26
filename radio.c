@@ -132,8 +132,9 @@ void int_packet(void)
             }
             else // fixed: read PKTLEN register
             {
-                p_radio_int_data->rx_count = radio_get_packet_length(p_radio_int_data->spi_parms);
-                p_radio_int_data->rx_count += 2; // Add RSSI + LQI/CRC bytes
+                //p_radio_int_data->rx_count = radio_get_packet_length(p_radio_int_data->spi_parms);
+                //p_radio_int_data->rx_count += 2; // Add RSSI + LQI/CRC bytes
+                p_radio_int_data->rx_count = p_radio_int_data->packet_length + 2;
 	            p_radio_int_data->bytes_remaining = p_radio_int_data->rx_count;
 
                 verbprintf(3, "%d bytes to read (fixed)\n", p_radio_int_data->rx_count);
@@ -536,6 +537,7 @@ void init_radio_parms(radio_parms_t *radio_parms, arguments_t *arguments)
 	radio_parms->sync_ctl      = SYNC_30_over_32;  // 30/32 sync word bits detected
     radio_parms->chanspc_m     = 0;                // Do not use channel spacing for the moment defaulting to 0
     radio_parms->chanspc_e     = 0;                // Do not use channel spacing for the moment defaulting to 0
+    radio_parms->packet_length = arguments->packet_length;
 
     if (arguments->variable_length)
     {
