@@ -157,9 +157,7 @@ void set_serial_parameters(serial_t *serial_parameters, arguments_t *arguments)
 int write_serial(serial_t *serial_parameters, char *msg, int msglen)
 // ------------------------------------------------------------------------------------------------
 {
-    int bytes_written = 0;
-    bytes_written = write(serial_parameters->SERIAL_TNC, msg, msglen);
-    return msglen - bytes_written;
+    return write(serial_parameters->SERIAL_TNC, msg, msglen);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -167,8 +165,6 @@ int write_serial(serial_t *serial_parameters, char *msg, int msglen)
 int read_serial(serial_t *serial_parameters, char *buf, int buflen)
 // ------------------------------------------------------------------------------------------------
 {
-    int bytes_read = 0;
-    bytes_read = read(serial_parameters->SERIAL_TNC, buf, buflen);
-    return bytes_read;
+    return read(serial_parameters->SERIAL_TNC, buf, buflen);
 } 
 
