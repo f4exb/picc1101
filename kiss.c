@@ -128,7 +128,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 {
 	static const size_t bufsize = 1<<11;
 	uint8_t read_buffer[bufsize];
-	int read_count;
+	int read_count, ret;
 
 	set_serial_parameters(serial_parms, arguments);
 	init_radio_int(spi_parms, arguments);
@@ -146,7 +146,8 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 		if (read_count > 0)
 		{
 			verbprintf(2, "Received %d bytes\n", read_count);
-			write_serial(serial_parms, read_buffer, read_count);
+			ret = write_serial(serial_parms, read_buffer, read_count);
+			verbprintf(2, "Sent %d bytes on serial\n", ret);
 			radio_receive_listen(spi_parms, arguments); // return to Rx
 			continue; 
 		}
