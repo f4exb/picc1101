@@ -700,11 +700,11 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     //   2 (10): TX
     //   3 (11): RX (stay)
     // o bits 1:0: TXOFF_MODE: Select what should happen when a packet has been sent
-    //   0 (00): IDLE
+    //   0 (00): IDLE <==
     //   1 (01): FSTXON
     //   2 (10): TX (stay)
-    //   3 (11): RX <==
-    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_MCSM1 ,   0x33); //MainRadio Cntrl State Machine
+    //   3 (11): RX 
+    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_MCSM1 ,   0x30); //MainRadio Cntrl State Machine
 
     // MCSM0: Main Radio State Machine.
     // o bits 7:6: not used
