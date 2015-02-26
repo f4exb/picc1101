@@ -109,7 +109,9 @@ void int_packet(void)
     {
         if (int_line)
         {
-            verbprintf(3, "GDO0 Rx rising edge (%d)\n", p_radio_int_data->packet_receive);
+            verbprintf(3, "GDO0 Rx rising edge (%d,%d)\n", 
+                p_radio_int_data->packet_receive, 
+                p_radio_int_data->packet_send);
 
             p_radio_int_data->byte_index = 0;
 
@@ -141,7 +143,10 @@ void int_packet(void)
         }
         else
         {
-            verbprintf(3, "GDO0 Rx falling edge (%d): %d bytes remaining\n", p_radio_int_data->packet_receive, p_radio_int_data->bytes_remaining);
+            verbprintf(3, "GDO0 Rx falling edge (%d,%d): %d bytes remaining\n", 
+                p_radio_int_data->packet_receive, 
+                p_radio_int_data->packet_send, 
+                p_radio_int_data->bytes_remaining);
 
             if (p_radio_int_data->packet_receive) // packet has been received
             {
@@ -162,12 +167,16 @@ void int_packet(void)
     {
         if (int_line)
         {
-            verbprintf(3, "GDO0 Tx rising edge (%d)\n", p_radio_int_data->packet_send);
+            verbprintf(3, "GDO0 Tx rising edge (%d,%d)\n", 
+                p_radio_int_data->packet_receive, 
+                p_radio_int_data->packet_send);
             p_radio_int_data->packet_send = 1; // Assert packet transmission after sync has been sent
         }
         else
         {
-            verbprintf(3, "GDO0 Tx falling edge (%d)\n", p_radio_int_data->packet_send);
+            verbprintf(3, "GDO0 Tx falling edge (%d,%d)\n", 
+                p_radio_int_data->packet_receive, 
+                p_radio_int_data->packet_send);
             if (p_radio_int_data->packet_send) // packet has been sent
             {
                 radio_int_data.mode = RADIOMODE_NONE;
@@ -190,7 +199,10 @@ void int_threshold(void)
 
     if ((p_radio_int_data->mode == RADIOMODE_RX) && (int_line)) // Filling of Rx FIFO - Read next 59 bytes
     {
-        verbprintf(3, "GDO2 rising edge (%d): %d bytes remaining\n", p_radio_int_data->packet_receive, p_radio_int_data->bytes_remaining);
+        verbprintf(3, "GDO2 Rx rising edge (%d,%d): %d bytes remaining\n", 
+            p_radio_int_data->packet_receive, 
+            p_radio_int_data->packet_send, 
+            p_radio_int_data->bytes_remaining);
 
         if (p_radio_int_data->packet_receive) // if reception has started
         {
@@ -206,7 +218,10 @@ void int_threshold(void)
     }
     else if ((p_radio_int_data->mode == RADIOMODE_TX) && (!int_line)) // Depletion of Tx FIFO - Write at most next 60 bytes
     {
-        verbprintf(3, "GDO2 falling edge (%d): %d bytes remaining\n", p_radio_int_data->packet_send, p_radio_int_data->bytes_remaining);
+        verbprintf(3, "GDO2 Tx falling edge (%d,%d): %d bytes remaining\n", 
+            p_radio_int_data->packet_receive, 
+            p_radio_int_data->packet_send, 
+            p_radio_int_data->bytes_remaining);
 
         if ((p_radio_int_data->packet_send) && (p_radio_int_data->bytes_remaining > 0)) // bytes left to send
         {
