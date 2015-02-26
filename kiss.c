@@ -147,7 +147,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 		{
 			verbprintf(2, "Received %d bytes\n", read_count);
 			write_serial(serial_parms, read_buffer, read_count);
-			radio_receive_listen((spi_parms, arguments); // return to Rx
+			radio_receive_listen(spi_parms, arguments); // return to Rx
 			continue; 
 		}
 
