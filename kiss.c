@@ -155,7 +155,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 		if (read_count > 0)
 		{
 			verbprintf(2, "%d bytes to send\n", read_count);
-			radio_wait_a_bit(arguments->packet_delay); // ~ x4 2-FSK symbols
+			radio_wait_free(); // Wait for current operations to finish
 
 			if (read_count > arguments->packet_length) // concatenated KISS frames
 			{
