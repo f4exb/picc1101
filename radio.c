@@ -445,7 +445,9 @@ void print_received_packet(int verbose_min)
     uint8_t rssi_dec, crc_lqi;
     int i;
 
-    verbprintf(verbose_min, "%d bytes in buffer:\n", radio_int_data.rx_count);
+    verbprintf(verbose_min, "Rx: packet length %d, FIFO was hit %d times\n", 
+        radio_int_data.rx_count,
+        radio_int_data.threshold_hits);
     print_block(verbose_min+2, (uint8_t *) radio_int_data.rx_buf, radio_int_data.rx_count);
 
     rssi_dec = radio_int_data.rx_buf[radio_int_data.rx_count-2];
