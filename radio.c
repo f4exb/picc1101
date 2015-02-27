@@ -1080,7 +1080,7 @@ int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *p
 
     // Initial fill of TX FIFO
     PI_CC_SPIWriteBurstReg(spi_parms, PI_CCxxx0_TXFIFO, (uint8_t *) radio_int_data.tx_buf, initial_tx_count);
-    radio_int_data.byte_index += initial_tx_count;
+    radio_int_data.byte_index = initial_tx_count;
     radio_int_data.bytes_remaining = radio_int_data.tx_count - initial_tx_count;
     packets_sent = radio_int_data.packet_tx_count;
 
