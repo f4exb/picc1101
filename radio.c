@@ -595,10 +595,10 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
 	// FIFO underflows:    
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG0,   0x06); // GDO0 output pin config.
 
-    // FIFO_THR = 13: 
-    // o 9 bytes in TX FIFO (55 available spaces)
-    // o 56 bytes in the RX FIFO
-    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_FIFOTHR,  0x0D); // FIFO threshold.
+    // FIFO_THR = 14: 
+    // o 5 bytes in TX FIFO (55 available spaces)
+    // o 60 bytes in the RX FIFO
+    PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_FIFOTHR,  0x0E); // FIFO threshold.
 
     // PKTLEN: packet length up to 255 bytes. 
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_PKTLEN, radio_parms->packet_length); // Packet length.
