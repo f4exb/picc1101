@@ -51,7 +51,8 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
     while((arguments->repetition == 0) || (packets_received < arguments->repetition))
     {
-        radio_receive_listen(spi_parms, arguments); // set in Rx
+        radio_init_rx(spi_parms, arguments); // Init for new packet to receive
+        radio_turn_rx(spi_parms);            // Put back into Rx
 
         do
         {
