@@ -182,9 +182,9 @@ void int_packet(void)
                 p_radio_int_data->packet_send = 0; // De-assert packet transmission after packet has been sent
                 verbprintf(3, "Sent packet #%d. Remaining bytes to send: %d\n", p_radio_int_data->packet_tx_count++, p_radio_int_data->bytes_remaining);
 
-                if (p_radio_int_data->bytes_remaining)
+                if ((verbose_level > 0) && (p_radio_int_data->bytes_remaining))
                 {
-                    verbprintf(0, "RADIO: anomalous condition detected\n");
+                    verbprintf(0, "RADIO: anomalous condition detected on GDO0 Tx falling edge\n");
                     print_radio_status(p_radio_int_data->spi_parms);
                 }
             }
@@ -509,6 +509,14 @@ void init_radio_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
     verbprintf(1, "Unit delay .............: %d us\n", radio_int_data.wait_us);
     verbprintf(1, "Packet delay ...........: %d us\n", arguments->packet_delay * radio_int_data.wait_us);
+}
+
+// ------------------------------------------------------------------------------------------------
+// Inhibit operations by returning to IDLE state
+void radio_turn_idle(spi_parms_t *spi_parms)
+// ------------------------------------------------------------------------------------------------
+{
+    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SIDLE);
 }
 
 // ------------------------------------------------------------------------------------------------

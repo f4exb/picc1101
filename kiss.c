@@ -156,8 +156,11 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 
 		if (read_count > 0)
 		{
+			radio_wait_free();            // Wait for current Rx/Tx operations to finish
+			radio_turn_idle(spi_parms);   // Inhibit operations
+			radio_flush_fifos(spi_parms); // Flush result of any Rx activity
+
 			verbprintf(2, "%d bytes to send\n", read_count);
-			radio_wait_free(); // Wait for current Rx/Tx operations to finish
 
 			if (read_count > arguments->packet_length) // concatenated KISS frames
 			{
