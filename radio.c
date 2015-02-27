@@ -1022,6 +1022,7 @@ void radio_reset_rx()
     packets_received = radio_int_data.packet_rx_count;
     radio_int_data.mode = RADIOMODE_RX;
     radio_int_data.packet_receive = 0;    
+    radio_int_data.threshold_hits = 0;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1041,8 +1042,6 @@ void radio_receive_listen(spi_parms_t *spi_parms, arguments_t *arguments)
 int radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *packet)
 // ------------------------------------------------------------------------------------------------
 {
-	radio_int_data.threshold_hits = 0;
-
     if (packets_received == radio_int_data.packet_rx_count) // no packet received
     {
         return 0;
