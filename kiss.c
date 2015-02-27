@@ -134,21 +134,24 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 	init_radio_int(spi_parms, arguments);
 	memset(read_buffer, 0, bufsize);
 	radio_flush_fifos(spi_parms);
-	radio_receive_listen(spi_parms, arguments); // set in Rx
 	
 	verbprintf(1, "Starting...\n");
 
+	radio_init_rx(spi_parms, arguments); // init for new packet to receive Rx
+	radio_turn_rx(spi_parms);            // Turn Rx on
+
 	while(1)
-	{
-		radio_wait_free(); // make sure no radio operation is in progress
-		read_count = radio_receive_packet(spi_parms, arguments, read_buffer);
+	{	
+		read_count = radio_receive_packet(spi_parms, arguments, read_buffer); // check if anything was received on radio link
 
 		if (read_count > 0)
 		{
+			// Waiting for operation complete and turn into IDLE is superfluous here since radio is automatically put to IDLE after a packet has been received
 			verbprintf(2, "Received %d bytes\n", read_count);
 			ret = write_serial(serial_parms, read_buffer, read_count);
 			verbprintf(2, "Sent %d bytes on serial\n", ret);
-			radio_receive_listen(spi_parms, arguments); // return to Rx
+			radio_init_rx(spi_parms, arguments); // Init for new packet to receive Rx
+			radio_turn_rx(spi_parms);            // Put back into Rx
 			continue; 
 		}
 
@@ -156,8 +159,8 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 
 		if (read_count > 0)
 		{
-			radio_wait_free();            // Wait for current Rx/Tx operations to finish
-			radio_turn_idle(spi_parms);   // Inhibit operations
+			radio_wait_free();            // Make sure no radio operation is in progress
+			radio_turn_idle(spi_parms);   // Inhibit radio operations (should be superfluous since both Tx and Rx turn to IDLE after a packet has been processed)
 			radio_flush_fifos(spi_parms); // Flush result of any Rx activity
 
 			verbprintf(2, "%d bytes to send\n", read_count);
@@ -182,7 +185,9 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 				radio_send_packet(spi_parms, arguments, read_buffer, read_count);
 			}
 
-			radio_receive_listen(spi_parms, arguments); // set in Rx
+			radio_init_rx(spi_parms, arguments); // init for new packet to receive Rx
+			radio_turn_rx(spi_parms);            // put back into Rx
 		}
+
 	}
 }

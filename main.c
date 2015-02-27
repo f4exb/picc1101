@@ -206,7 +206,7 @@ static void print_args(arguments_t *arguments)
     fprintf(stderr, "Modulation ..........: %s\n", modulation_names[arguments->modulation]);
     fprintf(stderr, "Rate nominal ........: %d Baud\n", rate_values[arguments->rate]);
     fprintf(stderr, "Rate skew ...........: %.2f\n", arguments->rate_skew);
-    fprintf(stderr, "Packet delay ........: ~%d\n 2-FSK symbols", arguments->packet_delay * 4);
+    fprintf(stderr, "Packet delay ........: ~%d 2-FSK symbols\n", arguments->packet_delay * 4);
     fprintf(stderr, "Modulation index ....: %.2f\n", arguments->modulation_index);
     fprintf(stderr, "Frequency ...........: %d Hz\n", arguments->freq_hz);
     fprintf(stderr, "Packet length .......: %d bytes\n", arguments->packet_length);

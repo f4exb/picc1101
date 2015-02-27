@@ -520,6 +520,15 @@ void radio_turn_idle(spi_parms_t *spi_parms)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Allow Rx operations by returning to Rx state
+void radio_turn_rx(spi_parms_t *spi_parms)
+// ------------------------------------------------------------------------------------------------
+{
+    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX);
+    wait_for_state(spi_parms, CCxxx0_STATE_RX, 10); // Wait max 10ms
+}
+
+// ------------------------------------------------------------------------------------------------
 // Flush Rx and Tx FIFOs
 void radio_flush_fifos(spi_parms_t *spi_parms)
 // ------------------------------------------------------------------------------------------------
@@ -1029,8 +1038,8 @@ void radio_wait_free()
 }
 
 // ------------------------------------------------------------------------------------------------
-// Put radio in listen state
-void radio_receive_listen(spi_parms_t *spi_parms, arguments_t *arguments)
+// Initialize for Rx mode
+void radio_init_rx(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
     packets_received = radio_int_data.packet_rx_count;
@@ -1039,9 +1048,6 @@ void radio_receive_listen(spi_parms_t *spi_parms, arguments_t *arguments)
     radio_int_data.threshold_hits = 0;
 
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2, 0x00); // GDO2 output pin config RX mode
-
-    PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SRX);      // Enter Rx mode
-    wait_for_state(spi_parms, CCxxx0_STATE_RX, 10); // Wait max 10ms
 }
 
 // ------------------------------------------------------------------------------------------------
