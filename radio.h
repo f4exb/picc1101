@@ -21,77 +21,77 @@
 
 typedef enum sync_word_e
 {
-	NO_SYNC = 0,              // No preamble/sync
-	SYNC_15_OVER_16,          // 15/16 sync word bits detected
-	SYNC_16_OVER_16,          // 16/16 sync word bits detected
-	SYNC_30_over_32,          // 30/32 sync word bits detected
-	SYNC_CARRIER,             // No preamble/sync, carrier-sense above threshold
-	SYNC_15_OVER_16_CARRIER,  // 15/16 + carrier-sense above threshold
-	SYNC_16_OVER_16_CARRIER,  // 16/16 + carrier-sense above threshold
-	SYNC_30_over_32_CARRIER   // 30/32 + carrier-sense above threshold
+    NO_SYNC = 0,              // No preamble/sync
+    SYNC_15_OVER_16,          // 15/16 sync word bits detected
+    SYNC_16_OVER_16,          // 16/16 sync word bits detected
+    SYNC_30_over_32,          // 30/32 sync word bits detected
+    SYNC_CARRIER,             // No preamble/sync, carrier-sense above threshold
+    SYNC_15_OVER_16_CARRIER,  // 15/16 + carrier-sense above threshold
+    SYNC_16_OVER_16_CARRIER,  // 16/16 + carrier-sense above threshold
+    SYNC_30_over_32_CARRIER   // 30/32 + carrier-sense above threshold
 } sync_word_t;
 
 typedef enum packet_config_e 
 {
-	PKTLEN_FIXED = 0,
-	PKTLEN_VARIABLE,
-	PKTLEN_INFINITE
+    PKTLEN_FIXED = 0,
+    PKTLEN_VARIABLE,
+    PKTLEN_INFINITE
 } packet_config_t;
 
 typedef struct radio_parms_s
 {
-	uint32_t        f_xtal;        // Crystal frequency (Hz)
-	uint32_t        f_if;          // IF frequency (Hz)
-	packet_config_t packet_config; // Packet length configuration
-	uint8_t         packet_length; // Packet length if fixed
-	sync_word_t     sync_ctl;      // Sync word control
-	float           deviat_factor; // FSK-2 deviation is +/- data rate divised by this factor
-	uint32_t        freq_word;     // Frequency 24 bit word FREQ[23..0]
+    uint32_t        f_xtal;        // Crystal frequency (Hz)
+    uint32_t        f_if;          // IF frequency (Hz)
+    packet_config_t packet_config; // Packet length configuration
+    uint8_t         packet_length; // Packet length if fixed
+    sync_word_t     sync_ctl;      // Sync word control
+    float           deviat_factor; // FSK-2 deviation is +/- data rate divised by this factor
+    uint32_t        freq_word;     // Frequency 24 bit word FREQ[23..0]
     uint8_t         chanspc_m;     // Channel spacing mantissa 
     uint8_t         chanspc_e;     // Channel spacing exponent
-	uint8_t         if_word;       // Intermediate frequency 5 bit word FREQ_IF[4:0] 
-	uint8_t         drate_m;       // Data rate mantissa
-	uint8_t         drate_e;       // Data rate exponent
-	uint8_t         chanbw_m;      // Channel bandwidth mantissa
-	uint8_t         chanbw_e;      // Channel bandwidth exponent
-	uint8_t         deviat_m;      // Deviation mantissa
-	uint8_t         deviat_e;      // Deviation exponent
+    uint8_t         if_word;       // Intermediate frequency 5 bit word FREQ_IF[4:0] 
+    uint8_t         drate_m;       // Data rate mantissa
+    uint8_t         drate_e;       // Data rate exponent
+    uint8_t         chanbw_m;      // Channel bandwidth mantissa
+    uint8_t         chanbw_e;      // Channel bandwidth exponent
+    uint8_t         deviat_m;      // Deviation mantissa
+    uint8_t         deviat_e;      // Deviation exponent
 } radio_parms_t;
 
 typedef enum radio_int_scheme_e 
 {
-	RADIOINT_NONE = 0,   // Do not use interrupts
-	RADIOINT_SIMPLE,     // Interrupts for packets fitting in FIFO
-	RADIOINT_COMPOSITE,  // Interrupts for amy packet length up to 255
-	NUM_RADIOINT
+    RADIOINT_NONE = 0,   // Do not use interrupts
+    RADIOINT_SIMPLE,     // Interrupts for packets fitting in FIFO
+    RADIOINT_COMPOSITE,  // Interrupts for amy packet length up to 255
+    NUM_RADIOINT
 } radio_int_scheme_t;
 
 typedef enum radio_mode_e
 {
-	RADIOMODE_NONE = 0,
-	RADIOMODE_RX,
-	RADIOMODE_TX,
-	NUM_RADIOMODE
+    RADIOMODE_NONE = 0,
+    RADIOMODE_RX,
+    RADIOMODE_TX,
+    NUM_RADIOMODE
 } radio_mode_t;
 
 typedef volatile struct radio_int_data_s 
 {
-	spi_parms_t  *spi_parms;             // SPI link parameters
-	radio_mode_t mode;                   // Radio mode (essentially Rx or Tx)
-	packet_config_t packet_config;       // Packet length configuration
-	uint8_t      packet_length;          // Fixed legth of packet or maximum length if variable
-	uint32_t     packet_rx_count;        // Number of packets received since put into action
-	uint32_t     packet_tx_count;        // Number of packets sent since put into action
-	uint8_t      tx_buf[PI_CCxxx0_PACKET_COUNT_SIZE+2]; // Tx buffer
-	uint8_t      tx_count;               // Number of bytes in Tx buffer
-	uint8_t      rx_buf[PI_CCxxx0_PACKET_COUNT_SIZE+2]; // Rx buffer
-	uint8_t      rx_count;               // Number of bytes in Rx buffer
-	uint8_t      bytes_remaining;        // Bytes remaining to be read from or written to buffer (composite mode)
-	uint8_t      byte_index;             // Current byte index in buffer
-	uint8_t      packet_receive;         // Indicates reception of a packet is in progress
-	uint8_t      packet_send;            // Indicates transmission of a packet is in progress
-	uint32_t     wait_us;                // Unit wait time of approximately 4 2-FSK symbols
-	uint8_t      threshold_hits;         // Number of times the FIFO threshold is hit during packet processing
+    spi_parms_t  *spi_parms;             // SPI link parameters
+    radio_mode_t mode;                   // Radio mode (essentially Rx or Tx)
+    packet_config_t packet_config;       // Packet length configuration
+    uint8_t      packet_length;          // Fixed legth of packet or maximum length if variable
+    uint32_t     packet_rx_count;        // Number of packets received since put into action
+    uint32_t     packet_tx_count;        // Number of packets sent since put into action
+    uint8_t      tx_buf[PI_CCxxx0_PACKET_COUNT_SIZE+2]; // Tx buffer
+    uint8_t      tx_count;               // Number of bytes in Tx buffer
+    uint8_t      rx_buf[PI_CCxxx0_PACKET_COUNT_SIZE+2]; // Rx buffer
+    uint8_t      rx_count;               // Number of bytes in Rx buffer
+    uint8_t      bytes_remaining;        // Bytes remaining to be read from or written to buffer (composite mode)
+    uint8_t      byte_index;             // Current byte index in buffer
+    uint8_t      packet_receive;         // Indicates reception of a packet is in progress
+    uint8_t      packet_send;            // Indicates transmission of a packet is in progress
+    uint32_t     wait_us;                // Unit wait time of approximately 4 2-FSK symbols
+    uint8_t      threshold_hits;         // Number of times the FIFO threshold is hit during packet processing
 } radio_int_data_t;
 
 extern char  *state_names[];

@@ -124,7 +124,7 @@ void int_packet(void)
                 p_radio_int_data->rx_buf[p_radio_int_data->byte_index++] = x_byte; // put back into resulting payoad
                 p_radio_int_data->rx_count = x_byte;
                 p_radio_int_data->rx_count += 2; // Add RSSI + LQI/CRC bytes  
-	            p_radio_int_data->bytes_remaining = p_radio_int_data->rx_count;
+                p_radio_int_data->bytes_remaining = p_radio_int_data->rx_count;
                 radio_set_packet_length(p_radio_int_data->spi_parms, p_radio_int_data->rx_count);
                 p_radio_int_data->rx_count++; // Add count for the resulting total buffer length
 
@@ -135,7 +135,7 @@ void int_packet(void)
                 //p_radio_int_data->rx_count = radio_get_packet_length(p_radio_int_data->spi_parms);
                 //p_radio_int_data->rx_count += 2; // Add RSSI + LQI/CRC bytes
                 p_radio_int_data->rx_count = p_radio_int_data->packet_length + 2;
-	            p_radio_int_data->bytes_remaining = p_radio_int_data->rx_count;
+                p_radio_int_data->bytes_remaining = p_radio_int_data->rx_count;
 
                 verbprintf(3, "%d bytes to read (fixed)\n", p_radio_int_data->rx_count);
             }
@@ -268,9 +268,9 @@ float rssi_dbm(uint8_t rssi_dec)
 uint32_t get_freq_word(uint32_t freq_xtal, uint32_t freq_hz)
 // ------------------------------------------------------------------------------------------------
 {
-	uint64_t res; // calculate on 64 bits to save precision
-	res = ((uint64_t) freq_hz * (uint64_t) (1<<16)) / ((uint64_t) freq_xtal);
-	return (uint32_t) res;
+    uint64_t res; // calculate on 64 bits to save precision
+    res = ((uint64_t) freq_hz * (uint64_t) (1<<16)) / ((uint64_t) freq_xtal);
+    return (uint32_t) res;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -278,7 +278,7 @@ uint32_t get_freq_word(uint32_t freq_xtal, uint32_t freq_hz)
 uint32_t get_if_word(uint32_t freq_xtal, uint32_t if_hz)
 // ------------------------------------------------------------------------------------------------
 {
-	return (if_hz * (1<<10)) / freq_xtal;
+    return (if_hz * (1<<10)) / freq_xtal;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -286,26 +286,26 @@ uint32_t get_if_word(uint32_t freq_xtal, uint32_t if_hz)
 uint8_t get_mod_word(modulation_t modulation_code)
 // ------------------------------------------------------------------------------------------------
 {
-	switch (modulation_code)
-	{
-		case MOD_OOK:
-			return 3;
-			break;
-    	case MOD_FSK2:
-    		return 0;
-    		break;
-    	case MOD_FSK4:
-    		return 4;
-    		break;
-    	case MOD_MSK:
-    		return 7;
-    		break;
-    	case MOD_GFSK:
-    		return 1;
-    		break;
-    	default:
-    		return 0;
-	}
+    switch (modulation_code)
+    {
+        case MOD_OOK:
+            return 3;
+            break;
+        case MOD_FSK2:
+            return 0;
+            break;
+        case MOD_FSK4:
+            return 4;
+            break;
+        case MOD_MSK:
+            return 7;
+            break;
+        case MOD_GFSK:
+            return 1;
+            break;
+        default:
+            return 0;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -373,7 +373,7 @@ void get_rate_words(arguments_t *arguments, radio_parms_t *radio_parms)
 void wait_for_state(spi_parms_t *spi_parms, ccxxx0_state_t state, uint32_t timeout)
 // ------------------------------------------------------------------------------------------------
 {
-	uint8_t fsm_state;
+    uint8_t fsm_state;
 
     while(timeout)
     {
@@ -391,14 +391,14 @@ void wait_for_state(spi_parms_t *spi_parms, ccxxx0_state_t state, uint32_t timeo
 
     if (!timeout)
     {
-    	verbprintf(1, "RADIO: timeout reached in state %s waiting for state %s\n", state_names[fsm_state], state_names[state]);
+        verbprintf(1, "RADIO: timeout reached in state %s waiting for state %s\n", state_names[fsm_state], state_names[state]);
         
         if (fsm_state == CCxxx0_STATE_RXFIFO_OVERFLOW)
         {
             PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX); // Flush Rx FIFO
             PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFTX); // Flush Tx FIFO
         }
-    }	
+    }    
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -542,9 +542,9 @@ void radio_flush_fifos(spi_parms_t *spi_parms)
 void init_radio_parms(radio_parms_t *radio_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-	radio_parms->f_xtal        = 26000000;         // 26 MHz Xtal
-	radio_parms->f_if          = 310000;           // 304.6875 kHz (lowest point below 310 kHz)
-	radio_parms->sync_ctl      = SYNC_30_over_32;  // 30/32 sync word bits detected
+    radio_parms->f_xtal        = 26000000;         // 26 MHz Xtal
+    radio_parms->f_if          = 310000;           // 304.6875 kHz (lowest point below 310 kHz)
+    radio_parms->sync_ctl      = SYNC_30_over_32;  // 30/32 sync word bits detected
     radio_parms->chanspc_m     = 0;                // Do not use channel spacing for the moment defaulting to 0
     radio_parms->chanspc_e     = 0;                // Do not use channel spacing for the moment defaulting to 0
     radio_int_data.packet_length = arguments->packet_length;
@@ -612,10 +612,10 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     //         De-asserts when the TX FIFO is below the same threshold.
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2,   0x00); // GDO2 output pin config.
 
-	// IOCFG0 = 0x06: Asserts when sync word has been sent / received, and de-asserts at the
-	// end of the packet. In RX, the pin will de-assert when the optional address
-	// check fails or the RX FIFO overflows. In TX the pin will de-assert if the TX
-	// FIFO underflows:    
+    // IOCFG0 = 0x06: Asserts when sync word has been sent / received, and de-asserts at the
+    // end of the packet. In RX, the pin will de-assert when the optional address
+    // check fails or the RX FIFO overflows. In TX the pin will de-assert if the TX
+    // FIFO underflows:    
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG0,   0x06); // GDO0 output pin config.
 
     // FIFO_THR = 14: 
@@ -654,7 +654,7 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     // FSCTRL1: The desired IF frequency to employ in RX. Subtracted from FS base frequency
     // in RX and controls the digital complex mixer in the demodulator. Multiplied by Fxtal/2^10
     // Here 0.3046875 MHz (lowest point below 310 kHz)
-	radio_parms->if_word = get_if_word(radio_parms->f_xtal, radio_parms->f_if);    
+    radio_parms->if_word = get_if_word(radio_parms->f_xtal, radio_parms->f_if);    
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_FSCTRL1, (radio_parms->if_word & 0x1F)); // Freq synthesizer control.
 
     // FREQ2..0: Base frequency for the frequency sythesizer

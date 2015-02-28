@@ -42,7 +42,7 @@ int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-	uint8_t nb_rx, rx_bytes[PI_CCxxx0_PACKET_COUNT_SIZE+1];
+    uint8_t nb_rx, rx_bytes[PI_CCxxx0_PACKET_COUNT_SIZE+1];
 
     init_radio_int(spi_parms, arguments);
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFRX); // Flush Rx FIFO
@@ -57,7 +57,7 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
         do
         {
             radio_wait_free(); // make sure no radio operation is in progress
-        	nb_rx = radio_receive_packet(spi_parms, arguments, rx_bytes);
+            nb_rx = radio_receive_packet(spi_parms, arguments, rx_bytes);
         } while(nb_rx == 0);
     }
 }

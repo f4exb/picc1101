@@ -15,9 +15,9 @@
 
 typedef struct serial_s
 {
-	int SERIAL_TNC;
-	struct termios tty;
-	struct termios tty_old;
+    int SERIAL_TNC;
+    struct termios tty;
+    struct termios tty_old;
 } serial_t;
 
 speed_t get_serial_speed(uint32_t speed, uint32_t *speed_n);
