@@ -93,7 +93,8 @@ static void     init_tx_block(arguments_t *arguments, uint8_t *packet, uint8_t s
 static void     init_test_tx_block(radio_int_data_t *data_block, arguments_t *arguments);
 static void     print_received_packet(int verbose_min);
 static void     radio_send_block(spi_parms_t *spi_parms, uint8_t block_countdown);
-static uint8_t  radio_receive_block(spi_parms_t *spi_parms, uint8_t *block, uint32_t *size);
+static uint8_t  radio_receive_block(spi_parms_t *spi_parms, uint8_t *block, uint32_t *size, uint8_t *crc);
+static uint8_t  crc_check(uint8_t *block);
 
 // === Interupt handlers ==========================================================================
 
@@ -1056,13 +1057,16 @@ void radio_init_rx(spi_parms_t *spi_parms, arguments_t *arguments)
 
 // ------------------------------------------------------------------------------------------------
 // Receive of a block
-uint8_t radio_receive_block(spi_parms_t *spi_parms, uint8_t *block, uint32_t *size)
+uint8_t radio_receive_block(spi_parms_t *spi_parms, uint8_t *block, uint32_t *size, uint8_t *crc)
 // ------------------------------------------------------------------------------------------------
 {
     uint8_t block_countdown, block_size;
 
     block_size = radio_int_data.rx_buf[0];
     block_countdown = radio_int_data.rx_buf[1];
+
+    *crc = (radio_int_data.rx_buf[radio_int_data.rx_buf[0] + 3] & 0x80)>>7;
+    verbprintf(1, "RADIO: CRC byte is %02X, CRC=%d\n", radio_int_data.rx_buf[radio_int_data.rx_buf[0] + 3], *crc);
 
     memcpy(block, (uint8_t *) &radio_int_data.rx_buf[2], block_size);
     *size += block_size;
@@ -1078,7 +1082,7 @@ uint8_t radio_receive_block(spi_parms_t *spi_parms, uint8_t *block, uint32_t *si
 uint32_t radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *packet)
 // ------------------------------------------------------------------------------------------------
 {
-    uint8_t  block_countdown, block_count = 0; 
+    uint8_t  crc, block_countdown, block_count = 0; 
     uint32_t packet_size = 0;
     uint32_t timeout, timeout_value = arguments->packet_length / 2; // timeout value in bocks of 4 2-FSK bytes
 
@@ -1090,7 +1094,7 @@ uint32_t radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, ui
     {
         do
         {
-            block_countdown = radio_receive_block(spi_parms, &packet[packet_size], &packet_size);
+            block_countdown = radio_receive_block(spi_parms, &packet[packet_size], &packet_size, &crc);
             radio_init_rx(spi_parms, arguments); // init for new block to receive Rx
 
             if (!block_count)
