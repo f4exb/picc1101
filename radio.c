@@ -1066,7 +1066,6 @@ uint8_t radio_receive_block(spi_parms_t *spi_parms, arguments_t *arguments, uint
     block_countdown = radio_int_data.rx_buf[1];
 
     *crc = (radio_int_data.rx_buf[arguments->packet_length + 1] & 0x80)>>7;
-    verbprintf(1, "RADIO: CRC byte is %02X, CRC=%d\n", radio_int_data.rx_buf[arguments->packet_length + 1], *crc);
 
     memcpy(block, (uint8_t *) &radio_int_data.rx_buf[2], block_size);
     *size += block_size;
@@ -1107,6 +1106,12 @@ uint32_t radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, ui
             if (block_count != block_countdown)
             {
                 verbprintf(1, "RADIO: block sequence error, aborting packet\n");
+                return 0;
+            }
+
+            if (!crc)
+            {
+                verbprintf(1, "RADIO: CRC error, aborting packet\n");
                 return 0;
             }
 
