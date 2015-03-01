@@ -94,29 +94,29 @@ typedef volatile struct radio_int_data_s
     uint8_t      threshold_hits;         // Number of times the FIFO threshold is hit during packet processing
 } radio_int_data_t;
 
-extern char  *state_names[];
-extern float chanbw_limits[];
+extern char     *state_names[];
+extern float    chanbw_limits[];
 extern uint32_t packets_sent;
 extern uint32_t packets_received;
 
-void    init_radio_parms(radio_parms_t *radio_parms, arguments_t *arguments);
-int     init_radio(radio_parms_t *radio_parms,  spi_parms_t *spi_parms, arguments_t *arguments);
-void    init_radio_int(spi_parms_t *spi_parms, arguments_t *arguments);
-void    radio_init_rx(spi_parms_t *spi_parms, arguments_t *arguments);
-void    radio_flush_fifos(spi_parms_t *spi_parms);
+void     init_radio_parms(radio_parms_t *radio_parms, arguments_t *arguments);
+int      init_radio(radio_parms_t *radio_parms,  spi_parms_t *spi_parms, arguments_t *arguments);
+void     init_radio_int(spi_parms_t *spi_parms, arguments_t *arguments);
+void     radio_init_rx(spi_parms_t *spi_parms, arguments_t *arguments);
+void     radio_flush_fifos(spi_parms_t *spi_parms);
 
-void    radio_turn_idle(spi_parms_t *spi_parms);
-void    radio_turn_rx(spi_parms_t *spi_parms);
+void     radio_turn_idle(spi_parms_t *spi_parms);
+void     radio_turn_rx(spi_parms_t *spi_parms);
 
-void    print_radio_parms(radio_parms_t *radio_parms);
-int     print_radio_status(spi_parms_t *spi_parms);
+void     print_radio_parms(radio_parms_t *radio_parms);
+int      print_radio_status(spi_parms_t *spi_parms);
 
-int     radio_set_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len);
-uint8_t radio_get_packet_length(spi_parms_t *spi_parms);
-void    radio_wait_a_bit(uint32_t amount);
-void    radio_wait_free();
+int      radio_set_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len);
+uint8_t  radio_get_packet_length(spi_parms_t *spi_parms);
+void     radio_wait_a_bit(uint32_t amount);
+void     radio_wait_free();
 
-int     radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *packet, uint8_t size);
-int     radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *packet);
+int      radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *packet, uint32_t size);
+uint32_t radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *packet);
 
 #endif

@@ -415,13 +415,14 @@ void init_tx_block_packet(arguments_t *arguments, uint8_t *packet, uint8_t size)
     }
     else
     {
-        effective_size = (size > arguments->packet_length - 1 ? arguments->packet_length - 1 : size);
+        effective_size = (size > arguments->packet_length - 2 ? arguments->packet_length - 2 : size);
         memset((uint8_t *) radio_int_data.tx_buf, 0, arguments->packet_length);
         radio_int_data.tx_count = arguments->packet_length;
     }
 
-    memcpy((uint8_t *) &radio_int_data.tx_buf[1], packet, effective_size);
+    memcpy((uint8_t *) &radio_int_data.tx_buf[2], packet, effective_size);
     radio_int_data.tx_buf[0] = effective_size;
+    radio_int_data.tx_buf[1] = 0; // placeholder for future block countdown
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1052,7 +1053,7 @@ void radio_init_rx(spi_parms_t *spi_parms, arguments_t *arguments)
 
 // ------------------------------------------------------------------------------------------------
 // Receive of a packet
-int radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *packet)
+uint32_t radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *packet)
 // ------------------------------------------------------------------------------------------------
 {
     if (packets_received == radio_int_data.packet_rx_count) // no packet received
@@ -1063,7 +1064,7 @@ int radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t
     {
         verbprintf(1, "Rx: packet #%d\n", radio_int_data.packet_rx_count);
         print_received_packet(2);
-        memcpy(packet, (uint8_t *) &radio_int_data.rx_buf[1], radio_int_data.rx_buf[0]);
+        memcpy(packet, (uint8_t *) &radio_int_data.rx_buf[2], radio_int_data.rx_buf[0]);
         packets_received = radio_int_data.packet_rx_count;
         return radio_int_data.rx_buf[0];
     }
@@ -1071,7 +1072,7 @@ int radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t
 
 // ------------------------------------------------------------------------------------------------
 // Transmission of a packet
-int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *packet, uint8_t size)
+int radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *packet, uint32_t size)
 // ------------------------------------------------------------------------------------------------
 {
     uint8_t  initial_tx_count; // Number of bytes to send in first batch
