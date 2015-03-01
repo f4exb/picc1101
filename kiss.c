@@ -126,7 +126,7 @@ void kiss_unpack(uint8_t *kiss_block, uint8_t *packed_block, size_t *size)
 void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    static const size_t bufsize = 1<<11;
+    static const size_t bufsize = RADIO_BUFSIZE;
     uint8_t read_buffer[bufsize];
     int read_count, ret;
 

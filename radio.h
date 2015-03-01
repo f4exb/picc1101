@@ -19,6 +19,8 @@
 #define TX_FIFO_REFILL 60 // With the default FIFO thresholds selected this is the number of bytes to refill the Tx FIFO
 #define RX_FIFO_UNLOAD 59 // With the default FIFO thresholds selected this is the number of bytes to unload from the Rx FIFO
 
+#define RADIO_BUFSIZE (1<<16)   // 256 max radio block size times a maximum of 256 radio blocs
+
 typedef enum sync_word_e
 {
     NO_SYNC = 0,              // No preamble/sync
