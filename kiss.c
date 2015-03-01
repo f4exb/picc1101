@@ -166,25 +166,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 
             verbprintf(2, "%d bytes to send\n", read_count);
 
-            if (read_count > arguments->packet_length) // concatenated KISS frames
-            {
-                uint8_t *kiss_fend, *kiss_frame = read_buffer;
-                
-                verbprintf(2, "Concatenated KISS block encountered\n");
-                print_block(4, read_buffer, read_count);
-
-                while ((kiss_fend = kiss_tok(kiss_frame, (uint8_t *) read_buffer + read_count)))
-                {
-                    verbprintf(2, "Processing KISS block of %d bytes\n", kiss_fend - kiss_frame + 1);
-                    print_block(4, kiss_frame, kiss_fend - kiss_frame + 1);
-                    radio_send_packet(spi_parms, arguments, kiss_frame, kiss_fend - kiss_frame + 1);
-                    kiss_frame = kiss_fend + 1;
-                }
-            }
-            else // single KISS frame
-            {
-                radio_send_packet(spi_parms, arguments, read_buffer, read_count);
-            }
+            radio_send_packet(spi_parms, arguments, read_buffer, read_count);
 
             radio_init_rx(spi_parms, arguments); // init for new packet to receive Rx
             radio_turn_rx(spi_parms);            // put back into Rx
