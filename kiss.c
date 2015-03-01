@@ -226,6 +226,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 
                 verbprintf(2, "%d bytes to send\n", read_count);
 
+                usleep(kiss_tx_keyup_delay);
                 radio_send_packet(spi_parms, arguments, read_buffer, read_count);
 
                 radio_init_rx(spi_parms, arguments); // init for new packet to receive Rx
