@@ -182,7 +182,8 @@ void int_packet(void)
             {
                 radio_int_data.mode = RADIOMODE_NONE;
                 p_radio_int_data->packet_send = 0; // De-assert packet transmission after packet has been sent
-                verbprintf(3, "Sent packet #%d. Remaining bytes to send: %d\n", p_radio_int_data->packet_tx_count++, p_radio_int_data->bytes_remaining);
+                p_radio_int_data->packet_tx_count++;
+                verbprintf(3, "Sent packet #%d. Remaining bytes to send: %d\n", p_radio_int_data->packet_tx_count, p_radio_int_data->bytes_remaining);
 
                 if ((verbose_level > 0) && (p_radio_int_data->bytes_remaining))
                 {
@@ -1069,8 +1070,6 @@ uint8_t radio_receive_block(spi_parms_t *spi_parms, uint8_t *block, uint32_t *si
     verbprintf(1, "Rx: packet #%d:%d\n", radio_int_data.packet_rx_count, block_countdown);
     print_received_packet(2);
 
-    radio_int_data.packet_rx_count++;
-
     return block_countdown; // block countdown
 }
 
@@ -1159,7 +1158,7 @@ void radio_send_block(spi_parms_t *spi_parms, uint8_t block_countdown)
 
     while (packets_sent == radio_int_data.packet_tx_count)
     {
-        radio_wait_a_bit(1);
+        radio_wait_a_bit(4);
     }
 
     verbprintf(1, "Tx: packet #%d:%d\n", radio_int_data.packet_tx_count, block_countdown);
