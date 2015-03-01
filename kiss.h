@@ -24,5 +24,6 @@
 void kiss_pack(uint8_t *kiss_block, uint8_t *packed_block, size_t *size);
 void kiss_unpack(uint8_t *kiss_block, uint8_t *packed_block, size_t *size);
 void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *arguments);
+void kiss_init(arguments_t *arguments);
 
 #endif

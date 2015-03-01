@@ -492,8 +492,11 @@ int main (int argc, char **argv)
         radio_receive_test_int(&spi_parameters, &arguments);
         return 0;
     }
-
-    kiss_run(&serial_parameters, &spi_parameters, &arguments);
+    else
+    {
+        kiss_init(&arguments);
+        kiss_run(&serial_parameters, &spi_parameters, &arguments);    
+    }
 
     delete_args(&arguments);
     return 0;
