@@ -1106,6 +1106,8 @@ uint32_t radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, ui
             }
 
         } while (block_countdown > 0);
+
+        return packet_size;
     }
 }
 
