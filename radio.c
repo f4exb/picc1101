@@ -82,17 +82,18 @@ uint32_t packets_received;
 
 // === Static functions declarations ==============================================================
 
-static float rssi_dbm(uint8_t rssi_dec);
+static float    rssi_dbm(uint8_t rssi_dec);
 static uint32_t get_freq_word(uint32_t freq_xtal, uint32_t freq_hz);
-static uint8_t get_mod_word(modulation_t modulation_code);
+static uint8_t  get_mod_word(modulation_t modulation_code);
 static uint32_t get_if_word(uint32_t freq_xtal, uint32_t if_hz);
-static void get_chanbw_words(float bw, radio_parms_t *radio_parms);
-static void get_rate_words(arguments_t *arguments, radio_parms_t *radio_parms);
-static void wait_for_state(spi_parms_t *spi_parms, ccxxx0_state_t state, uint32_t timeout);
-static void init_tx_block(arguments_t *arguments, uint8_t *packet, uint8_t size, uint8_t block_countdown);
-static void init_test_tx_block(radio_int_data_t *data_block, arguments_t *arguments);
-static void print_received_packet(int verbose_min);
-static void radio_send_block(spi_parms_t *spi_parms, uint8_t block_countdown);
+static void     get_chanbw_words(float bw, radio_parms_t *radio_parms);
+static void     get_rate_words(arguments_t *arguments, radio_parms_t *radio_parms);
+static void     wait_for_state(spi_parms_t *spi_parms, ccxxx0_state_t state, uint32_t timeout);
+static void     init_tx_block(arguments_t *arguments, uint8_t *packet, uint8_t size, uint8_t block_countdown);
+static void     init_test_tx_block(radio_int_data_t *data_block, arguments_t *arguments);
+static void     print_received_packet(int verbose_min);
+static void     radio_send_block(spi_parms_t *spi_parms, uint8_t block_countdown);
+static uint8_t  radio_receive_block(spi_parms_t *spi_parms, uint8_t *block, uint32_t *size);
 
 // === Interupt handlers ==========================================================================
 
@@ -1054,7 +1055,7 @@ void radio_init_rx(spi_parms_t *spi_parms, arguments_t *arguments)
 
 // ------------------------------------------------------------------------------------------------
 // Receive of a block
-uint8_t radio_receive_block(spi_parms_t *spi_parms, uint8_t *block, uint8_t *size)
+uint8_t radio_receive_block(spi_parms_t *spi_parms, uint8_t *block, uint32_t *size)
 // ------------------------------------------------------------------------------------------------
 {
     uint8_t block_countdown, block_size;
