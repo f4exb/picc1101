@@ -146,7 +146,8 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 
         if (read_count > 0)
         {
-            // Waiting for operation complete and turn into IDLE is superfluous here since radio is automatically put to IDLE after a packet has been received
+            radio_wait_free();            // Make sure no radio operation is in progress
+            radio_turn_idle(spi_parms);   // Inhibit radio operations
             verbprintf(2, "Received %d bytes\n", read_count);
             ret = write_serial(serial_parms, read_buffer, read_count);
             verbprintf(2, "Sent %d bytes on serial\n", ret);
