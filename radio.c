@@ -498,7 +498,7 @@ void init_radio_int(spi_parms_t *spi_parms, arguments_t *arguments)
     radio_int_data.packet_rx_count = 0;
     radio_int_data.packet_tx_count = 0;
     radio_int_data.spi_parms = spi_parms;
-    radio_int_data.wait_us = 4*8000000 / rate_values[arguments->rate]; // 4 2-FSK symbols delay
+    radio_int_data.wait_us = 8000000 / rate_values[arguments->rate]; // approximately 2-FSK byte delay
     p_radio_int_data = &radio_int_data;
 
     radio_set_packet_length(spi_parms, arguments->packet_length);
@@ -1022,7 +1022,7 @@ uint8_t radio_get_packet_length(spi_parms_t *spi_parms)
 }
 
 // ------------------------------------------------------------------------------------------------
-// Wait for a change for approximately 4*amount of 2-FSK symbols
+// Wait for approximately an amount of 2-FSK symbols bytes
 void radio_wait_a_bit(uint32_t amount)
 // ------------------------------------------------------------------------------------------------
 {
@@ -1036,7 +1036,7 @@ void radio_wait_free()
 {
     while((radio_int_data.packet_receive) || (radio_int_data.packet_send))
     {
-        radio_wait_a_bit(1);
+        radio_wait_a_bit(4);
     }
 }
 
@@ -1081,6 +1081,7 @@ uint32_t radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, ui
 {
     uint8_t  block_countdown, block_count = 0; 
     uint32_t packet_size = 0;
+    uint32_t timeout, timeout_value = arguments->packet_length / 2; // timeout value in bocks of 4 2-FSK bytes
 
     if (packets_received == radio_int_data.packet_rx_count) // no block received
     {
@@ -1106,10 +1107,19 @@ uint32_t radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, ui
                 return 0;
             }
 
+            timeout = timeout_value;
+
             // Wait for the next block to be received if any is expected
-            while((block_countdown > 0) && (packets_received == radio_int_data.packet_rx_count))
+            while((block_countdown > 0) && (packets_received == radio_int_data.packet_rx_count) && (timeout))
             {
-                radio_wait_a_bit(1);
+                radio_wait_a_bit(4);
+                timeout--;
+            }
+
+            if (!timeout)
+            {
+                verbprintf(1, "RADIO: timeout waiting for the next block, aborting packet\n");
+                return 0;
             }
 
         } while (block_countdown > 0);
