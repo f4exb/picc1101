@@ -1123,7 +1123,6 @@ uint32_t radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, ui
 
         } while (block_countdown > 0);
 
-        radio_wait_a_bit(arguments->packet_delay); // wait before possible switchover to Tx
         return packet_size;
     }
 }
@@ -1189,11 +1188,10 @@ void radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *
         radio_int_data.tx_buf[1] = (uint8_t) block_countdown; 
 
         radio_send_block(spi_parms, block_countdown);
+        radio_wait_a_bit(arguments->packet_delay);
 
         block_start += block_length;
         block_countdown--;
         size -= block_length;
     }
-
-    radio_wait_a_bit(arguments->packet_delay);
 }
