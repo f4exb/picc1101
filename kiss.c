@@ -185,12 +185,13 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 // ------------------------------------------------------------------------------------------------
 {
     static const size_t bufsize = RADIO_BUFSIZE;
-    uint8_t read_buffer[bufsize];
-    int read_count, ret;
+    uint8_t rx_buffer[bufsize], tx_buffer[bufsize];
+    int rx_count, tx_count ret;
 
     set_serial_parameters(serial_parms, arguments);
     init_radio_int(spi_parms, arguments);
-    memset(read_buffer, 0, bufsize);
+    memset(rx_buffer, 0, bufsize);
+    memset(tx_buffer, 0, bufsize);
     radio_flush_fifos(spi_parms);
     
     verbprintf(1, "Starting...\n");
@@ -200,34 +201,34 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 
     while(1)
     {    
-        read_count = radio_receive_packet(spi_parms, arguments, read_buffer); // check if anything was received on radio link
+        rx_count = radio_receive_packet(spi_parms, arguments, rx_buffer); // check if anything was received on radio link
 
-        if (read_count > 0)
+        if (rx_count > 0)
         {
             radio_wait_free();            // Make sure no radio operation is in progress
             radio_turn_idle(spi_parms);   // Inhibit radio operations
-            verbprintf(2, "Received %d bytes\n", read_count);
-            ret = write_serial(serial_parms, read_buffer, read_count);
+            verbprintf(2, "Received %d bytes\n", rx_count);
+            ret = write_serial(serial_parms, rx_buffer, rx_count);
             verbprintf(2, "Sent %d bytes on serial\n", ret);
             radio_init_rx(spi_parms, arguments); // Init for new packet to receive Rx
             radio_turn_rx(spi_parms);            // Put back into Rx
             continue; 
         }
 
-        read_count = read_serial(serial_parms, read_buffer, bufsize);
+        tx_count = read_serial(serial_parms, tx_buffer, bufsize);
 
-        if (read_count > 0)
+        if (tx_count > 0)
         {
-            if (!kiss_command(read_buffer))
+            if (!kiss_command(tx_buffer))
             {
                 radio_wait_free();            // Make sure no radio operation is in progress
                 radio_turn_idle(spi_parms);   // Inhibit radio operations (should be superfluous since both Tx and Rx turn to IDLE after a packet has been processed)
                 radio_flush_fifos(spi_parms); // Flush result of any Rx activity
 
-                verbprintf(2, "%d bytes to send\n", read_count);
+                verbprintf(2, "%d bytes to send\n", tx_count);
 
                 usleep(kiss_tx_keyup_delay);
-                radio_send_packet(spi_parms, arguments, read_buffer, read_count);
+                radio_send_packet(spi_parms, arguments, tx_buffer, tx_count);
 
                 radio_init_rx(spi_parms, arguments); // init for new packet to receive Rx
                 radio_turn_rx(spi_parms);            // put back into Rx
