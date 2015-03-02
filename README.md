@@ -205,11 +205,11 @@ ax0       Link encap:AMPR AX.25  HWaddr F4EXB-15
 ### Scripts that will run these commands
 In the `scripts` directory you will find:
   - `kissdown.sh`: kills all processes and removes the `ax0` network interface from the system
-  - `kissup.sh <IP> <Netmask>`: brings up the `ax0` network interface with IP addres <IP> and net mask <Netmask>
+  - `kissup.sh <IP> <Netmask>`: brings up the `ax0` network interface with IP address <IP> and net mask <Netmask>
 
 Examples:
   - `./kissdown.sh`
-  - `./kissup.sh 10.0..1.3 255.255.255.0`
+  - `./kissup.sh 10.0.1.3 255.255.255.0`
 
 ## Run the program
 This example will set the CC1101 at 9600 Baud with GFSK modulation:
@@ -220,7 +220,7 @@ Other options are:
   - verbosity level (-v) of 1 will only display basic execution messages, errors and warnings
   - radio block size (-P) is fixed at 250 bytes
   - data whitening is in use (-W)
-  - inter-block pause is set for a 20 bytes transmission time approximately (-l) 
+  - inter-block pause when sending multiple blocks (see next) is set for a 20 bytes transmission time approximately (-l) 
 
 Note that you have to be super user to execute the program.
 
@@ -229,6 +229,10 @@ Note that you have to be super user to execute the program.
 The CC1101 can transmit blocks up to 255 bytes. There is a so called "Infinite block" option but we don't want to use it here. In order to transmit larger blocks which is necessary for concatenated KISS frames or effective MTUs larger than 255 bytes we simply use a block countdown scheme. Each block has a header of two bytes:
   - Byte 0 is the length of the actual block of data inside the fixed size block 
   - Byte 1 is a block countdown counter that is decremented at each successive block belonging to the same larger block to transmit. Single blocks are simply transmitted with a countdown of 0 and so is the last block of a multiple block group.
+
+When transmitting a sequence of blocks the first block is set to the result of the Euclidean division of the greater block size by the radio block size and it is decremented at each successive radio block to send until it reaches zero for the last block.
+
+At the reception end the radio block countdown is checked and if it is not zero it will expect a next block with a countdown counter decremented by one until it receives a block with a countdown of zero.
 
 This allows the transmission of greater blocks of up to 2^16 = 64k = 65536 bytes.
 
