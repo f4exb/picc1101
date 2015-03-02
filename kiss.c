@@ -186,7 +186,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 {
     static const size_t bufsize = RADIO_BUFSIZE;
     uint8_t rx_buffer[bufsize], tx_buffer[bufsize];
-    int rx_count, tx_count ret;
+    int rx_count, tx_count, ret;
 
     set_serial_parameters(serial_parms, arguments);
     init_radio_int(spi_parms, arguments);
