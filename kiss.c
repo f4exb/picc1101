@@ -8,6 +8,7 @@
 /******************************************************************************/
 
 #include <string.h>
+#include <sys/time.h>
 
 #include "kiss.h"
 #include "radio.h"
@@ -185,14 +186,15 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 // ------------------------------------------------------------------------------------------------
 {
     static const size_t   bufsize = RADIO_BUFSIZE;
-    uint32_t timeout_value = arguments->packet_length / 10;
-    uint8_t rx_buffer[bufsize], tx_buffer[bufsize];
-    uint8_t rtx_toggle; // 1:Tx, 0:Rx
-    uint8_t rx_trigger; 
-    uint8_t tx_trigger; 
-    uint8_t force_mode;
-    int rx_count, tx_count, byte_count, ret;
-    uint32_t timeout;
+    uint32_t timeout_value = 40000; // 40ms
+    uint8_t  rx_buffer[bufsize], tx_buffer[bufsize];
+    uint8_t  rtx_toggle; // 1:Tx, 0:Rx
+    uint8_t  rx_trigger; 
+    uint8_t  tx_trigger; 
+    uint8_t  force_mode;
+    int      rx_count, tx_count, byte_count, ret;
+    uint64_t timestamp;
+    struct timeval tp;  
 
     set_serial_parameters(serial_parms, arguments);
     init_radio_int(spi_parms, arguments);
@@ -202,7 +204,6 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
     
     verbprintf(1, "Starting...\n");
 
-    timeout = timeout_value;
     force_mode = 1;
     rtx_toggle = 0;
     rx_trigger = 0;
@@ -219,7 +220,10 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
         if (byte_count > 0)
         {
             rx_count += byte_count;  // Accumulate Rx
-            timeout = timeout_value; // Rearm timeout
+            
+            gettimeofday(&tp);
+            timestamp = tp.tv_sec * 1000000ULL + tp.tv_usec;
+            force_mode = 0;
 
             if (rtx_toggle) // Tx to Rx transition
             {
@@ -238,7 +242,10 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
         if (byte_count > 0)
         {
             tx_count += byte_count;  // Accumulate Tx
-            timeout = timeout_value; // Rearm timeout
+
+            gettimeofday(&tp);
+            timestamp = tp.tv_sec * 1000000ULL + tp.tv_usec;
+            force_mode = 0;
 
             if (!rtx_toggle) // Rx to Tx transition
             {
@@ -286,14 +293,9 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
             tx_trigger = 0;            
         }
 
-        radio_wait_a_bit(1); // approx. one byte long
+        gettimeofday(&tp);
 
-        if (timeout > 0)
-        {
-            force_mode = 0;
-            timeout--;
-        }
-        else
+        if ((!force_mode) && ((tp.tv_sec * 1000000ULL + tp.tc_usec) > timestamp + timeout_value))
         {
             force_mode = 1;
         }
