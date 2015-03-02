@@ -34,7 +34,7 @@ Just clone this repository in a local folder of your choice on the Raspberry Pi
 
 ## Compilation
 You can compile on the Raspberry Pi v.1 as it doesn't take too much time even on the single core BCM2735. You are advised to activate the -O3 optimization:
-  - `CFLAGS=-O3; make`
+  - `CFLAGS=-O3 make`
 
 The result is the `picc1101` executable in the same directory
 
@@ -97,9 +97,9 @@ Note: variable length blocks are not implemented yet.
 ### Radio interfece speeds (-R)
 <pre><code>
 Value: Rate (Baud):
- 0     50
- 1     110
- 2     300
+ 0     50 (experimental)
+ 1     110 (experimental)
+ 2     300 (experimental)
  3     600
  4     1200
  5     2400
