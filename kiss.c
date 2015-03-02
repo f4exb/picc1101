@@ -188,6 +188,9 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
     uint32_t timeout_value = arguments->packet_length / 2;
     uint8_t rx_buffer[bufsize], tx_buffer[bufsize];
     uint8_t rtx_toggle; // 1:Tx, 0:Rx
+    uint8_t rx_trigger; 
+    uint8_t tx_trigger; 
+    uint8_t force_mode;
     int rx_count, tx_count, byte_count, ret;
     uint32_t timeout;
 
@@ -200,7 +203,10 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
     verbprintf(1, "Starting...\n");
 
     timeout = timeout_value;
+    force_mode = 1;
     rtx_toggle = 0;
+    rx_trigger = 0;
+    tx_trigger = 0;
     rx_count = 0;
     tx_count = 0;
     radio_init_rx(spi_parms, arguments); // init for new packet to receive Rx
@@ -210,70 +216,86 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
     {    
         byte_count = radio_receive_packet(spi_parms, arguments, &rx_buffer[rx_count]); // check if anything was received on radio link
 
-        if ((byte_count > 0) || (!timeout))
+        if (byte_count > 0)
         {
-            if ((rtx_toggle) && (tx_count)) // First Rx after Tx: flush Tx buffer to the air 
+            rx_count += byte_count;  // Accumulate Rx
+            timeout = timeout_value; // Rearm timeout
+
+            if (rtx_toggle) // Tx to Rx transition
             {
-                if (!kiss_command(tx_buffer))
-                {
-                    radio_wait_free();            // Make sure no radio operation is in progress
-                    radio_turn_idle(spi_parms);   // Inhibit radio operations (should be superfluous since both Tx and Rx turn to IDLE after a packet has been processed)
-                    radio_flush_fifos(spi_parms); // Flush result of any Rx activity
-
-                    verbprintf(2, "%d bytes to send\n", tx_count);
-
-                    usleep(kiss_tx_keyup_delay);
-                    radio_send_packet(spi_parms, arguments, tx_buffer, tx_count);
-
-                    radio_init_rx(spi_parms, arguments); // init for new packet to receive Rx
-                    radio_turn_rx(spi_parms);            // put back into Rx
-                }
-
-                tx_count = 0;
+                tx_trigger = 1; // Push Tx
+            }
+            else
+            {
+                tx_trigger = 0;
             }
 
-            rtx_toggle = 1;
-            rx_count += byte_count; // Accumulate Rx
-            timeout = timeout_value; // rearm timeout
+            rtx_toggle = 0;
         }
 
         byte_count = read_serial(serial_parms, &tx_buffer[tx_count], bufsize - tx_count);
 
-        if ((byte_count > 0) || (!timeout))
+        if (byte_count > 0)
         {
-            if ((!rtx_toggle) && (rx_count)) // First Tx after Rx: flush Rx buffer to serial 
+            tx_count += byte_count;  // Accumulate Tx
+            timeout = timeout_value; // Rearm timeout
+
+            if (!rtx_toggle) // Rx to Tx transition
             {
-                radio_wait_free();            // Make sure no radio operation is in progress
-                radio_turn_idle(spi_parms);   // Inhibit radio operations
-                verbprintf(2, "Received %d bytes\n", rx_count);
-                ret = write_serial(serial_parms, rx_buffer, rx_count);
-                verbprintf(2, "Sent %d bytes on serial\n", ret);
-                radio_init_rx(spi_parms, arguments); // Init for new packet to receive Rx
-                radio_turn_rx(spi_parms);            // Put back into Rx
-                rx_count = 0;
+                rx_trigger = 1;
+            }
+            else
+            {
+                rx_trigger = 0;
             }
 
             rtx_toggle = 1;
-            tx_count += byte_count; // Accumulate Tx
-            timeout = timeout_value; // rearm timeout
+        }
+
+        if ((rx_count > 0) && ((rx_trigger) || (force_mode))) // Send bytes received on air to serial
+        {
+            radio_wait_free();            // Make sure no radio operation is in progress
+            radio_turn_idle(spi_parms);   // Inhibit radio operations
+            verbprintf(2, "Received %d bytes\n", rx_count);
+            ret = write_serial(serial_parms, rx_buffer, rx_count);
+            verbprintf(2, "Sent %d bytes on serial\n", ret);
+            radio_init_rx(spi_parms, arguments); // Init for new packet to receive Rx
+            radio_turn_rx(spi_parms);            // Put back into Rx
+            rx_count = 0;
+            rx_trigger = 0;
+        }
+
+        if ((tx_count > 0) && ((tx_trigger) || (force_mode))) // Send bytes received on serial to air 
+        {
+            if (!kiss_command(tx_buffer))
+            {
+                radio_wait_free();            // Make sure no radio operation is in progress
+                radio_turn_idle(spi_parms);   // Inhibit radio operations (should be superfluous since both Tx and Rx turn to IDLE after a packet has been processed)
+                radio_flush_fifos(spi_parms); // Flush result of any Rx activity
+
+                verbprintf(2, "%d bytes to send\n", tx_count);
+
+                usleep(kiss_tx_keyup_delay);
+                radio_send_packet(spi_parms, arguments, tx_buffer, tx_count);
+
+                radio_init_rx(spi_parms, arguments); // init for new packet to receive Rx
+                radio_turn_rx(spi_parms);            // put back into Rx
+            }
+
+            tx_count = 0;
+            tx_trigger = 0;            
         }
 
         radio_wait_a_bit(1); // approx. one byte long
 
         if (timeout > 0)
         {
+            force_mode = 0;
             timeout--;
         }
         else
         {
-            if (rx_count)
-            {
-                rtx_toggle = 0; // Force Rx flush to serial
-            }
-            else if (tx_count)
-            {
-                rtx_toggle = 1; // Force Tx flush to radio
-            }
+            force_mode = 1;
         }
     }
 }
