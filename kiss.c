@@ -185,7 +185,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 // ------------------------------------------------------------------------------------------------
 {
     static const size_t   bufsize = RADIO_BUFSIZE;
-    static const uint32_t timeout_value = arguments->packet_length / 2;
+    uint32_t timeout_value = arguments->packet_length / 2;
     uint8_t rx_buffer[bufsize], tx_buffer[bufsize];
     uint8_t rtx_toggle; // 1:Tx, 0:Rx
     int rx_count, tx_count, byte_count, ret;
