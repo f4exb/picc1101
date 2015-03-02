@@ -4,7 +4,6 @@ picc1101
 Connect Raspberry-Pi to CC1101 RF module and play with AX.25/KISS to transmit TCP/IP over the air.
 
 # Introduction
-
 The aim of this program is to connect a RF module based on the Texas Instruments (Chipcon) chip CC1101 to a Raspberry-Pi host machine. The CC1101 chip is a OOK/2-FSK/4-FSK/MSK/GFSK low power (~10dBm) digital transceiver working in the 315, 433 and 868 MHz ISM bands. The 433 MHz band also happens to cover the 70cm Amateur Radio band and the major drive of this work is to use these modules as a modern better alternative to the legacy [Terminal Node Controllers](http://en.wikipedia.org/wiki/Terminal_node_controller) or TNCs working in 1200 baud FM AFSK or 9600 baud G3RUH true 2-FSK modulation at best. Using the Linux native AX.25 and KISS interface to the TNCs it is then possible to route TCP/IP traffic using these modules offering the possibility to connect to the Amateur Radio private IP network known as [Hamnet](http://hamnetdb.net/).
 
 Another opportunity is the direct transmission of a Transport Stream to carry low rate live video and this will be studied later.
@@ -18,13 +17,10 @@ The CC1101 chip is interfaced using a SPI bus that is implemented natively on th
 The CC1101 data sheet is available [here](www.ti.com/lit/ds/symlink/cc1101.pdf).
 
 # Disclaimer
-
 You are supposed to use the CC1101 modules and this software sensibly. Please check your local radio spectrum regulations. For Amateur Radio use you should have a valid Amateur Radio licence with a callsign and transmit in the bands and conditions granted by your local regulations also please try to respect the IARU band plan. 
 
 # Installation and basic usage
-
 ## Prerequisites
-
 This has been tested on a Raspberry Pi version 1 B with kernel 3.12.36. Raspberry Pi version 2 with 3.18 kernels using dtbs has not been working satifactorily so far. Version 2 is very new (in March 2015) and improvements are expected concerning SPI and GPIO handling and it will probably work one day on the version 2 as well. Anyway version 1 has enough computing power for our purpose.
 
 For best performance you will need the DMA based SPI driver for BCM2708 found [here](https://github.com/notro/spi-bcm2708.git) After successful compilation you will obtain a kernel module that is to be stored as `/lib/modules/$(uname -r)/kernel/drivers/spi/spi-bcm2708.ko` 
@@ -34,18 +30,15 @@ You will have to download and install the WiringPi library found [here](http://w
 The process relies heavily on interrupts that must be served in a timely manner. You are advised to reduce the interrupts activity by removing USB connected devices as much as possible.
 
 ## Obtain the code
-
 Just clone this repository in a local folder of your choice on the Raspberry Pi
 
 ## Compilation
-
 You can compile on the Raspberry Pi v.1 as it doesn't take too much time even on the single core BCM2735. You are advised to activate the -O3 optimization:
   - `CFLAGS=-O3; make`
 
 The result is the `picc1101` executable in the same directory
 
 ## Run test programs
-
 On the sending side:
   - `sudo ./picc1101 -v1 -B 9600 -P 250 -R7 -M4 -W -l20 -t2 -n5`
 
@@ -57,7 +50,6 @@ This will send 5 blocks of 250 bytes at 9600 Baud using GFSK modulation and rece
 Note that you have to be super user to execute the program.
 
 ## Program options
-
 <pre><code>
   -B, --serial-speed=SERIAL_SPEED
                              TNC Serial speed in Bauds (default : 9600)
@@ -102,9 +94,7 @@ Note that you have to be super user to execute the program.
 Note: variable length blocks are not implemented yet.
 
 ## Detailed options
-
 ### Radio interfece speeds (-R)
-
 <pre><code>
 Value:  Rate (Baud):
  0  50
@@ -127,7 +117,6 @@ Value:  Rate (Baud):
 </code></pre>
 
 ### Modulations (-M)
-
 <pre><code>
 Value:  Scheme:
 0   OOK
@@ -138,7 +127,6 @@ Value:  Scheme:
 </code></pre>
 
 ### Test routines (-t)
-
 <pre><code>
 Value:  Scheme:
 0   No test (KISS virtual TNC)
@@ -149,11 +137,8 @@ Value:  Scheme:
 </code></pre>
 
 # AX.25/KISS operation
-
 ## Set up the AX.25/KISS environment
-
 ### Kernel modules
-
 You will need to activate the proper options in the `make menuconfig` of your kernel compilation in order to get the `ax25` and `mkiss` modules. It comes by default in most pre-compiled kernels.
 
 Load the modules with `modprobe` command:
@@ -163,11 +148,9 @@ Load the modules with `modprobe` command:
 Alternatively you can specify these modules to be loaded at boot time by adding their names in the `/etc/modules` file
 
 ### Install AX.25 and KISS software
-
   - `sudo apt-get install ax25-apps ax25-node ax25-tools libax25`
 
 ### Create your AX.25 interfaces configuration
-
 In `/etc/ax25/axports` you have to add a line with:
   - `<interface name> <callsign and suffix> <speed> <window size> <comment>`
   - *interface name* is any name you will refer this interface to later
@@ -177,7 +160,6 @@ In `/etc/ax25/axports` you have to add a line with:
   - *comment* is any descriptive comment
 
 Example:
-
 <pre><code>
 # /etc/ax25/axports
 #
@@ -191,9 +173,7 @@ radio1  F4EXB-15           9600  220     1       Hamnet CC1101
 #2      OH2BNS-9          38400  255     7       TNOS/Linux  (38400 bps)
 </code></pre>
 
-
 ### Create a virtual serial link
-
  - `socat d -d pty,link=/var/ax25/axp1,raw,echo=0 pty,link=/var/ax25/axp2,raw,echo=0 &`
 
 Note the `&` at the end that allows the command to run in background.
@@ -204,12 +184,10 @@ They are accessible via the symlinks specified in the command:
   - /var/ax25/axp2
 
 ### Create the network device using kissattach
-
   - `sudo kissattach /var/ax25/axp1 radio0 10.0.0.7`
   - `sudo ifconfig ax0 netmask 255.255.255.0`
 
 This will create the ax0 network device as shown by the `/sbin/ifconfig` command:
-
 <pre><code>
 ax0       Link encap:AMPR AX.25  HWaddr F4EXB-15  
           inet addr:10.0.1.7  Bcast:10.0.1.255  Mask:255.255.255.0
@@ -221,7 +199,6 @@ ax0       Link encap:AMPR AX.25  HWaddr F4EXB-15
 </code></pre>
 
 ### Scripts that will run these commands
-
 In the `scripts` directory you will find:
   - `kissdown.sh`: kills all processes and removes the `ax0` network interface from the system
   - `kissup.sh <IP> <Netmask>`: brings up the `ax0` network interface with IP addres <IP> and net mask <Netmask>
@@ -231,7 +208,6 @@ Examples:
   - `./kissup.sh 10.0..1.3 255.255.255.0`
 
 ## Run the program
-
 This example will set the CC1101 at 9600 Baud with GFSK modulation:
 
   - `sudo ./picc1101 -v1 -B 9600 -P 250 -R7 -M4 -W -l20`
