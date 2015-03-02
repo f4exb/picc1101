@@ -8,7 +8,7 @@ The aim of this program is to connect a RF module based on the Texas Instruments
 
 Another opportunity is the direct transmission of a Transport Stream to carry low rate live video and this will be studied later.
 
-These RF modules are available from a variety of sellers on eBay (search for words 'CC1101' and '433 MHz') and the Raspberry-Pi doesn't need to be introduced any further!
+These RF modules are available from a variety of sellers on eBay. Search for words `CC1101` and `433 MHz`. The Raspberry-Pi doesn't need to be introduced any further. If you are reading these lines you probably know what it is!
 
 The CC1101 chip implements preamble, sync word, CRC, data whitening and FEC using convolutive coding natively. It is a very nice little cheap chip for our purpose. It has all the necessary features to cover the OSI layer 1 (physical). Its advertised speed ranges from 600 to 500000 Baud (300000 in 4-FSK) but it can go as low as 50 baud however details on performance at this speed have not been investigated. Yet the program offers this possibility.
 
@@ -43,9 +43,9 @@ On the sending side:
   - `sudo ./picc1101 -v1 -B 9600 -P 250 -R7 -M4 -W -l20 -t2 -n5`
 
 On the receiving side:
-  - `sudo ./picc1101 -v1 -B 9600 -P 250 -R7 -M4 -W -l20` -t4 -n5`
+  - `sudo ./picc1101 -v1 -B 9600 -P 250 -R7 -M4 -W -l20 -t4 -n5`
 
-This will send 5 blocks of 250 bytes at 9600 Baud using GFSK modulation and receive them at the other end.
+This will send 5 blocks of 250 bytes at 9600 Baud using GFSK modulation and receive them at the other end. The block will contain the default test phrase `Hello, World!`.
 
 Note that you have to be super user to execute the program.
 
@@ -96,44 +96,46 @@ Note: variable length blocks are not implemented yet.
 ## Detailed options
 ### Radio interfece speeds (-R)
 <pre><code>
-Value:  Rate (Baud):
- 0  50
- 1  110
- 2  300
- 3  600
- 4  1200
- 5  2400
- 6  4800
- 7  9600
- 8  14400
- 9  19200
-10  28800
-11  38400
-12  57600
-13  76800
-14  115200
-15  250000
-16  500000 (300000 for 4-FSK)
+Value: Rate (Baud):
+ 0     50
+ 1     110
+ 2     300
+ 3     600
+ 4     1200
+ 5     2400
+ 6     4800
+ 7     9600
+ 8     14400
+ 9     19200
+10     28800
+11     38400
+12     57600
+13     76800
+14     115200
+15     250000
+16     500000 (300000 for 4-FSK)
 </code></pre>
 
 ### Modulations (-M)
 <pre><code>
-Value:  Scheme:
-0   OOK
-1   2-FSK
-2   4-FSK
-3   MSK
-4   GFSK
+Value: Scheme:
+0      OOK
+1      2-FSK
+2      4-FSK
+3      MSK
+4      GFSK
 </code></pre>
+
+Note: MSK does not seem to work too well at least with the default radio options.
 
 ### Test routines (-t)
 <pre><code>
-Value:  Scheme:
-0   No test (KISS virtual TNC)
-1   Simple Tx with polling. Packet smaller than 64 bytes
-2   Simple Tx with packet interrupt handling. Packet up to 255 bytes
-3   Simple Rx with polling. Packet smaller than 64 bytes
-4   Simple Rx with packet interrupt handling. Packet up to 255 bytes
+Value: Scheme:
+0      No test (KISS virtual TNC)
+1      Simple Tx with polling. Packet smaller than 64 bytes
+2      Simple Tx with packet interrupt handling. Packet up to 255 bytes
+3      Simple Rx with polling. Packet smaller than 64 bytes
+4      Simple Rx with packet interrupt handling. Packet up to 255 bytes
 </code></pre>
 
 # AX.25/KISS operation
@@ -154,9 +156,9 @@ Alternatively you can specify these modules to be loaded at boot time by adding 
 In `/etc/ax25/axports` you have to add a line with:
   - `<interface name> <callsign and suffix> <speed> <window size> <comment>`
   - *interface name* is any name you will refer this interface to later
-  - *callsign and suffix* is your callsign and a suffix from 0 to 15. Ex: `F4EXB-14`
+  - *callsign and suffix* is your callsign and a suffix from 0 to 15. Ex: `F4EXB-14` and is the interface hardware address for AX.25 just like the MAC address is the hardware address for Ethrnet.
   - *speed* is the speed in Baud. This has not been found really effective. The speed will be determined by the settings of the CC1101 itself and the TCP/IP flow will adapt to the actual speed.
-  - *window size* is a number fron 1 to 7 and is the maximum number of packets before an acknowledgement is required (doesn't really work with KISS)
+  - *window size* is a number from 1 to 7 and is the maximum number of packets before an acknowledgement is required. This doesn't really work with KISS. KISS determines how many packets can be combined together in concatenated KISS frames that are sent as a single block. On the other end of the transmission the ACK can only be returned after the whole block has been received.
   - *comment* is any descriptive comment
 
 Example:
@@ -183,11 +185,13 @@ They are accessible via the symlinks specified in the command:
   - /var/ax25/axp1
   - /var/ax25/axp2
 
+AX.25/KISS engine will be attached to the `axp1` end and the program to `axp2`.
+
 ### Create the network device using kissattach
   - `sudo kissattach /var/ax25/axp1 radio0 10.0.0.7`
   - `sudo ifconfig ax0 netmask 255.255.255.0`
 
-This will create the ax0 network device as shown by the `/sbin/ifconfig` command:
+This will create the `ax0` network device as shown by the `/sbin/ifconfig` command:
 <pre><code>
 ax0       Link encap:AMPR AX.25  HWaddr F4EXB-15  
           inet addr:10.0.1.7  Bcast:10.0.1.255  Mask:255.255.255.0
@@ -219,3 +223,13 @@ Other options are:
   - inter-block pause is set for a 20 bytes transmission time approximately (-l) 
 
 Note that you have to be super user to execute the program.
+
+# Details of the design
+## Multiple block handling
+The CC1101 can transmit blocks up to 255 bytes. There is a so called "Infinite block" option but we don't want to use it here. In order to transmit larger blocks which is necessary for concatenated KISS frames or effective MTUs larger than 255 bytes we simply use a block countdown scheme. Each block has a header of two bytes:
+  - Byte 0 is the length of the actual block of data inside the fixed size block 
+  - Byte 1 is a block countdown counter that is decremented at each successive block belonging to the same larger block to transmit. Single blocks are simply transmitted with a countdown of 0 and so is the last block of a multiple block group.
+
+This allows the transmission of greater blocks of up to 2^16 = 64k = 65536 bytes.
+
+If any block is corrupted (bad CRC) or if its countdown counter is out of sequence then the whole greater block is discarded. This effectively puts a limit on the acceptable fragmentation depending on the quality of the link.
