@@ -51,10 +51,10 @@ Note that you have to be super user to execute the program.
 
 ## Program options
 <pre><code>
-  -B, --serial-speed=SERIAL_SPEED
+ -B, --tnc-serial-speed=SERIAL_SPEED
                              TNC Serial speed in Bauds (default : 9600)
   -d, --spi-device=SPI_DEVICE   SPI device, (default : /dev/spidev0.0)
-  -D, --serial-device=SERIAL_DEVICE
+  -D, --tnc-serial-device=SERIAL_DEVICE
                              TNC Serial device, (default : /var/ax25/axp2)
   -f, --frequency=FREQUENCY_HZ   Frequency in Hz (default: 433600000)
   -F, --fec                  Activate FEC (default off)
@@ -76,6 +76,13 @@ Note that you have to be super user to execute the program.
   -s, --radio-status         Print radio status and exit
   -t, --test-mode=TEST_SCHEME   Test scheme, See long help (-H) option fpr
                              details (default : 0 no test)
+      --tnc-radio-window=RX_WINDOW_US
+                             TNC time window in microseconds for concatenating
+                             radio frames. 0: no concatenation (default: 0))
+      --tnc-serial-window=TX_WINDOW_US
+                             TNC time window in microseconds for concatenating
+                             serial frames. 0: no concatenation (default:
+                             40ms))
   -v, --verbose=VERBOSITY_LEVEL   Verbosiity level: 0 quiet else verbose level
                              (default : quiet)
   -V, --variable-length      Variable packet length. Given packet length
@@ -139,7 +146,7 @@ Value: Scheme:
 </code></pre>
 
 # AX.25/KISS operation
-## Spurioius packet retransmissions
+## Mitigate spurioius packet retransmissions
 In the latest versions an effort has been made to try to mitigate unnecessary packet retransmissions. These are generally caused by fragmenting packet chains too early. In return the ACK from the other end is received too early and synchronization is broken. Because of its robust handshake mechanism TCP/IP eventually recovers but some time is wasted.
 
 To mitigate this effect when a packet is received on the serial link if another packet is received before some delay expires it is concatenated to the previous packet(s). The packets are sent over the air after this delay or if a radio packet has been received. This delay is called the TNC serial window.
