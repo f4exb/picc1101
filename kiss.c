@@ -221,7 +221,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
         {
             rx_count += byte_count;  // Accumulate Rx
             
-            gettimeofday(&tp);
+            gettimeofday(&tp, NULL);
             timestamp = tp.tv_sec * 1000000ULL + tp.tv_usec;
             force_mode = 0;
 
@@ -243,7 +243,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
         {
             tx_count += byte_count;  // Accumulate Tx
 
-            gettimeofday(&tp);
+            gettimeofday(&tp, NULL);
             timestamp = tp.tv_sec * 1000000ULL + tp.tv_usec;
             force_mode = 0;
 
