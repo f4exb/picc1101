@@ -43,7 +43,7 @@ On the sending side:
   - `sudo ./picc1101 -v1 -B 9600 -P 250 -R7 -M4 -W -l20 -t2 -n5`
 
 On the receiving side:
-  - ``sudo ./picc1101 -v1 -B 9600 -P 250 -R7 -M4 -W -l20` -t4 -n5`
+  - `sudo ./picc1101 -v1 -B 9600 -P 250 -R7 -M4 -W -l20` -t4 -n5`
 
 This will send 5 blocks of 250 bytes at 9600 Baud using GFSK modulation and receive them at the other end.
 
@@ -130,9 +130,9 @@ Value:  Scheme:
 <pre><code>
 Value:  Scheme:
 0   No test (KISS virtual TNC)
-1   Simple Tx with polling. Packet < 64 bytes
+1   Simple Tx with polling. Packet smaller than 64 bytes
 2   Simple Tx with packet interrupt handling. Packet up to 255 bytes
-3   Simple Rx with polling. Packet < 64 bytes
+3   Simple Rx with polling. Packet smaller than 64 bytes
 4   Simple Rx with packet interrupt handling. Packet up to 255 bytes
 </code></pre>
 
