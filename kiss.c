@@ -188,6 +188,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
     uint8_t rx_buffer[bufsize], tx_buffer[bufsize];
     uint8_t rtx_toggle; // 1:Tx, 0:Rx
     int rx_count, tx_count, byte_count, ret;
+    uint32_t timeout;
 
     set_serial_parameters(serial_parms, arguments);
     init_radio_int(spi_parms, arguments);
@@ -197,6 +198,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
     
     verbprintf(1, "Starting...\n");
 
+    timeout = 0;
     rtx_toggle = 0;
     rx_count = 0;
     tx_count = 0;
@@ -209,7 +211,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 
         if (byte_count > 0)
         {
-            if (rtx_toggle) // First Rx after Tx: flush Tx buffer to the air 
+            if ((rtx_toggle) && (tx_count)) // First Rx after Tx: flush Tx buffer to the air 
             {
                 if (!kiss_command(tx_buffer))
                 {
@@ -231,13 +233,14 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 
             rtx_toggle = 1;
             rx_count += byte_count; // Accumulate Rx
+            timeout = arguments->packet_length;
         }
 
         byte_count = read_serial(serial_parms, &tx_buffer[tx_count], bufsize - tx_count);
 
         if (byte_count > 0)
         {
-            if (!rtx_toggle) // First Tx after Rx: flush Rx buffer to serial 
+            if ((!rtx_toggle) && (rx_count)) // First Tx after Rx: flush Rx buffer to serial 
             {
                 radio_wait_free();            // Make sure no radio operation is in progress
                 radio_turn_idle(spi_parms);   // Inhibit radio operations
@@ -251,6 +254,18 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 
             rtx_toggle = 1;
             tx_count += byte_count; // Accumulate Tx
+            timeout = arguments->packet_length;
+        }
+
+        radio_wait_a_bit(1); // approx. one byte long
+
+        if (timeout == 0)
+        {
+            rtx_toggle = !rtx_toggle;
+        }
+        else
+        {
+            timeout--;
         }
     }
 }
