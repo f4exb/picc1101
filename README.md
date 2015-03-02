@@ -139,8 +139,16 @@ Value: Scheme:
 </code></pre>
 
 # AX.25/KISS operation
-## Warning
-The virtual KISS TNC does not work quite satifactorily yet. Some packets get missed but shouldn't. This is due to a bad TCP-IP synchronization in some cases between sender and receiver. This leads to unnecessary re-transmissions and although the TCP-IP link basically works it is not optimal.
+## Spurioius packet retransmissions
+In the latest versions an effort has been made to try to mitigate unnecessary packet retransmissions. These are generally caused by fragmenting packet chains too early. In return the ACK from the other end is received too early and synchronization is broken. Because of its robust handshake mechanism TCP/IP eventually recovers but some time is wasted.
+
+To mitigate this effect when a packet is received on the serial link if another packet is received before some delay expires it is concatenated to the previous packet(s). The packets are sent over the air after this delay or if a radio packet has been received. This delay is called the TNC serial window.
+
+The same mechanism exists on the radio side to possibly concatenate radio packets before they are sent on the serial line. The corresponding delay is called the TNC radio window.
+
+These delays can be entered on the command line with the following long options with arguments in microseconds:
+  - `--tnc-serial-window`: defaults to 40ms. 60ms has given good results too.
+  - `--tnc-radio-window`: defaults to 0 that is no delay. However allowing for a 300ms delay on a 9600 Baud 2-FSK transmission of fixed length blocks of 250 bytes gives a better result. Effectively it takes 208 ms to transmit the block at 9600 Baud in 2-FSK.
 ## Set up the AX.25/KISS environment
 ### Kernel modules
 You will need to activate the proper options in the `make menuconfig` of your kernel compilation in order to get the `ax25` and `mkiss` modules. It comes by default in most pre-compiled kernels.

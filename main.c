@@ -82,8 +82,8 @@ static char args_doc[] = "";
 static struct argp_option options[] = {
     {"verbose",  'v', "VERBOSITY_LEVEL", 0, "Verbosiity level: 0 quiet else verbose level (default : quiet)"},
     {"long-help",  'H', 0, 0, "Print a long help and exit"},
-    {"serial-device",  'D', "SERIAL_DEVICE", 0, "TNC Serial device, (default : /var/ax25/axp2)"},
-    {"serial-speed",  'B', "SERIAL_SPEED", 0, "TNC Serial speed in Bauds (default : 9600)"},
+    {"tnc-serial-device",  'D', "SERIAL_DEVICE", 0, "TNC Serial device, (default : /var/ax25/axp2)"},
+    {"tnc-serial-speed",  'B', "SERIAL_SPEED", 0, "TNC Serial speed in Bauds (default : 9600)"},
     {"spi-device",  'd', "SPI_DEVICE", 0, "SPI device, (default : /dev/spidev0.0)"},
     {"modulation",  'M', "MODULATION_SCHEME", 0, "Radio modulation scheme, See long help (-H) option"},
     {"rate",  'R', "DATA_RATE_INDEX", 0, "Data rate index, See long help (-H) option"},
@@ -99,8 +99,8 @@ static struct argp_option options[] = {
     {"test-phrase",  'y', "TEST_PHRASE", 0, "Set a test phrase to be used in test (default : \"Hello, World!\")"},
     {"repetition",  'n', "REPETITION", 0, "Repetiton factor wherever appropriate, see long Help (-H) option (default : 1 single)"},
     {"radio-status",  's', 0, 0, "Print radio status and exit"},
-    {"kiss-serial-window",  300, "TX_WINDOW_US", 0, "Time window in microseconds for concatenating serial frames. 0: no concatenation (default: 40ms))"},
-    {"kiss-radio-window",  301, "RX_WINDOW_US", 0, "Time window in microseconds for concatenating radio frames. 0: no concatenation (default: 0))"},
+    {"tnc-serial-window",  300, "TX_WINDOW_US", 0, "TNC time window in microseconds for concatenating serial frames. 0: no concatenation (default: 40ms))"},
+    {"tnc-radio-window",  301, "RX_WINDOW_US", 0, "TNC time window in microseconds for concatenating radio frames. 0: no concatenation (default: 0))"},
     {0}
 };
 
