@@ -156,6 +156,7 @@ The same mechanism exists on the radio side to possibly concatenate radio packet
 These delays can be entered on the command line with the following long options with arguments in microseconds:
   - `--tnc-serial-window`: defaults to 40ms. 60ms has given good results too.
   - `--tnc-radio-window`: defaults to 0 that is no delay. However allowing for a 300ms delay on a 9600 Baud 2-FSK transmission of fixed length blocks of 250 bytes gives a better result. Effectively it takes 208 ms to transmit the block at 9600 Baud in 2-FSK.
+  
 ## Set up the AX.25/KISS environment
 ### Kernel modules
 You will need to activate the proper options in the `make menuconfig` of your kernel compilation in order to get the `ax25` and `mkiss` modules. It comes by default in most pre-compiled kernels.
