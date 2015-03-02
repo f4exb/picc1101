@@ -198,7 +198,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
     
     verbprintf(1, "Starting...\n");
 
-    timeout = 0;
+    timeout = arguments->packet_length;
     rtx_toggle = 0;
     rx_count = 0;
     tx_count = 0;
@@ -209,7 +209,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
     {    
         byte_count = radio_receive_packet(spi_parms, arguments, &rx_buffer[rx_count]); // check if anything was received on radio link
 
-        if (byte_count > 0)
+        if ((byte_count > 0) || (!timeout))
         {
             if ((rtx_toggle) && (tx_count)) // First Rx after Tx: flush Tx buffer to the air 
             {
@@ -238,7 +238,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 
         byte_count = read_serial(serial_parms, &tx_buffer[tx_count], bufsize - tx_count);
 
-        if (byte_count > 0)
+        if ((byte_count > 0) || (!timeout))
         {
             if ((!rtx_toggle) && (rx_count)) // First Tx after Rx: flush Rx buffer to serial 
             {
@@ -259,13 +259,22 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 
         radio_wait_a_bit(1); // approx. one byte long
 
-        if (timeout == 0)
+        if (timeout > 0)
         {
-            rtx_toggle = !rtx_toggle;
+            timeout--;
         }
         else
         {
-            timeout--;
+            if (rx_count)
+            {
+                rtx_toggle = 1; // Force Rx flush to serial
+            }
+            else if (tx_count)
+            {
+                rtx_toggle = 0; // Force Tx flush to radio
+            }
+
+            timeout = arguments->packet_length; // rearm timeout
         }
     }
 }
