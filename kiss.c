@@ -295,7 +295,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 
         gettimeofday(&tp);
 
-        if ((!force_mode) && ((tp.tv_sec * 1000000ULL + tp.tc_usec) > timestamp + timeout_value))
+        if ((!force_mode) && ((tp.tv_sec * 1000000ULL + tp.tv_usec) > timestamp + timeout_value))
         {
             force_mode = 1;
         }
