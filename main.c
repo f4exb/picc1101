@@ -76,7 +76,7 @@ uint8_t nb_preamble_bytes[] = {
 
 const char *argp_program_version = "PiCC1101 0.1";
 const char *argp_program_bug_address = "<f4exb06@gmail.com>";
-static char doc[] = "PiRx -- Raspberry Pi serial radio link using CC1101 module.";
+static char doc[] = "PiCC1101 -- Raspberry Pi serial radio link using CC1101 module.";
 static char args_doc[] = "";
 
 static struct argp_option options[] = {
@@ -206,7 +206,7 @@ static void print_args(arguments_t *arguments)
     fprintf(stderr, "Modulation ..........: %s\n", modulation_names[arguments->modulation]);
     fprintf(stderr, "Rate nominal ........: %d Baud\n", rate_values[arguments->rate]);
     fprintf(stderr, "Rate skew ...........: %.2f\n", arguments->rate_skew);
-    fprintf(stderr, "Packet delay ........: ~%d 2-FSK symbols\n", arguments->packet_delay * 4);
+    fprintf(stderr, "Packet delay ........: ~%d bytes with 2-FSK\n", arguments->packet_delay);
     fprintf(stderr, "Modulation index ....: %.2f\n", arguments->modulation_index);
     fprintf(stderr, "Frequency ...........: %d Hz\n", arguments->freq_hz);
     fprintf(stderr, "Packet length .......: %d bytes\n", arguments->packet_length);

@@ -139,6 +139,8 @@ Value: Scheme:
 </code></pre>
 
 # AX.25/KISS operation
+## Warning
+The virtual KISS TNC does not work quite satifactorily yet. Some packets get missed but shouldn't. This is due to a bad TCP-IP synchronization in some cases between sender and receiver. This leads to unnecessary re-transmissions and although the TCP-IP link basically works it is not optimal.
 ## Set up the AX.25/KISS environment
 ### Kernel modules
 You will need to activate the proper options in the `make menuconfig` of your kernel compilation in order to get the `ax25` and `mkiss` modules. It comes by default in most pre-compiled kernels.
