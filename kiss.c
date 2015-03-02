@@ -184,7 +184,8 @@ uint8_t kiss_command(uint8_t *block)
 void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    static const size_t bufsize = RADIO_BUFSIZE;
+    static const size_t   bufsize = RADIO_BUFSIZE;
+    static const uint32_t timeout_value = arguments->packet_length / 2;
     uint8_t rx_buffer[bufsize], tx_buffer[bufsize];
     uint8_t rtx_toggle; // 1:Tx, 0:Rx
     int rx_count, tx_count, byte_count, ret;
@@ -198,7 +199,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
     
     verbprintf(1, "Starting...\n");
 
-    timeout = arguments->packet_length;
+    timeout = timeout_value;
     rtx_toggle = 0;
     rx_count = 0;
     tx_count = 0;
@@ -233,7 +234,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 
             rtx_toggle = 1;
             rx_count += byte_count; // Accumulate Rx
-            timeout = arguments->packet_length;
+            timeout = timeout_value; // rearm timeout
         }
 
         byte_count = read_serial(serial_parms, &tx_buffer[tx_count], bufsize - tx_count);
@@ -254,7 +255,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 
             rtx_toggle = 1;
             tx_count += byte_count; // Accumulate Tx
-            timeout = arguments->packet_length;
+            timeout = timeout_value; // rearm timeout
         }
 
         radio_wait_a_bit(1); // approx. one byte long
@@ -267,14 +268,12 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
         {
             if (rx_count)
             {
-                rtx_toggle = 1; // Force Rx flush to serial
+                rtx_toggle = 0; // Force Rx flush to serial
             }
             else if (tx_count)
             {
-                rtx_toggle = 0; // Force Tx flush to radio
+                rtx_toggle = 1; // Force Tx flush to radio
             }
-
-            timeout = arguments->packet_length; // rearm timeout
         }
     }
 }
