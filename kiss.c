@@ -186,7 +186,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 // ------------------------------------------------------------------------------------------------
 {
     static const size_t   bufsize = RADIO_BUFSIZE;
-    uint32_t timeout_value = 40000; // 40ms
+    uint32_t timeout_value;
     uint8_t  rx_buffer[bufsize], tx_buffer[bufsize];
     uint8_t  rtx_toggle; // 1:Tx, 0:Rx
     uint8_t  rx_trigger; 
@@ -223,7 +223,8 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
             
             gettimeofday(&tp, NULL);
             timestamp = tp.tv_sec * 1000000ULL + tp.tv_usec;
-            force_mode = 0;
+            timeout_value = arguments->tnc_radio_window;
+            force_mode = (timeout_value == 0);
 
             if (rtx_toggle) // Tx to Rx transition
             {
@@ -245,7 +246,8 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 
             gettimeofday(&tp, NULL);
             timestamp = tp.tv_sec * 1000000ULL + tp.tv_usec;
-            force_mode = 0;
+            timeout_value = arguments->tnc_serial_window;
+            force_mode = (timeout_value == 0);
 
             if (!rtx_toggle) // Rx to Tx transition
             {
@@ -293,11 +295,14 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
             tx_trigger = 0;            
         }
 
-        gettimeofday(&tp, NULL);
-
-        if ((!force_mode) && ((tp.tv_sec * 1000000ULL + tp.tv_usec) > timestamp + timeout_value))
+        if (!force_mode)
         {
-            force_mode = 1;
+            gettimeofday(&tp, NULL);
+
+            if ((tp.tv_sec * 1000000ULL + tp.tv_usec) > timestamp + timeout_value)
+            {
+                force_mode = 1;
+            }                        
         }
     }
 }

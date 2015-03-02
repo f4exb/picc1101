@@ -99,6 +99,8 @@ static struct argp_option options[] = {
     {"test-phrase",  'y', "TEST_PHRASE", 0, "Set a test phrase to be used in test (default : \"Hello, World!\")"},
     {"repetition",  'n', "REPETITION", 0, "Repetiton factor wherever appropriate, see long Help (-H) option (default : 1 single)"},
     {"radio-status",  's', 0, 0, "Print radio status and exit"},
+    {"kiss-serial-window",  300, "TX_WINDOW_US", 0, "Time window in microseconds for concatenating serial frames. 0: no concatenation (default: 40ms))"},
+    {"kiss-radio-window",  301, "RX_WINDOW_US", 0, "Time window in microseconds for concatenating radio frames. 0: no concatenation (default: 0))"},
     {0}
 };
 
@@ -174,6 +176,8 @@ static void init_args(arguments_t *arguments)
     arguments->fec = 0;
     arguments->whitening = 0;
     arguments->preamble = PREAMBLE_4;
+    arguments->tnc_serial_window = 40000;
+    arguments->tnc_radio_window = 0;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -226,6 +230,24 @@ static void print_args(arguments_t *arguments)
     fprintf(stderr, "--- serial ---\n");
     fprintf(stderr, "TNC device ..........: %s\n", arguments->serial_device);
     fprintf(stderr, "TNC speed ...........: %d Baud\n", arguments->serial_speed_n);
+
+    if (arguments->tnc_serial_window)
+    {
+        fprintf(stderr, "TNC serial window ...: %.3f ms\n", arguments->tnc_serial_window / 1000.0);
+    }
+    else
+    {
+        fprintf(stderr, "TNC serial window ...: none\n");   
+    }
+
+    if (arguments->tnc_radio_window)
+    {
+        fprintf(stderr, "TNC radio window ....: %.3f ms\n", arguments->tnc_radio_window / 1000.0);
+    }
+    else
+    {
+        fprintf(stderr, "TNC radio window ....: none\n");   
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -354,7 +376,6 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
         case 'V':
             arguments->variable_length = 1;
             break;
-
         // Repetition factor
         case 'n':
             arguments->repetition = strtol(arg, &end, 10);
@@ -393,9 +414,22 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
         case 'w':
             arguments->rate_skew = atof(arg);
             break;
+        // KISS TNC serial link window
+        case 300:
+            arguments->tnc_serial_window = strtol(arg, &end, 10);
+            if (*end)
+                argp_usage(state);
+            break; 
+        // KISS TNC radio link window
+        case 301:
+            arguments->tnc_radio_window = strtol(arg, &end, 10);
+            if (*end)
+                argp_usage(state);
+            break; 
         default:
             return ARGP_ERR_UNKNOWN;
     }
+
     return 0;
 }
 

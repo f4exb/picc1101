@@ -88,6 +88,8 @@ typedef struct arguments_s {
     uint8_t      whitening;          // Activate whitening
     preamble_t   preamble;           // Preamblescheme (number of preamble bytes)
     uint32_t     packet_delay;       // Delay before sending packet on serial or radio in 4 2-FSK symbols approximately
+    uint32_t     tnc_serial_window;  // Time window in microseconds for concatenating serial frames (0: no concatenation)
+    uint32_t     tnc_radio_window;   // Time window in microseconds for concatenating radio frames (0: no concatenation)
 } arguments_t;
 
 #endif
