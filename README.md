@@ -58,6 +58,7 @@ Note that you have to be super user to execute the program.
 
 ## Program options
 
+<pre><code>
   -B, --serial-speed=SERIAL_SPEED
                              TNC Serial speed in Bauds (default : 9600)
   -d, --spi-device=SPI_DEVICE   SPI device, (default : /dev/spidev0.0)
@@ -96,6 +97,56 @@ Note that you have to be super user to execute the program.
   -?, --help                 Give this help list
       --usage                Give a short usage message
       --version              Print program version
+</code></pre>
+
+Note: variable length blocks are not implemented yet.
+
+## Detailed options
+
+### Radio interfece speeds (-R)
+
+<pre><code>
+Value:  Rate (Baud):
+ 0  50
+ 1  110
+ 2  300
+ 3  600
+ 4  1200
+ 5  2400
+ 6  4800
+ 7  9600
+ 8  14400
+ 9  19200
+10  28800
+11  38400
+12  57600
+13  76800
+14  115200
+15  250000
+16  500000 (300000 for 4-FSK)
+</code></pre>
+
+### Modulations (-M)
+
+<pre><code>
+Value:  Scheme:
+0   OOK
+1   2-FSK
+2   4-FSK
+3   MSK
+4   GFSK
+</code></pre>
+
+### Test routines (-t)
+
+<pre><code>
+Value:  Scheme:
+0   No test (KISS virtual TNC)
+1   Simple Tx with polling. Packet < 64 bytes
+2   Simple Tx with packet interrupt handling. Packet up to 255 bytes
+3   Simple Rx with polling. Packet < 64 bytes
+4   Simple Rx with packet interrupt handling. Packet up to 255 bytes
+</code></pre>
 
 # AX.25/KISS operation
 
