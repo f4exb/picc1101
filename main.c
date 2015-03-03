@@ -258,6 +258,7 @@ static void print_args(arguments_t *arguments)
     fprintf(stderr, "TNC keyup delay .....: %.2f ms\n", arguments->tnc_keyup_delay / 1000.0);
     fprintf(stderr, "TNC keydown delay ...: %.2f ms\n", arguments->tnc_keydown_delay / 1000.0);
     fprintf(stderr, "TNC switch delay ....: %.2f ms\n", arguments->tnc_switchover_delay / 1000.0);
+}
 
 // ------------------------------------------------------------------------------------------------
 // Get test scheme from index
