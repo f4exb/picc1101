@@ -116,12 +116,25 @@ void int_packet(void)
 
             p_radio_int_data->byte_index = 0;
 
-            //p_radio_int_data->rx_count = radio_get_packet_length(p_radio_int_data->spi_parms);
-            //p_radio_int_data->rx_count += 2; // Add RSSI + LQI/CRC bytes
-            p_radio_int_data->rx_count = p_radio_int_data->packet_length + 2;
-            p_radio_int_data->bytes_remaining = p_radio_int_data->rx_count;
+            if (p_radio_int_data->packet_config == PKTLEN_VARIABLE)
+            {
+                radio_wait_a_bit(2);
 
-            verbprintf(3, "%d bytes to read (fixed)\n", p_radio_int_data->rx_count);
+                PI_CC_SPIReadReg(p_radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &x_byte);
+                p_radio_int_data->rx_buf[p_radio_int_data->byte_index++] = x_byte; // put back into resulting payoad
+                p_radio_int_data->rx_count = x_byte + 3;
+
+                verbprintf(3, "%d bytes to read (variable)\n", p_radio_int_data->rx_count);                
+            }
+            else
+            {
+                //p_radio_int_data->rx_count = radio_get_packet_length(p_radio_int_data->spi_parms);
+                //p_radio_int_data->rx_count += 2; // Add RSSI + LQI/CRC bytes
+                p_radio_int_data->rx_count = p_radio_int_data->packet_length + 2;
+                p_radio_int_data->bytes_remaining = p_radio_int_data->rx_count;
+
+                verbprintf(3, "%d bytes to read (fixed)\n", p_radio_int_data->rx_count);
+            }
 
             p_radio_int_data->packet_receive = 1; // reception is in progress
         }
@@ -1103,6 +1116,11 @@ void radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *
     while (block_countdown >= 0)
     {
         block_length = (size > arguments->packet_length - 2 ? arguments->packet_length - 2 : size);
+
+        if (arguments->variable_length)
+        {
+            radio_set_packet_length(spi_parms, block_length + 2);
+        }
 
         memset((uint8_t *) radio_int_data.tx_buf, 0, arguments->packet_length);
         memcpy((uint8_t *) &radio_int_data.tx_buf[2], block_start, block_length);
