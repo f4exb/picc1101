@@ -116,28 +116,12 @@ void int_packet(void)
 
             p_radio_int_data->byte_index = 0;
 
-            if (p_radio_int_data->packet_config == PKTLEN_VARIABLE) // variable: read first payload byte
-            {
-                // wait a bit to get packet length information
-                usleep(2 * p_radio_int_data->wait_us);
-    
-                PI_CC_SPIReadReg(p_radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &x_byte);
-                p_radio_int_data->rx_buf[p_radio_int_data->byte_index++] = x_byte; // put back into resulting payoad
-                p_radio_int_data->rx_count = x_byte;
-                p_radio_int_data->rx_count += 3; // Block countdown + Add RSSI + LQI/CRC bytes  
-                p_radio_int_data->bytes_remaining = p_radio_int_data->rx_count;
+            //p_radio_int_data->rx_count = radio_get_packet_length(p_radio_int_data->spi_parms);
+            //p_radio_int_data->rx_count += 2; // Add RSSI + LQI/CRC bytes
+            p_radio_int_data->rx_count = p_radio_int_data->packet_length + 2;
+            p_radio_int_data->bytes_remaining = p_radio_int_data->rx_count;
 
-                verbprintf(3, "%d bytes to read (variable)\n", p_radio_int_data->rx_count);
-            }
-            else // fixed: read PKTLEN register
-            {
-                //p_radio_int_data->rx_count = radio_get_packet_length(p_radio_int_data->spi_parms);
-                //p_radio_int_data->rx_count += 2; // Add RSSI + LQI/CRC bytes
-                p_radio_int_data->rx_count = p_radio_int_data->packet_length + 2;
-                p_radio_int_data->bytes_remaining = p_radio_int_data->rx_count;
-
-                verbprintf(3, "%d bytes to read (fixed)\n", p_radio_int_data->rx_count);
-            }
+            verbprintf(3, "%d bytes to read (fixed)\n", p_radio_int_data->rx_count);
 
             p_radio_int_data->packet_receive = 1; // reception is in progress
         }
@@ -491,16 +475,8 @@ void init_radio_parms(radio_parms_t *radio_parms, arguments_t *arguments)
     radio_parms->chanspc_e     = 0;                // Do not use channel spacing for the moment defaulting to 0
     radio_int_data.packet_length = arguments->packet_length;
 
-    if (arguments->variable_length)
-    {
-        radio_parms->packet_config = PKTLEN_VARIABLE;  // Use variable packet length
-        radio_int_data.packet_config = PKTLEN_VARIABLE;
-    }
-    else
-    {
-        radio_parms->packet_config = PKTLEN_FIXED;     // Use fixed packet length
-        radio_int_data.packet_config = PKTLEN_FIXED;
-    }
+    radio_parms->packet_config = PKTLEN_FIXED;     // Use fixed packet length
+    radio_int_data.packet_config = PKTLEN_FIXED;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -1122,19 +1098,11 @@ void radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *
     uint8_t *block_start = packet;
     uint8_t block_length;
 
-    if (!arguments->variable_length) // Work with fixed length blocks
-    {
-        radio_int_data.tx_count = arguments->packet_length; // same block size for all
-    }
+    radio_int_data.tx_count = arguments->packet_length; // same block size for all
 
     while (block_countdown >= 0)
     {
         block_length = (size > arguments->packet_length - 2 ? arguments->packet_length - 2 : size);
-
-        if (arguments->variable_length)
-        {
-            radio_int_data.tx_count = block_length + 2;
-        }
 
         memset((uint8_t *) radio_int_data.tx_buf, 0, arguments->packet_length);
         memcpy((uint8_t *) &radio_int_data.tx_buf[2], block_start, block_length);
