@@ -101,7 +101,7 @@ static struct argp_option options[] = {
     {"tnc-serial-speed",  'B', "SERIAL_SPEED", 0, "TNC Serial speed in Bauds (default : 9600)"},
     {"tnc-serial-window",  300, "TX_WINDOW_US", 0, "TNC time window in microseconds for concatenating serial frames. 0: no concatenation (default: 40ms))"},
     {"tnc-radio-window",  301, "RX_WINDOW_US", 0, "TNC time window in microseconds for concatenating radio frames. 0: no concatenation (default: 0))"},
-    {"tnc-keyup-delay",  302, "KEYUP_DELAY_US", 0, "TNC keyup delay in microseconds (default: 50ms). In KISS mode it can be changed live via kissparms."},
+    {"tnc-keyup-delay",  302, "KEYUP_DELAY_US", 0, "TNC keyup delay in microseconds (default: 10ms). In KISS mode it can be changed live via kissparms."},
     {"tnc-keydown-delay",  303, "KEYDOWN_DELAY_US", 0, "FUTUR USE: TNC keydown delay in microseconds (default: 0 inactive)"},
     {"tnc-switchover-delay",  304, "SWITCHOVER_DELAY_US", 0, "FUTUR USE: TNC switchover delay in microseconds (default: 0 inactive)"},
     {0}
@@ -181,7 +181,7 @@ static void init_args(arguments_t *arguments)
     arguments->preamble = PREAMBLE_4;
     arguments->tnc_serial_window = 40000;
     arguments->tnc_radio_window = 0;
-    arguments->tnc_keyup_delay = 50000;
+    arguments->tnc_keyup_delay = 10000;
     arguments->tnc_keydown_delay = 0;
     arguments->tnc_switchover_delay = 0;
 }
