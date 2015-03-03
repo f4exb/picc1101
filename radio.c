@@ -1127,7 +1127,7 @@ void radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *
 
         if (arguments->variable_length)
         {
-            radio_set_packet_length(spi_parms, block_length + 2);
+            radio_int_data.tx_count = block_length + 2;
         }
 
         memset((uint8_t *) radio_int_data.tx_buf, 0, arguments->packet_length);
