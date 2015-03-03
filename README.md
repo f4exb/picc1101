@@ -51,7 +51,7 @@ Note that you have to be super user to execute the program.
 
 ## Program options
 <pre><code>
- -B, --tnc-serial-speed=SERIAL_SPEED
+  -B, --tnc-serial-speed=SERIAL_SPEED
                              TNC Serial speed in Bauds (default : 9600)
   -d, --spi-device=SPI_DEVICE   SPI device, (default : /dev/spidev0.0)
   -D, --tnc-serial-device=SERIAL_DEVICE
@@ -59,9 +59,9 @@ Note that you have to be super user to execute the program.
   -f, --frequency=FREQUENCY_HZ   Frequency in Hz (default: 433600000)
   -F, --fec                  Activate FEC (default off)
   -H, --long-help            Print a long help and exit
-  -l, --packet-delay=DELAY_UNITS   Delay before sending packet on serial or
-                             radio in 4 2-FSK symbols approximately. (default
-                             30)
+  -l, --packet-delay=DELAY_UNITS   Delay between successive radio blocks when
+                             transmitting a larger block. In 2-FSK byte
+                             duration units. (default 30)
   -m, --modulation-index=MODULATION_INDEX
                              Modulation index (default 0.5)
   -M, --modulation=MODULATION_SCHEME
@@ -76,6 +76,13 @@ Note that you have to be super user to execute the program.
   -s, --radio-status         Print radio status and exit
   -t, --test-mode=TEST_SCHEME   Test scheme, See long help (-H) option fpr
                              details (default : 0 no test)
+      --tnc-keydown-delay=KEYDOWN_DELAY_US
+                             FUTUR USE: TNC keydown delay in microseconds
+                             (default: 0 inactive)
+      --tnc-keyup-delay=KEYUP_DELAY_US
+                             TNC keyup delay in microseconds (default: 10ms).
+                             In KISS mode it can be changed live via
+                             kissparms.
       --tnc-radio-window=RX_WINDOW_US
                              TNC time window in microseconds for concatenating
                              radio frames. 0: no concatenation (default: 0))
@@ -83,6 +90,9 @@ Note that you have to be super user to execute the program.
                              TNC time window in microseconds for concatenating
                              serial frames. 0: no concatenation (default:
                              40ms))
+      --tnc-switchover-delay=SWITCHOVER_DELAY_US
+                             FUTUR USE: TNC switchover delay in microseconds
+                             (default: 0 inactive)
   -v, --verbose=VERBOSITY_LEVEL   Verbosiity level: 0 quiet else verbose level
                              (default : quiet)
   -V, --variable-length      Variable packet length. Given packet length
@@ -146,17 +156,6 @@ Value: Scheme:
 </code></pre>
 
 # AX.25/KISS operation
-## Mitigate spurioius packet retransmissions
-In the latest versions an effort has been made to try to mitigate unnecessary packet retransmissions. These are generally caused by fragmenting packet chains too early. In return the ACK from the other end is received too early and synchronization is broken. Because of its robust handshake mechanism TCP/IP eventually recovers but some time is wasted.
-
-To mitigate this effect when a packet is received on the serial link if another packet is received before some delay expires it is concatenated to the previous packet(s). The packets are sent over the air after this delay or if a radio packet has been received. This delay is called the TNC serial window.
-
-The same mechanism exists on the radio side to possibly concatenate radio packets before they are sent on the serial line. The corresponding delay is called the TNC radio window.
-
-These delays can be entered on the command line with the following long options with arguments in microseconds:
-  - `--tnc-serial-window`: defaults to 40ms. 60ms has given good results too.
-  - `--tnc-radio-window`: defaults to 0 that is no delay. However allowing for a 300ms delay on a 9600 Baud 2-FSK transmission of fixed length blocks of 250 bytes gives a better result. Effectively it takes 208 ms to transmit the block at 9600 Baud in 2-FSK.
-  
 ## Set up the AX.25/KISS environment
 ### Kernel modules
 You will need to activate the proper options in the `make menuconfig` of your kernel compilation in order to get the `ax25` and `mkiss` modules. It comes by default in most pre-compiled kernels.
@@ -255,3 +254,15 @@ At the reception end the radio block countdown is checked and if it is not zero 
 This allows the transmission of greater blocks of up to 2^16 = 64k = 65536 bytes.
 
 If any block is corrupted (bad CRC) or if its countdown counter is out of sequence then the whole greater block is discarded. This effectively puts a limit on the acceptable fragmentation depending on the quality of the link.
+
+## Mitigate AX.25/KISS spurious packet retransmissions
+In the latest versions an effort has been made to try to mitigate unnecessary packet retransmissions. These are generally caused by fragmenting packet chains too early. In return the ACK from the other end is received too early and synchronization is broken. Because of its robust handshake mechanism TCP/IP eventually recovers but some time is wasted.
+
+To mitigate this effect when a packet is received on the serial link if another packet is received before some delay expires it is concatenated to the previous packet(s). The packets are sent over the air after this delay or if a radio packet has been received. This delay is called the TNC serial window.
+
+The same mechanism exists on the radio side to possibly concatenate radio packets before they are sent on the serial line. The corresponding delay is called the TNC radio window.
+
+These delays can be entered on the command line with the following long options with arguments in microseconds. The defaults have proved satisfactory on a 9600 Baud 2-FSK with 250 byte packets transmission. You may want to play with them or tweak them for different transmission characteristics:
+  - `--tnc-serial-window`: defaults to 40ms. 
+  - `--tnc-radio-window`: defaults to 0 that is no delay. Once the packet is received it will be immediately transfered to the serial link. At 9600 Baud 2-FSK with 250 byte packets the transmission time is already 208ms.
+  
