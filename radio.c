@@ -124,7 +124,7 @@ void int_packet(void)
                 PI_CC_SPIReadReg(p_radio_int_data->spi_parms, PI_CCxxx0_RXFIFO, &x_byte);
                 p_radio_int_data->rx_buf[p_radio_int_data->byte_index++] = x_byte; // put back into resulting payoad
                 p_radio_int_data->rx_count = x_byte;
-                p_radio_int_data->rx_count += 2; // Add RSSI + LQI/CRC bytes  
+                p_radio_int_data->rx_count += 3; // Block countdown + Add RSSI + LQI/CRC bytes  
                 p_radio_int_data->bytes_remaining = p_radio_int_data->rx_count;
                 radio_set_packet_length(p_radio_int_data->spi_parms, p_radio_int_data->rx_count);
                 p_radio_int_data->rx_count++; // Add count for the resulting total buffer length
@@ -1124,11 +1124,19 @@ void radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *
     uint8_t *block_start = packet;
     uint8_t block_length;
 
-    radio_int_data.tx_count = arguments->packet_length; // Work with fixed length blocks for the moment
+    if (!arguments->variable_length) // Work with fixed length blocks
+    {
+        radio_int_data.tx_count = arguments->packet_length; // same block size for all
+    }
 
     while (block_countdown >= 0)
     {
         block_length = (size > arguments->packet_length - 2 ? arguments->packet_length - 2 : size);
+
+        if (arguments->variable_length)
+        {
+            radio_int_data.tx_count = block_length + 2;
+        }
 
         memset((uint8_t *) radio_int_data.tx_buf, 0, arguments->packet_length);
         memcpy((uint8_t *) &radio_int_data.tx_buf[2], block_start, block_length);
