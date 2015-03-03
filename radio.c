@@ -89,8 +89,6 @@ static uint32_t get_if_word(uint32_t freq_xtal, uint32_t if_hz);
 static void     get_chanbw_words(float bw, radio_parms_t *radio_parms);
 static void     get_rate_words(arguments_t *arguments, radio_parms_t *radio_parms);
 static void     wait_for_state(spi_parms_t *spi_parms, ccxxx0_state_t state, uint32_t timeout);
-static void     init_tx_block(arguments_t *arguments, uint8_t *packet, uint8_t size, uint8_t block_countdown);
-static void     init_test_tx_block(radio_int_data_t *data_block, arguments_t *arguments);
 static void     print_received_packet(int verbose_min);
 static void     radio_send_block(spi_parms_t *spi_parms, uint8_t block_countdown);
 static uint8_t  radio_receive_block(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *block, uint32_t *size, uint8_t *crc);
@@ -403,65 +401,6 @@ void wait_for_state(spi_parms_t *spi_parms, ccxxx0_state_t state, uint32_t timeo
             PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_SFTX); // Flush Tx FIFO
         }
     }    
-}
-
-// ------------------------------------------------------------------------------------------------
-// Prepare data block to send
-void init_tx_block(arguments_t *arguments, uint8_t *packet, uint8_t size, uint8_t block_countdown)
-// ------------------------------------------------------------------------------------------------
-{
-    uint8_t effective_size;
-
-    if (arguments->variable_length)
-    {
-        effective_size = size;
-        radio_int_data.tx_count = size + 1;
-    }
-    else
-    {
-        effective_size = (size > arguments->packet_length - 2 ? arguments->packet_length - 2 : size);
-        memset((uint8_t *) radio_int_data.tx_buf, 0, arguments->packet_length);
-        radio_int_data.tx_count = arguments->packet_length;
-    }
-
-    memcpy((uint8_t *) &radio_int_data.tx_buf[2], packet, effective_size);
-    radio_int_data.tx_buf[0] = effective_size;
-    radio_int_data.tx_buf[1] = 0; // placeholder for future block countdown
-}
-
-// ------------------------------------------------------------------------------------------------
-// Prepare test data block to send
-void init_test_tx_block(radio_int_data_t *data_block, arguments_t *arguments)
-// ------------------------------------------------------------------------------------------------
-{
-    uint8_t  phrase_length;
-    int i;
-
-    if (strlen(arguments->test_phrase) < PI_CCxxx0_PACKET_COUNT_SIZE)
-    {
-        phrase_length = strlen(arguments->test_phrase);
-    }
-    else
-    {
-        verbprintf(0, "Test phrase too long. Truncated to %d bytes\n", PI_CCxxx0_PACKET_COUNT_SIZE);
-        phrase_length = PI_CCxxx0_PACKET_COUNT_SIZE;
-    }
-
-    memset((uint8_t *) data_block->tx_buf, ' ', PI_CCxxx0_PACKET_COUNT_SIZE);
-    memcpy((uint8_t *) data_block->tx_buf, arguments->test_phrase, phrase_length);
-
-    if (arguments->packet_length == 0)
-    {
-        data_block->tx_count = phrase_length;
-    }
-    else if (arguments->packet_length < PI_CCxxx0_PACKET_COUNT_SIZE)
-    {
-        data_block->tx_count = arguments->packet_length;
-    }
-    else
-    {
-        data_block->tx_count = PI_CCxxx0_PACKET_COUNT_SIZE;
-    }
 }
 
 // ------------------------------------------------------------------------------------------------
