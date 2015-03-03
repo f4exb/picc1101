@@ -126,7 +126,6 @@ void int_packet(void)
                 p_radio_int_data->rx_count = x_byte;
                 p_radio_int_data->rx_count += 3; // Block countdown + Add RSSI + LQI/CRC bytes  
                 p_radio_int_data->bytes_remaining = p_radio_int_data->rx_count;
-                p_radio_int_data->rx_count++; // Add count for the resulting total buffer length
 
                 verbprintf(3, "%d bytes to read (variable)\n", p_radio_int_data->rx_count);
             }
