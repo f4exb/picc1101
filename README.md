@@ -70,8 +70,7 @@ Note that you have to be super user to execute the program.
   -n, --repetition=REPETITION   Repetiton factor wherever appropriate, see long
                              Help (-H) option (default : 1 single)
   -P, --packet-length=PACKET_LENGTH
-                             Packet length (fixed) or maximum packet length
-                             (variable) (default: 250)
+                             Packet length (default: 250)
   -R, --rate=DATA_RATE_INDEX Data rate index, See long help (-H) option
   -s, --radio-status         Print radio status and exit
   -t, --test-mode=TEST_SCHEME   Test scheme, See long help (-H) option fpr
@@ -95,8 +94,6 @@ Note that you have to be super user to execute the program.
                              (default: 0 inactive)
   -v, --verbose=VERBOSITY_LEVEL   Verbosiity level: 0 quiet else verbose level
                              (default : quiet)
-  -V, --variable-length      Variable packet length. Given packet length
-                             becomes maximum length (default off)
   -w, --rate-skew=RATE_MULTIPLIER
                              Data rate skew multiplier. (default 1.0 = no
                              skew)
@@ -107,8 +104,6 @@ Note that you have to be super user to execute the program.
       --usage                Give a short usage message
       --version              Print program version
 </code></pre>
-
-Note: variable length blocks are not implemented yet.
 
 ## Detailed options
 ### Radio interfece speeds (-R)
