@@ -82,13 +82,11 @@ static char args_doc[] = "";
 static struct argp_option options[] = {
     {"verbose",  'v', "VERBOSITY_LEVEL", 0, "Verbosiity level: 0 quiet else verbose level (default : quiet)"},
     {"long-help",  'H', 0, 0, "Print a long help and exit"},
-    {"tnc-serial-device",  'D', "SERIAL_DEVICE", 0, "TNC Serial device, (default : /var/ax25/axp2)"},
-    {"tnc-serial-speed",  'B', "SERIAL_SPEED", 0, "TNC Serial speed in Bauds (default : 9600)"},
     {"spi-device",  'd', "SPI_DEVICE", 0, "SPI device, (default : /dev/spidev0.0)"},
     {"modulation",  'M', "MODULATION_SCHEME", 0, "Radio modulation scheme, See long help (-H) option"},
     {"rate",  'R', "DATA_RATE_INDEX", 0, "Data rate index, See long help (-H) option"},
     {"rate-skew",  'w', "RATE_MULTIPLIER", 0, "Data rate skew multiplier. (default 1.0 = no skew)"},
-    {"packet-delay",  'l', "DELAY_UNITS", 0, "Delay before sending packet on serial or radio in 4 2-FSK symbols approximately. (default 30)"},
+    {"packet-delay",  'l', "DELAY_UNITS", 0, "Delay between successive radio blocks when transmitting a larger block. In 2-FSK byte duration units. (default 30)"},
     {"modulation-index",  'm', "MODULATION_INDEX", 0, "Modulation index (default 0.5)"},
     {"fec",  'F', 0, 0, "Activate FEC (default off)"},
     {"whitening",  'W', 0, 0, "Activate whitening (default off)"},
@@ -99,8 +97,13 @@ static struct argp_option options[] = {
     {"test-phrase",  'y', "TEST_PHRASE", 0, "Set a test phrase to be used in test (default : \"Hello, World!\")"},
     {"repetition",  'n', "REPETITION", 0, "Repetiton factor wherever appropriate, see long Help (-H) option (default : 1 single)"},
     {"radio-status",  's', 0, 0, "Print radio status and exit"},
+    {"tnc-serial-device",  'D', "SERIAL_DEVICE", 0, "TNC Serial device, (default : /var/ax25/axp2)"},
+    {"tnc-serial-speed",  'B', "SERIAL_SPEED", 0, "TNC Serial speed in Bauds (default : 9600)"},
     {"tnc-serial-window",  300, "TX_WINDOW_US", 0, "TNC time window in microseconds for concatenating serial frames. 0: no concatenation (default: 40ms))"},
     {"tnc-radio-window",  301, "RX_WINDOW_US", 0, "TNC time window in microseconds for concatenating radio frames. 0: no concatenation (default: 0))"},
+    {"tnc-keyup-delay",  302, "KEYUP_DELAY_US", 0, "TNC keyup delay in microseconds (default: 50ms). In KISS mode it can be changed live via kissparms."},
+    {"tnc-keydown-delay",  303, "KEYDOWN_DELAY_US", 0, "FUTUR USE: TNC keydown delay in microseconds (default: 0 inactive)"},
+    {"tnc-switchover-delay",  304, "SWITCHOVER_DELAY_US", 0, "FUTUR USE: TNC switchover delay in microseconds (default: 0 inactive)"},
     {0}
 };
 
@@ -178,6 +181,9 @@ static void init_args(arguments_t *arguments)
     arguments->preamble = PREAMBLE_4;
     arguments->tnc_serial_window = 40000;
     arguments->tnc_radio_window = 0;
+    arguments->tnc_keyup_delay = 50000;
+    arguments->tnc_keydown_delay = 0;
+    arguments->tnc_switchover_delay = 0;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -233,7 +239,7 @@ static void print_args(arguments_t *arguments)
 
     if (arguments->tnc_serial_window)
     {
-        fprintf(stderr, "TNC serial window ...: %.3f ms\n", arguments->tnc_serial_window / 1000.0);
+        fprintf(stderr, "TNC serial window ...: %.2f ms\n", arguments->tnc_serial_window / 1000.0);
     }
     else
     {
@@ -242,13 +248,16 @@ static void print_args(arguments_t *arguments)
 
     if (arguments->tnc_radio_window)
     {
-        fprintf(stderr, "TNC radio window ....: %.3f ms\n", arguments->tnc_radio_window / 1000.0);
+        fprintf(stderr, "TNC radio window ....: %.2f ms\n", arguments->tnc_radio_window / 1000.0);
     }
     else
     {
         fprintf(stderr, "TNC radio window ....: none\n");   
     }
-}
+
+    fprintf(stderr, "TNC keyup delay .....: %.2f ms\n", arguments->tnc_keyup_delay / 1000.0);
+    fprintf(stderr, "TNC keydown delay ...: %.2f ms\n", arguments->tnc_keydown_delay / 1000.0);
+    fprintf(stderr, "TNC switch delay ....: %.2f ms\n", arguments->tnc_switchover_delay / 1000.0);
 
 // ------------------------------------------------------------------------------------------------
 // Get test scheme from index
@@ -423,6 +432,24 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
         // KISS TNC radio link window
         case 301:
             arguments->tnc_radio_window = strtol(arg, &end, 10);
+            if (*end)
+                argp_usage(state);
+            break; 
+        // KISS TNC keyup delay
+        case 302:
+            arguments->tnc_keyup_delay = strtol(arg, &end, 10);
+            if (*end)
+                argp_usage(state);
+            break; 
+        // KISS TNC keydown delay
+        case 303:
+            arguments->tnc_keydown_delay = strtol(arg, &end, 10);
+            if (*end)
+                argp_usage(state);
+            break; 
+        // KISS TNC switchover delay 
+        case 304:
+            arguments->tnc_switchover_delay = strtol(arg, &end, 10);
             if (*end)
                 argp_usage(state);
             break; 

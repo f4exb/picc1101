@@ -14,10 +14,10 @@
 #include "radio.h"
 #include "util.h"
 
-static uint32_t kiss_tx_keyup_delay; // Tx keyup delay in microseconds
-static float    kiss_persistence;    // Persostence parameter
-static uint32_t kiss_slot_time;      // Slot time in microseconds
-static uint32_t kiss_tx_tail;        // Tx tail in microseconds (obsolete)
+static uint32_t tnc_tx_keyup_delay; // Tx keyup delay in microseconds
+static float    kiss_persistence;   // Persistence parameter
+static uint32_t kiss_slot_time;     // Slot time in microseconds
+static uint32_t kiss_tx_tail;       // Tx tail in microseconds (obsolete)
 
 // === Static functions declarations ==============================================================
 
@@ -66,10 +66,10 @@ uint8_t *kiss_tok(uint8_t *block, uint8_t *end)
 void kiss_init(arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    kiss_tx_keyup_delay = 50000; // 50ms Tx keyup delay
-    kiss_persistence = 0.25;     // 0.25 persistence parameter
-    kiss_slot_time = 100000;     // 100ms slot time
-    kiss_tx_tail = 0;            // obsolete
+    tnc_tx_keyup_delay = arguments->tnc_keyup_delay; // 50ms Tx keyup delay
+    kiss_persistence = 0.25;                          // 0.25 persistence parameter
+    kiss_slot_time = 100000;                          // 100ms slot time
+    kiss_tx_tail = 0;                                 // obsolete
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -157,7 +157,7 @@ uint8_t kiss_command(uint8_t *block)
         case 0: // data block
             return 0;
         case 1: // TXDELAY
-            kiss_tx_keyup_delay = command_arg * 10000; // these are tenths of ms
+            tnc_tx_keyup_delay = command_arg * 10000; // these are tenths of ms
             break;
         case 2: // Persistence parameter
             kiss_persistence = (command_arg + 1) / 256.0;
@@ -284,7 +284,11 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
 
                 verbprintf(2, "%d bytes to send\n", tx_count);
 
-                usleep(kiss_tx_keyup_delay);
+                if (tnc_tx_keyup_delay)
+                {
+                    usleep(tnc_tx_keyup_delay);
+                }
+
                 radio_send_packet(spi_parms, arguments, tx_buffer, tx_count);
 
                 radio_init_rx(spi_parms, arguments); // init for new packet to receive Rx
