@@ -488,8 +488,16 @@ void init_radio_parms(radio_parms_t *radio_parms, arguments_t *arguments)
     radio_parms->chanspc_e     = 0;                // Do not use channel spacing for the moment defaulting to 0
     radio_int_data.packet_length = arguments->packet_length;
 
-    radio_parms->packet_config = PKTLEN_FIXED;     // Use fixed packet length
-    radio_int_data.packet_config = PKTLEN_FIXED;
+    if (arguments->variable_length)
+    {
+        radio_parms->packet_config = PKTLEN_VARIABLE;  // Use variable packet length
+        radio_int_data.packet_config = PKTLEN_VARIABLE;
+    }
+    else
+    {
+        radio_parms->packet_config = PKTLEN_FIXED;     // Use fixed packet length
+        radio_int_data.packet_config = PKTLEN_FIXED;
+    }
 }
 
 // ------------------------------------------------------------------------------------------------
