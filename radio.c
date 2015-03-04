@@ -1002,7 +1002,14 @@ uint8_t radio_receive_block(spi_parms_t *spi_parms, arguments_t *arguments, uint
     block_size = radio_int_data.rx_buf[0] - 1; // remove block countdown byte
     block_countdown = radio_int_data.rx_buf[1];
 
-    *crc = (radio_int_data.rx_buf[arguments->packet_length + 1] & 0x80)>>7;
+    if (arguments->variable_length)
+    {
+        *crc = (radio_int_data.rx_buf[radio_int_data.rx_count - 1] & 0x80)>>7;
+    }
+    else
+    {
+        *crc = (radio_int_data.rx_buf[arguments->packet_length + 1] & 0x80)>>7;
+    }
 
     memcpy(block, (uint8_t *) &radio_int_data.rx_buf[2], block_size);
     *size += block_size;
