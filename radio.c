@@ -77,6 +77,8 @@ float chanbw_limits[] = {
 
 static radio_int_data_t *p_radio_int_data = 0;
 static radio_int_data_t radio_int_data;
+uint32_t blocks_sent;
+uint32_t blocks_received;
 uint32_t packets_sent;
 uint32_t packets_received;
 
@@ -436,6 +438,8 @@ void init_radio_int(spi_parms_t *spi_parms, arguments_t *arguments)
     radio_int_data.mode = RADIOMODE_NONE;
     radio_int_data.packet_rx_count = 0;
     radio_int_data.packet_tx_count = 0;
+    packets_sent = 0;
+    packets_received = 0;
     radio_int_data.spi_parms = spi_parms;
     radio_int_data.wait_us = 8000000 / rate_values[arguments->rate]; // approximately 2-FSK byte delay
     p_radio_int_data = &radio_int_data;
@@ -984,7 +988,7 @@ void radio_wait_free()
 void radio_init_rx(spi_parms_t *spi_parms, arguments_t *arguments)
 // ------------------------------------------------------------------------------------------------
 {
-    packets_received = radio_int_data.packet_rx_count;
+    blocks_received = radio_int_data.packet_rx_count;
     radio_int_data.mode = RADIOMODE_RX;
     radio_int_data.packet_receive = 0;    
     radio_int_data.threshold_hits = 0;
@@ -1014,7 +1018,7 @@ uint8_t radio_receive_block(spi_parms_t *spi_parms, arguments_t *arguments, uint
     memcpy(block, (uint8_t *) &radio_int_data.rx_buf[2], block_size);
     *size += block_size;
 
-    verbprintf(1, "Rx: packet #%d:%d @%d\n", radio_int_data.packet_rx_count, block_countdown, *size);
+    verbprintf(1, "Rx: packet #%d:%d >%d\n", radio_int_data.packet_rx_count, block_countdown, *size);
     print_received_packet(2);
 
     return block_countdown; // block countdown
@@ -1029,7 +1033,7 @@ uint32_t radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, ui
     uint32_t packet_size = 0;
     uint32_t timeout, timeout_value = (arguments->packet_length < 32 ? 16 : arguments->packet_length / 2); // timeout value in bocks of 4 2-FSK bytes
 
-    if (packets_received == radio_int_data.packet_rx_count) // no block received
+    if (blocks_received == radio_int_data.packet_rx_count) // no block received
     {
         return 0;
     }
@@ -1062,7 +1066,7 @@ uint32_t radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, ui
             timeout = timeout_value;
 
             // Wait for the next block to be received if any is expected
-            while((block_countdown > 0) && (packets_received == radio_int_data.packet_rx_count) && (timeout))
+            while((block_countdown > 0) && (blocks_received == radio_int_data.packet_rx_count) && (timeout))
             {
                 radio_wait_a_bit(4);
                 timeout--;
@@ -1075,6 +1079,8 @@ uint32_t radio_receive_packet(spi_parms_t *spi_parms, arguments_t *arguments, ui
             }
 
         } while (block_countdown > 0);
+
+        packets_received++;
 
         return packet_size;
     }
@@ -1104,11 +1110,11 @@ void radio_send_block(spi_parms_t *spi_parms, uint8_t block_countdown)
     PI_CC_SPIWriteBurstReg(spi_parms, PI_CCxxx0_TXFIFO, (uint8_t *) radio_int_data.tx_buf, initial_tx_count);
     radio_int_data.byte_index = initial_tx_count;
     radio_int_data.bytes_remaining = radio_int_data.tx_count - initial_tx_count;
-    packets_sent = radio_int_data.packet_tx_count;
+    blocks_sent = radio_int_data.packet_tx_count;
 
     PI_CC_SPIStrobe(spi_parms, PI_CCxxx0_STX); // Kick-off Tx
 
-    while (packets_sent == radio_int_data.packet_tx_count)
+    while (blocks_sent == radio_int_data.packet_tx_count)
     {
         radio_wait_a_bit(4);
     }
@@ -1116,7 +1122,7 @@ void radio_send_block(spi_parms_t *spi_parms, uint8_t block_countdown)
     verbprintf(1, "Tx: packet #%d:%d\n", radio_int_data.packet_tx_count, block_countdown);
     print_block(4, (uint8_t *) radio_int_data.tx_buf, radio_int_data.tx_count);
 
-    packets_sent = radio_int_data.packet_tx_count;
+    blocks_sent = radio_int_data.packet_tx_count;
     verbprintf(2,"Tx: packet length %d, FIFO threshold was hit %d times\n", radio_int_data.tx_count, radio_int_data.threshold_hits);
 }
 
@@ -1156,4 +1162,6 @@ void radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *
         size -= block_length;
         block_countdown--;
     }
+
+    packets_sent++;
 }

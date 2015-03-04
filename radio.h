@@ -100,6 +100,8 @@ extern char     *state_names[];
 extern float    chanbw_limits[];
 extern uint32_t packets_sent;
 extern uint32_t packets_received;
+extern uint32_t blocks_sent;
+extern uint32_t blocks_received;
 
 void     init_radio_parms(radio_parms_t *radio_parms, arguments_t *arguments);
 int      init_radio(radio_parms_t *radio_parms,  spi_parms_t *spi_parms, arguments_t *arguments);
