@@ -999,7 +999,7 @@ uint8_t radio_receive_block(spi_parms_t *spi_parms, arguments_t *arguments, uint
 {
     uint8_t block_countdown, block_size;
 
-    block_size = radio_int_data.rx_buf[0];
+    block_size = radio_int_data.rx_buf[0] - 1; // remove block countdown byte
     block_countdown = radio_int_data.rx_buf[1];
 
     *crc = (radio_int_data.rx_buf[arguments->packet_length + 1] & 0x80)>>7;
@@ -1135,7 +1135,7 @@ void radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *
 
         memset((uint8_t *) radio_int_data.tx_buf, 0, arguments->packet_length);
         memcpy((uint8_t *) &radio_int_data.tx_buf[2], block_start, block_length);
-        radio_int_data.tx_buf[0] = block_length;
+        radio_int_data.tx_buf[0] = block_length + 1; // size takes countdown counter into account
         radio_int_data.tx_buf[1] = (uint8_t) block_countdown; 
 
         radio_send_block(spi_parms, block_countdown);
