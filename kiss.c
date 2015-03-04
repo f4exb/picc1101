@@ -235,6 +235,7 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
                 tx_trigger = 0;
             }
 
+            radio_init_rx(spi_parms, arguments); // Init for new packet to receive
             rtx_toggle = 0;
         }
 
