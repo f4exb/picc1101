@@ -443,8 +443,6 @@ void init_radio_int(spi_parms_t *spi_parms, arguments_t *arguments)
     radio_int_data.wait_us = 8000000 / rate_values[arguments->rate]; // approximately 2-FSK byte delay
     p_radio_int_data = &radio_int_data;
 
-    radio_set_packet_length(spi_parms, arguments->packet_length);
-    
     wiringPiISR(WPI_GDO0, INT_EDGE_BOTH, &int_packet);       // set interrupt handler for packet interrupts
 
     if (arguments->packet_length >= PI_CCxxx0_FIFO_SIZE)
@@ -991,7 +989,8 @@ void radio_init_rx(spi_parms_t *spi_parms, arguments_t *arguments)
     radio_int_data.mode = RADIOMODE_RX;
     radio_int_data.packet_receive = 0;    
     radio_int_data.threshold_hits = 0;
-
+    radio_set_packet_length(spi_parms, arguments->packet_length);
+    
     PI_CC_SPIWriteReg(spi_parms, PI_CCxxx0_IOCFG2, 0x00); // GDO2 output pin config RX mode
 }
 
