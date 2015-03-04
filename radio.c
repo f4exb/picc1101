@@ -418,7 +418,7 @@ void print_received_packet(int verbose_min)
     crc_lqi  = radio_int_data.rx_buf[radio_int_data.rx_count-1];
     radio_int_data.rx_buf[radio_int_data.rx_count-2] = '\0';
 
-    verbprintf(verbose_min, "(%03d) \"%s\"\n", radio_int_data.rx_buf[0], &radio_int_data.rx_buf[1]);
+    verbprintf(verbose_min, "(%03d) \"%s\"\n", radio_int_data.rx_buf[0], &radio_int_data.rx_buf[2]);
     verbprintf(verbose_min, "RSSI: %.1f dBm. LQI=%d. CRC=%d\n", 
         rssi_dbm(rssi_dec),
         0x7F - (crc_lqi & 0x7F),
