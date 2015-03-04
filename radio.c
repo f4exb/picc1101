@@ -1125,7 +1125,7 @@ void radio_send_block(spi_parms_t *spi_parms, uint8_t block_countdown)
 void radio_send_packet(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t *packet, uint32_t size)
 // ------------------------------------------------------------------------------------------------
 {
-    int     block_countdown = size / arguments->packet_length;
+    int     block_countdown = size / (arguments->packet_length - 2);
     uint8_t *block_start = packet;
     uint8_t block_length;
 
