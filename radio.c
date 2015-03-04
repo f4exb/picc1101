@@ -1014,7 +1014,7 @@ uint8_t radio_receive_block(spi_parms_t *spi_parms, arguments_t *arguments, uint
     memcpy(block, (uint8_t *) &radio_int_data.rx_buf[2], block_size);
     *size += block_size;
 
-    verbprintf(1, "Rx: packet #%d:%d\n", radio_int_data.packet_rx_count, block_countdown);
+    verbprintf(1, "Rx: packet #%d:%d @%d\n", radio_int_data.packet_rx_count, block_countdown, *size);
     print_received_packet(2);
 
     return block_countdown; // block countdown
