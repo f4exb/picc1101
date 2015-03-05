@@ -74,6 +74,9 @@ void radio_test_echo(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t act
     uint8_t nb_bytes, rtx_bytes[RADIO_BUFSIZE];
     uint8_t rtx_toggle, rtx_count;
 
+    init_radio_int(spi_parms, arguments);
+    radio_flush_fifos(spi_parms);
+
     if (active)
     {
         nb_bytes = strlen(arguments->test_phrase);
