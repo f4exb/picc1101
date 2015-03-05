@@ -79,7 +79,7 @@ void radio_test_echo(spi_parms_t *spi_parms, radio_parms_t *radio_parms, argumen
     init_radio_int(spi_parms, arguments);
     radio_flush_fifos(spi_parms);
 
-    timeout_value = (uint32_t) (arguments->packet_length * 3 * radio_get_byte_time(radio_parms));
+    timeout_value = (uint32_t) (arguments->packet_length * 10 * radio_get_byte_time(radio_parms));
     timeout = 0;
 
     if (active)
