@@ -963,6 +963,34 @@ uint8_t radio_get_packet_length(spi_parms_t *spi_parms)
 }
 
 // ------------------------------------------------------------------------------------------------
+// Get the actual data rate in Bauds
+float radio_get_rate(radio_parms_t *radio_parms)
+// ------------------------------------------------------------------------------------------------
+{
+    return ((float) (radio_parms->f_xtal) / (1<<28)) * (256 + radio_parms->drate_m) * (1<<radio_parms->drate_e);
+}
+
+// ------------------------------------------------------------------------------------------------
+// Get the time to transmit or receive a byte in microseconds
+float radio_get_byte_time(radio_parms_t *radio_parms, arguments_t *arguments)
+// ------------------------------------------------------------------------------------------------
+{
+    float base_time = 8000000.0 / radio_get_rate(radio_parms);
+
+    if (arguments->modulation == MOD_FSK4)
+    {
+        base_time /= 2.0;
+    }
+
+    if (arguments->fec)
+    {
+        base_time *= 2.0;
+    }
+
+    return base_time;
+}
+
+// ------------------------------------------------------------------------------------------------
 // Wait for approximately an amount of 2-FSK symbols bytes
 void radio_wait_a_bit(uint32_t amount)
 // ------------------------------------------------------------------------------------------------
