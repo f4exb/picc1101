@@ -3,8 +3,30 @@ picc1101
 
 Connect Raspberry-Pi to CC1101 RF module and play with AX.25/KISS to transmit TCP/IP over the air.
 
-* auto-gen TOC:
-{:toc}
+- [Introduction](#)
+- [Disclaimer](#)
+- [Installation and basic usage](#)
+  - [Prerequisites](#)
+  - [Obtain the code](#)
+  - [Compilation](#)
+  - [Run test programs](#)
+  - [Program options](#)
+  - [Detailed options](#)
+    - [Radio interfece speeds (-R)](#)
+    - [Modulations (-M)](#)
+    - [Test routines (-t)](#)
+- [AX.25/KISS operation](#)
+  - [Set up the AX.25/KISS environment](#)
+    - [Kernel modules](#)
+    - [Install AX.25 and KISS software](#)
+    - [Create your AX.25 interfaces configuration](#)
+    - [Create a virtual serial link](#)
+    - [Create the network device using kissattach](#)
+    - [Scripts that will run these commands](#)
+  - [Run the program](#)
+- [Details of the design](#)
+  - [Multiple block handling](#)
+  - [Mitigate AX.25/KISS spurious packet retransmissions](#)
 
 # Introduction
 The aim of this program is to connect a RF module based on the Texas Instruments (Chipcon) chip CC1101 to a Raspberry-Pi host machine. The CC1101 chip is a OOK/2-FSK/4-FSK/MSK/GFSK low power (~10dBm) digital transceiver working in the 315, 433 and 868 MHz ISM bands. The 433 MHz band also happens to cover the 70cm Amateur Radio band and the major drive of this work is to use these modules as a modern better alternative to the legacy [Terminal Node Controllers](http://en.wikipedia.org/wiki/Terminal_node_controller) or TNCs working in 1200 baud FM AFSK or 9600 baud G3RUH true 2-FSK modulation at best. Using the Linux native AX.25 and KISS interface to the TNCs it is then possible to route TCP/IP traffic using these modules offering the possibility to connect to the Amateur Radio private IP network known as [Hamnet](http://hamnetdb.net/).
