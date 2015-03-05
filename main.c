@@ -561,11 +561,11 @@ int main (int argc, char **argv)
     }
     else if (arguments.test_mode == TEST_TX_ECHO)
     {
-        radio_test_echo(&spi_parameters, &arguments, 1);
+        radio_test_echo(&spi_parameters, &radio_parameters, &arguments, 1);
     }
     else if (arguments.test_mode == TEST_RX_ECHO)
     {
-        radio_test_echo(&spi_parameters, &arguments, 0);
+        radio_test_echo(&spi_parameters, &radio_parameters, &arguments, 0);
     }
     else
     {
