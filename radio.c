@@ -945,7 +945,7 @@ void print_radio_parms(radio_parms_t *radio_parms)
     fprintf(stderr, "Packet length ..........: %d bytes\n",
         radio_parms->packet_length);
     fprintf(stderr, "Packet time ............: %d us\n",
-        (uint32_t) (radio_parms->packet_length * radio_get_byte_time(radio_parms));
+        (uint32_t) (radio_parms->packet_length * radio_get_byte_time(radio_parms)));
     fprintf(stderr, "Byte time ..............: %d us\n",
         ((uint32_t) radio_get_byte_time(radio_parms)));
 }
