@@ -187,6 +187,7 @@ void int_packet(void)
                 {
                     verbprintf(0, "RADIO: anomalous condition detected on GDO0 Tx falling edge\n");
                     print_radio_status(p_radio_int_data->spi_parms);
+                    radio_flush_fifos(p_radio_int_data->spi_parms);
                 }
             }
         }
