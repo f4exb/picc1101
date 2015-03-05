@@ -40,24 +40,35 @@ typedef enum packet_config_e
     PKTLEN_INFINITE
 } packet_config_t;
 
+typedef enum radio_modulation_e {
+    RADIO_MOD_OOK,
+    RADIO_MOD_FSK2,
+    RADIO_MOD_FSK4,
+    RADIO_MOD_MSK,
+    RADIO_MOD_GFSK,
+    NUM_RADIO_MOD
+} radio_modulation_t;
+
 typedef struct radio_parms_s
 {
-    uint32_t        f_xtal;        // Crystal frequency (Hz)
-    uint32_t        f_if;          // IF frequency (Hz)
-    packet_config_t packet_config; // Packet length configuration
-    uint8_t         packet_length; // Packet length if fixed
-    sync_word_t     sync_ctl;      // Sync word control
-    float           deviat_factor; // FSK-2 deviation is +/- data rate divised by this factor
-    uint32_t        freq_word;     // Frequency 24 bit word FREQ[23..0]
-    uint8_t         chanspc_m;     // Channel spacing mantissa 
-    uint8_t         chanspc_e;     // Channel spacing exponent
-    uint8_t         if_word;       // Intermediate frequency 5 bit word FREQ_IF[4:0] 
-    uint8_t         drate_m;       // Data rate mantissa
-    uint8_t         drate_e;       // Data rate exponent
-    uint8_t         chanbw_m;      // Channel bandwidth mantissa
-    uint8_t         chanbw_e;      // Channel bandwidth exponent
-    uint8_t         deviat_m;      // Deviation mantissa
-    uint8_t         deviat_e;      // Deviation exponent
+    uint32_t           f_xtal;        // Crystal frequency (Hz)
+    uint32_t           f_if;          // IF frequency (Hz)
+    packet_config_t    packet_config; // Packet length configuration
+    uint8_t            packet_length; // Packet length if fixed
+    radio_modulation_t modulation;    // Type of modulation
+    uint8_t            fec;           // FEC is in use
+    sync_word_t        sync_ctl;      // Sync word control
+    float              deviat_factor; // FSK-2 deviation is +/- data rate divised by this factor
+    uint32_t           freq_word;     // Frequency 24 bit word FREQ[23..0]
+    uint8_t            chanspc_m;     // Channel spacing mantissa 
+    uint8_t            chanspc_e;     // Channel spacing exponent
+    uint8_t            if_word;       // Intermediate frequency 5 bit word FREQ_IF[4:0] 
+    uint8_t            drate_m;       // Data rate mantissa
+    uint8_t            drate_e;       // Data rate exponent
+    uint8_t            chanbw_m;      // Channel bandwidth mantissa
+    uint8_t            chanbw_e;      // Channel bandwidth exponent
+    uint8_t            deviat_m;      // Deviation mantissa
+    uint8_t            deviat_e;      // Deviation exponent
 } radio_parms_t;
 
 typedef enum radio_int_scheme_e 
@@ -118,7 +129,7 @@ int      print_radio_status(spi_parms_t *spi_parms);
 int      radio_set_packet_length(spi_parms_t *spi_parms, uint8_t pkt_len);
 uint8_t  radio_get_packet_length(spi_parms_t *spi_parms);
 float    radio_get_rate(radio_parms_t *radio_parms);
-float    radio_get_byte_time(radio_parms_t *radio_parms, arguments_t *arguments);
+float    radio_get_byte_time(radio_parms_t *radio_parms);
 void     radio_wait_a_bit(uint32_t amount);
 void     radio_wait_free();
 

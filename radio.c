@@ -491,6 +491,8 @@ void init_radio_parms(radio_parms_t *radio_parms, arguments_t *arguments)
     radio_parms->sync_ctl      = SYNC_30_over_32;  // 30/32 sync word bits detected
     radio_parms->chanspc_m     = 0;                // Do not use channel spacing for the moment defaulting to 0
     radio_parms->chanspc_e     = 0;                // Do not use channel spacing for the moment defaulting to 0
+    radio_parms->modulation    = (radio_modulation_t) arguments->modulation;
+    radio_parms->fec           = arguments->fec;
     radio_int_data.packet_length = arguments->packet_length;
 
     if (arguments->variable_length)
@@ -937,11 +939,15 @@ void print_radio_parms(radio_parms_t *radio_parms)
     fprintf(stderr, "Channel bandwidth.......: %.3f kHz (M=%d, E=%d)\n",
         (radio_parms->f_xtal/1e3) / (8*(4+radio_parms->chanbw_m)*(1<<radio_parms->chanbw_e)), radio_parms->chanbw_m, radio_parms->chanbw_e);
     fprintf(stderr, "Data rate ..............: %.1f Baud (M=%d, E=%d)\n",
-        ((float) (radio_parms->f_xtal) / (1<<28)) * (256 + radio_parms->drate_m) * (1<<radio_parms->drate_e), radio_parms->drate_m, radio_parms->drate_e);
+        radio_get_rate(radio_parms), radio_parms->drate_m, radio_parms->drate_e);
     fprintf(stderr, "Deviation ..............: %.3f kHz (M=%d, E=%d)\n",
         ((radio_parms->f_xtal/1e3) / (1<<17)) * (8 + radio_parms->deviat_m) * (1<<radio_parms->deviat_e), radio_parms->deviat_m, radio_parms->deviat_e);
     fprintf(stderr, "Packet length ..........: %d bytes\n",
         radio_parms->packet_length);
+    fprintf(stderr, "Byte time ..............: %d us\n",
+        radio_parms->packet_length * ((uint32_t) radio_get_byte_time(radio_parms)));
+    fprintf(stderr, "Packet time ............: %d us\n",
+        ((uint32_t) radio_get_byte_time(radio_parms)));
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -972,17 +978,17 @@ float radio_get_rate(radio_parms_t *radio_parms)
 
 // ------------------------------------------------------------------------------------------------
 // Get the time to transmit or receive a byte in microseconds
-float radio_get_byte_time(radio_parms_t *radio_parms, arguments_t *arguments)
+float radio_get_byte_time(radio_parms_t *radio_parms)
 // ------------------------------------------------------------------------------------------------
 {
     float base_time = 8000000.0 / radio_get_rate(radio_parms);
 
-    if (arguments->modulation == MOD_FSK4)
+    if (radio_parms->modulation == RADIO_MOD_FSK4)
     {
         base_time /= 2.0;
     }
 
-    if (arguments->fec)
+    if (radio_parms->fec)
     {
         base_time *= 2.0;
     }
