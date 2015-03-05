@@ -310,6 +310,6 @@ void kiss_run(serial_t *serial_parms, spi_parms_t *spi_parms, arguments_t *argum
             }                        
         }
 
-        radio_wait_a_bit(1);
+        radio_wait_a_bit(4);
     }
 }
