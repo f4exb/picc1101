@@ -4,6 +4,8 @@
 #include <inttypes.h>
 #include <termios.h> 
 
+#define ALLOW_VAR_BLOCKS 0
+
 typedef enum test_mode_e {
     TEST_NONE = 0,
     TEST_TX_SIMPLE,

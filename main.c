@@ -384,7 +384,14 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
             break; 
         // Variable length packet
         case 'V':
-            arguments->variable_length = 1;
+            if (ALLOW_VAR_BLOCKS)
+            {
+                arguments->variable_length = 1;
+            }
+            else
+            {
+                fprintf(stderr, "Variable length blocks are not allowed (yet?)\n");
+            }
             break;
         // Repetition factor
         case 'n':
