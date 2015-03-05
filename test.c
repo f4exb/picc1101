@@ -93,7 +93,7 @@ void radio_test_echo(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t act
         {
             if (rtx_toggle) // Tx
             {
-                verbprintf("Sending #%d\n", packets_sent);
+                verbprintf(0, "Sending #%d\n", packets_sent);
 
                 radio_wait_free(); // make sure no radio operation is in progress
                 radio_send_packet(spi_parms, arguments, rtx_bytes, nb_bytes);
@@ -109,7 +109,7 @@ void radio_test_echo(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t act
 
             if (!rtx_toggle) // Rx
             {
-                verbprintf("Receiving #%d\n", packets_received);
+                verbprintf(0, "Receiving #%d\n", packets_received);
 
                 radio_init_rx(spi_parms, arguments); // Init for new packet to receive
                 radio_turn_rx(spi_parms);            // Put back into Rx
