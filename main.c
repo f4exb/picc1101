@@ -532,6 +532,7 @@ int main (int argc, char **argv)
     if (ret != 0)
     {
         fprintf(stderr, "PICC: Cannot initialize radio link, RC=%d\n", ret);
+        delete_args(&arguments);
         return ret;
     }
 
@@ -539,27 +540,22 @@ int main (int argc, char **argv)
     {
         fprintf(stderr, "\n--- Radio state ---\n");
         print_radio_status(&spi_parameters);
-        return 0;
     }
     else if (arguments.test_mode == TEST_TX_SIMPLE)
     {
         radio_transmit_test(&spi_parameters, &arguments);
-        return 0;
     }
     else if (arguments.test_mode == TEST_TX_INTERRUPT)
     {
         radio_transmit_test_int(&spi_parameters, &arguments);
-        return 0;
     }
     else if (arguments.test_mode == TEST_RX_SIMPLE)
     {
         radio_receive_test(&spi_parameters, &arguments);
-        return 0;
     }
     else if (arguments.test_mode == TEST_RX_INTERRUPT)
     {
         radio_receive_test_int(&spi_parameters, &arguments);
-        return 0;
     }
     else
     {
