@@ -30,7 +30,9 @@ char *test_mode_names[] = {
     "Simple Tx with polling. Packet < 64 bytes",
     "Simple Tx with packet interrupt handling. Packet up to 255 bytes",
     "Simple Rx with polling. Packet < 64 bytes",
-    "Simple Rx with packet interrupt handling. Packet up to 255 bytes"
+    "Simple Rx with packet interrupt handling. Packet up to 255 bytes",
+    "Simple echo test starting with Tx",
+    "Simple echo test starting with Rx"
 };
 
 char *modulation_names[] = {
@@ -556,6 +558,14 @@ int main (int argc, char **argv)
     else if (arguments.test_mode == TEST_RX_INTERRUPT)
     {
         radio_receive_test_int(&spi_parameters, &arguments);
+    }
+    else if (arguments.test_mode == TEST_TX_ECHO)
+    {
+        radio_test_echo(&spi_parameters, &arguments, 1);
+    }
+    else if (arguments.test_mode == TEST_RX_ECHO)
+    {
+        radio_test_echo(&spi_parameters, &arguments, 0);
     }
     else
     {

@@ -13,8 +13,9 @@
 #include "main.h"
 #include "pi_cc_spi.h"
 
-int radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments);
-int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments);
+int  radio_transmit_test_int(spi_parms_t *spi_parms, arguments_t *arguments);
+int  radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments);
+void radio_test_echo(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t active);
 
 int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments);
 int radio_receive_test(spi_parms_t *spi_parms, arguments_t *arguments);

@@ -12,6 +12,8 @@ typedef enum test_mode_e {
     TEST_TX_INTERRUPT,
     TEST_RX_SIMPLE,
     TEST_RX_INTERRUPT,
+    TEST_TX_ECHO,
+    TEST_RX_ECHO,
     NUM_TEST
 } test_mode_t;
 

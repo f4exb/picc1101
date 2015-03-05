@@ -65,6 +65,70 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
     }
 }
 
+
+// ------------------------------------------------------------------------------------------------
+// Simple echo test
+void radio_test_echo(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t active)
+// ------------------------------------------------------------------------------------------------
+{
+    uint8_t nb_bytes, rtx_bytes[RADIO_BUFSIZE];
+    uint8_t rtx_toggle, rtx_count;
+
+    if (active)
+    {
+        nb_bytes = strlen(arguments->test_phrase);
+        strcpy(rtx_bytes, arguments->test_phrase);
+        rtx_toggle = 1;
+    }
+    else
+    {
+        rtx_toggle = 0;
+    }
+
+    while (packets_sent < arguments->repetition)
+    {
+        rtx_count = 0;
+
+        do // Rx-Tx transaction in whichever order
+        {
+            if (rtx_toggle) // Tx
+            {
+                verbprintf("Sending #%d\n", packets_sent);
+
+                radio_wait_free(); // make sure no radio operation is in progress
+                radio_send_packet(spi_parms, arguments, rtx_bytes, nb_bytes);
+                radio_wait_a_bit(4);
+                rtx_count++;
+                rtx_toggle = 0; // next is Rx
+            }
+
+            if (rtx_count >= 2)
+            {
+                break;
+            }
+
+            if (!rtx_toggle) // Rx
+            {
+                verbprintf("Receiving #%d\n", packets_received);
+
+                radio_init_rx(spi_parms, arguments); // Init for new packet to receive
+                radio_turn_rx(spi_parms);            // Put back into Rx
+
+                do
+                {
+                    radio_wait_free(); // make sure no radio operation is in progress
+                    nb_bytes = radio_receive_packet(spi_parms, arguments, rtx_bytes);
+                    radio_wait_a_bit(4);
+                } while(nb_bytes == 0);
+
+                rtx_count++;
+                rtx_toggle = 1; // next is Tx                
+            }
+
+        } while(rtx_count < 2); 
+    }    
+}
+
 // ------------------------------------------------------------------------------------------------
 // Transmission test with polling of registers
 int radio_transmit_test(spi_parms_t *spi_parms, arguments_t *arguments)
