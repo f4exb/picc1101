@@ -68,14 +68,19 @@ int radio_receive_test_int(spi_parms_t *spi_parms, arguments_t *arguments)
 
 // ------------------------------------------------------------------------------------------------
 // Simple echo test
-void radio_test_echo(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t active)
+void radio_test_echo(spi_parms_t *spi_parms, radio_parms_t *radio_parms, arguments_t *arguments, uint8_t active)
 // ------------------------------------------------------------------------------------------------
 {
-    uint8_t nb_bytes, rtx_bytes[RADIO_BUFSIZE];
-    uint8_t rtx_toggle, rtx_count;
+    uint8_t  nb_bytes, rtx_bytes[RADIO_BUFSIZE];
+    uint8_t  rtx_toggle, rtx_count;
+    uint32_t timeout_value, timeout;
+    struct timeval tdelay, tstart, tstop;
 
     init_radio_int(spi_parms, arguments);
     radio_flush_fifos(spi_parms);
+
+    timeout_value = arguments->packet_length * ((uint32_t) 2.5 * radio_get_byte_time(radio_parms, arguments));
+    timeout = 0;
 
     if (active)
     {
@@ -101,6 +106,7 @@ void radio_test_echo(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t act
                 radio_wait_free(); // make sure no radio operation is in progress
                 radio_send_packet(spi_parms, arguments, rtx_bytes, nb_bytes);
                 radio_wait_a_bit(4);
+                timeout = timeout_value; // arm Rx timeout
                 rtx_count++;
                 rtx_toggle = 0; // next is Rx
             }
@@ -117,12 +123,32 @@ void radio_test_echo(spi_parms_t *spi_parms, arguments_t *arguments, uint8_t act
                 radio_init_rx(spi_parms, arguments); // Init for new packet to receive
                 radio_turn_rx(spi_parms);            // Put back into Rx
 
+                if (timeout > 0)
+                {
+                    gettimeofday(&tstart, NULL);
+                }
+
                 do
                 {
                     radio_wait_free(); // make sure no radio operation is in progress
                     nb_bytes = radio_receive_packet(spi_parms, arguments, rtx_bytes);
                     radio_wait_a_bit(4);
-                } while(nb_bytes == 0);
+
+                    if (timeout > 0)
+                    {
+                        gettimeofday(&tstop, NULL);
+                        timeval_subtract(&tdelay, &tstop, &tstart);
+
+                        if (ts_us(&tdelay) > timeout)
+                        {
+                            verbprintf(0, "Time out reached. Faking receiving data\n");
+                            nb_bytes = strlen(arguments->test_phrase);
+                            strcpy(rtx_bytes, arguments->test_phrase);                            
+                            break;
+                        }
+                    }
+
+                } while (nb_bytes == 0);
 
                 rtx_count++;
                 rtx_toggle = 1; // next is Tx                
