@@ -99,6 +99,11 @@ void radio_test_echo(spi_parms_t *spi_parms, radio_parms_t *radio_parms, argumen
 
         do // Rx-Tx transaction in whichever order
         {
+            if (arguments->tnc_tx_keyup_delay)
+            {
+                usleep(arguments->tnc_tx_keyup_delay);
+            }
+
             if (rtx_toggle) // Tx
             {
                 verbprintf(0, "Sending #%d\n", packets_sent);
@@ -114,6 +119,11 @@ void radio_test_echo(spi_parms_t *spi_parms, radio_parms_t *radio_parms, argumen
             if (rtx_count >= 2)
             {
                 break;
+            }
+
+            if (arguments->tnc_tx_keydown_delay)
+            {
+                usleep(arguments->tnc_tx_keydown_delay);
             }
 
             if (!rtx_toggle) // Rx
