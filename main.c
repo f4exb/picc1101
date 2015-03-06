@@ -184,7 +184,7 @@ static void init_args(arguments_t *arguments)
     arguments->preamble = PREAMBLE_4;
     arguments->tnc_serial_window = 40000;
     arguments->tnc_radio_window = 0;
-    arguments->tnc_keyup_delay = 10000;
+    arguments->tnc_keyup_delay = 4000;
     arguments->tnc_keydown_delay = 0;
     arguments->tnc_switchover_delay = 0;
     arguments->real_time = 0;
