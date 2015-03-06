@@ -5,6 +5,7 @@
 #include <termios.h> 
 
 #define ALLOW_VAR_BLOCKS 0
+#define ALLOW_REAL_TIME  1
 
 typedef enum test_mode_e {
     TEST_NONE = 0,
@@ -97,6 +98,7 @@ typedef struct arguments_s {
     uint32_t     tnc_keyup_delay;      // TNC keyup delay in microseconds
     uint32_t     tnc_keydown_delay;    // TNC keydown delay in microseconds
     uint32_t     tnc_switchover_delay; // TNC Rx/Tx switchover delay in microseconds
+    uint8_t      real_time;            // Engage so called "real time" scheduling
 } arguments_t;
 
 #endif

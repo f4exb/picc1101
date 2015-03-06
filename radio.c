@@ -520,6 +520,21 @@ int init_radio(radio_parms_t *radio_parms, spi_parms_t *spi_parms, arguments_t *
     wiringPiSetup(); // initialize Wiring Pi library and GDOx interrupt routines
     verbprintf(1, "wiringPiSetup done.\n");
 
+    // Switch main thread to real time
+    if (arguments->real_time)
+    {
+        ret = piHiPri(1);
+
+        if (ret == 0)
+        {
+            fprintf(stderr, "RADIO: real time OK\n");
+        }
+        else
+        {
+            perror("RADIO: cannot set in real time");
+        }
+    }
+
     // open SPI link
     PI_CC_SPIParmsDefaults(spi_parms);
     ret = PI_CC_SPISetup(spi_parms, arguments);

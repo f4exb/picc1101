@@ -84,6 +84,7 @@ static char args_doc[] = "";
 static struct argp_option options[] = {
     {"verbose",  'v', "VERBOSITY_LEVEL", 0, "Verbosiity level: 0 quiet else verbose level (default : quiet)"},
     {"long-help",  'H', 0, 0, "Print a long help and exit"},
+    {"real-time",  'T', 0, 0, "Engage so called \"real time\" scheduling (defalut 0: no)"},
     {"spi-device",  'd', "SPI_DEVICE", 0, "SPI device, (default : /dev/spidev0.0)"},
     {"modulation",  'M', "MODULATION_SCHEME", 0, "Radio modulation scheme, See long help (-H) option"},
     {"rate",  'R', "DATA_RATE_INDEX", 0, "Data rate index, See long help (-H) option"},
@@ -186,6 +187,7 @@ static void init_args(arguments_t *arguments)
     arguments->tnc_keyup_delay = 10000;
     arguments->tnc_keydown_delay = 0;
     arguments->tnc_switchover_delay = 0;
+    arguments->real_time = 0;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -214,6 +216,7 @@ static void print_args(arguments_t *arguments)
 {
     fprintf(stderr, "-- options --\n");
     fprintf(stderr, "Verbosity ...........: %d\n", arguments->verbose_level);
+    fprintf(stderr, "Real time ...........: %s\n", (arguments->real_time ? "yes" : "no"));
     fprintf(stderr, "--- radio ---\n");
     fprintf(stderr, "Modulation ..........: %s\n", modulation_names[arguments->modulation]);
     fprintf(stderr, "Rate nominal ........: %d Baud\n", rate_values[arguments->rate]);
@@ -393,6 +396,17 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state)
             else
             {
                 fprintf(stderr, "Variable length blocks are not allowed (yet?)\n");
+            }
+            break;
+        // Real time scheduling
+        case 'T':
+            if (ALLOW_REAL_TIME)
+            {
+                arguments->real_time = 1;
+            }
+            else
+            {
+                fprintf(stderr, "Real time scheduling is not allowed\n");
             }
             break;
         // Repetition factor
