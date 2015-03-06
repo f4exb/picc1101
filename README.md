@@ -3,6 +3,7 @@ picc1101
 
 Connect Raspberry-Pi to CC1101 RF module and play with AX.25/KISS to transmit TCP/IP over the air.
 
+- [picc1101](#picc1101)
 - [Introduction](#introduction)
 - [Disclaimer](#disclaimer)
 - [Installation and basic usage](#installation-and-basic-usage)
@@ -10,6 +11,9 @@ Connect Raspberry-Pi to CC1101 RF module and play with AX.25/KISS to transmit TC
   - [Obtain the code](#obtain-the-code)
   - [Compilation](#compilation)
   - [Run test programs](#run-test-programs)
+  - [Process priority](#process-priority)
+    - [Specify a higher priority at startup](#specify-a-higher-priority-at-startup)
+    - [Engage the "real time" priority](#engage-the-real-time-priority)
   - [Program options](#program-options)
   - [Detailed options](#detailed-options)
     - [Radio interfece speeds (-R)](#radio-interfece-speeds--r)
@@ -74,6 +78,16 @@ This will send 5 blocks of 250 bytes at 9600 Baud using GFSK modulation and rece
 
 Note that you have to be super user to execute the program.
 
+## Process priority
+You may experience better behaviour (less timeouts) depending on the speed of the link when raising the prioriry of the process. Interrupts are already served with high priority (-56) with the WiringPi library. The main process may need a little boost as well though
+
+### Specify a higher priority at startup
+You can use the `nice` utility: `sudo nice -n -20 ./picc1101 options...` 
+This will set the priority to 0 and is the minimum you can obtain with the `nice` commmand. The lower the priority figure the higher the actual priority. 
+
+### Engage the "real time" priority
+You can use option -T of the program to get an even lower priority of -2 for a so called "real time" scheduling. This is not real time actually but will push the priority figure into the negative numbers. It has been implemented with the WiringPi piHiPri method and -2 is the practical lowest figure possible before entering into bad behaviour that might make a cold reboot necessary. Note that this is the same priority as the watchdog.
+
 ## Program options
 <pre><code>
   -B, --tnc-serial-speed=SERIAL_SPEED
@@ -105,7 +119,7 @@ Note that you have to be super user to execute the program.
                              FUTUR USE: TNC keydown delay in microseconds
                              (default: 0 inactive)
       --tnc-keyup-delay=KEYUP_DELAY_US
-                             TNC keyup delay in microseconds (default: 10ms).
+                             TNC keyup delay in microseconds (default: 4ms).
                              In KISS mode it can be changed live via
                              kissparms.
       --tnc-radio-window=RX_WINDOW_US
@@ -118,6 +132,8 @@ Note that you have to be super user to execute the program.
       --tnc-switchover-delay=SWITCHOVER_DELAY_US
                              FUTUR USE: TNC switchover delay in microseconds
                              (default: 0 inactive)
+  -T, --real-time            Engage so called "real time" scheduling (defalut
+                             0: no)
   -v, --verbose=VERBOSITY_LEVEL   Verbosiity level: 0 quiet else verbose level
                              (default : quiet)
   -V, --variable-length      Variable packet length. Given packet length
