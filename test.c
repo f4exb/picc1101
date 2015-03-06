@@ -99,9 +99,9 @@ void radio_test_echo(spi_parms_t *spi_parms, radio_parms_t *radio_parms, argumen
 
         do // Rx-Tx transaction in whichever order
         {
-            if (arguments->tnc_tx_keyup_delay)
+            if (arguments->tnc_keyup_delay)
             {
-                usleep(arguments->tnc_tx_keyup_delay);
+                usleep(arguments->tnc_keyup_delay);
             }
 
             if (rtx_toggle) // Tx
@@ -121,9 +121,9 @@ void radio_test_echo(spi_parms_t *spi_parms, radio_parms_t *radio_parms, argumen
                 break;
             }
 
-            if (arguments->tnc_tx_keydown_delay)
+            if (arguments->tnc_keydown_delay)
             {
-                usleep(arguments->tnc_tx_keydown_delay);
+                usleep(arguments->tnc_keydown_delay);
             }
 
             if (!rtx_toggle) // Rx
