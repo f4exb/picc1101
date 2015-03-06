@@ -69,12 +69,12 @@ The result is the `picc1101` executable in the same directory
 
 ## Run test programs
 On the sending side:
-  - `sudo ./picc1101 -v1 -B 9600 -P 250 -R7 -M4 -W -l20 -t2 -n5`
+  - `sudo ./picc1101 -v1 -B 9600 -P 252 -R7 -M4 -W -l15 -t2 -n5`
 
 On the receiving side:
-  - `sudo ./picc1101 -v1 -B 9600 -P 250 -R7 -M4 -W -l20 -t4 -n5`
+  - `sudo ./picc1101 -v1 -B 9600 -P 252 -R7 -M4 -W -l15 -t4 -n5`
 
-This will send 5 blocks of 250 bytes at 9600 Baud using GFSK modulation and receive them at the other end. The block will contain the default test phrase `Hello, World!`.
+This will send 5 blocks of 252 bytes at 9600 Baud using GFSK modulation and receive them at the other end. The block will contain the default test phrase `Hello, World!`.
 
 Note that you have to be super user to execute the program.
 
@@ -194,6 +194,8 @@ Value: Scheme:
 2      Simple Tx with packet interrupt handling. Packet up to 255 bytes
 3      Simple Rx with polling. Packet smaller than 64 bytes
 4      Simple Rx with packet interrupt handling. Packet up to 255 bytes
+5      Simple echo test starting with Tx
+6      Simple echo test starting with Rx
 </code></pre>
 
 # AX.25/KISS operation
@@ -212,10 +214,11 @@ Alternatively you can specify these modules to be loaded at boot time by adding 
 
 ### Create your AX.25 interfaces configuration
 In `/etc/ax25/axports` you have to add a line with:
-  - `<interface name> <callsign and suffix> <speed> <window size> <comment>`
+  - `<interface name> <callsign and suffix> <speed> <paclen> <window size> <comment>`
   - *interface name* is any name you will refer this interface to later
   - *callsign and suffix* is your callsign and a suffix from 0 to 15. Ex: `F4EXB-14` and is the interface hardware address for AX.25 just like the MAC address is the hardware address for Ethrnet.
   - *speed* is the speed in Baud. This has not been found really effective. The speed will be determined by the settings of the CC1101 itself and the TCP/IP flow will adapt to the actual speed.
+  - *paclen* this is the MTU of the network interface (ax0). Effectively this sets the limit on the size of each individual KISS frame although several frames can be concatenated. The value 224 along with a fixed radio block size (-P parameter) of 252 has been found satisfactory in most conditions.  
   - *window size* is a number from 1 to 7 and is the maximum number of packets before an acknowledgement is required. This doesn't really work with KISS. KISS determines how many packets can be combined together in concatenated KISS frames that are sent as a single block. On the other end of the transmission the ACK can only be returned after the whole block has been received.
   - *comment* is any descriptive comment
 
@@ -227,8 +230,8 @@ Example:
 #
 # name callsign speed paclen window description
 #
-radio0  F4EXB-14           9600  220     1       Hamnet CC1101
-radio1  F4EXB-15           9600  220     1       Hamnet CC1101
+radio0  F4EXB-14           9600  224     1       Hamnet CC1101
+radio1  F4EXB-15           9600  224     1       Hamnet CC1101
 #1      OH2BNS-1           1200  255     2       144.675 MHz (1200  bps)
 #2      OH2BNS-9          38400  255     7       TNOS/Linux  (38400 bps)
 </code></pre>
@@ -253,7 +256,7 @@ This will create the `ax0` network device as shown by the `/sbin/ifconfig` comma
 <pre><code>
 ax0       Link encap:AMPR AX.25  HWaddr F4EXB-15  
           inet addr:10.0.1.7  Bcast:10.0.1.255  Mask:255.255.255.0
-          UP BROADCAST RUNNING  MTU:220  Metric:1
+          UP BROADCAST RUNNING  MTU:224  Metric:1
           RX packets:3033 errors:24 dropped:0 overruns:0 frame:0
           TX packets:3427 errors:0 dropped:0 overruns:0 carrier:0
           collisions:0 txqueuelen:10 
@@ -272,13 +275,13 @@ Examples:
 ## Run the program
 This example will set the CC1101 at 9600 Baud with GFSK modulation:
 
-  - `sudo ./picc1101 -v1 -B 9600 -P 250 -R7 -M4 -W -l20`
+  - `sudo ./picc1101 -v1 -B 9600 -P 252 -R7 -M4 -W -l15`
 
 Other options are:
   - verbosity level (-v) of 1 will only display basic execution messages, errors and warnings
-  - radio block size (-P) is fixed at 250 bytes
+  - radio block size (-P) is fixed at 252 bytes
   - data whitening is in use (-W)
-  - inter-block pause when sending multiple blocks (see next) is set for a 20 bytes transmission time approximately (-l) 
+  - inter-block pause when sending multiple blocks (see next) is set for a 15 bytes transmission time approximately (-l) 
 
 Note that you have to be super user to execute the program.
 
@@ -303,7 +306,7 @@ To mitigate this effect when a packet is received on the serial link if another 
 
 The same mechanism exists on the radio side to possibly concatenate radio packets before they are sent on the serial line. The corresponding delay is called the TNC radio window.
 
-These delays can be entered on the command line with the following long options with arguments in microseconds. The defaults have proved satisfactory on a 9600 Baud 2-FSK with 250 byte packets transmission. You may want to play with them or tweak them for different transmission characteristics:
+These delays can be entered on the command line with the following long options with arguments in microseconds. The defaults have proved satisfactory on a 9600 Baud 2-FSK with 252 byte packets transmission. You may want to play with them or tweak them for different transmission characteristics:
   - `--tnc-serial-window`: defaults to 40ms. 
   - `--tnc-radio-window`: defaults to 0 that is no delay. Once the packet is received it will be immediately transfered to the serial link. At 9600 Baud 2-FSK with 250 byte packets the transmission time is already 208ms.
   
