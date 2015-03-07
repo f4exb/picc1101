@@ -28,8 +28,8 @@ Connect Raspberry-Pi to CC1101 RF module and play with AX.25/KISS to transmit TC
     - [Create a virtual serial link](#create-a-virtual-serial-link)
     - [Create the network device using kissattach](#create-the-network-device-using-kissattach)
     - [Scripts that will run these commands](#scripts-that-will-run-these-commands)
-    - [Relay the KST chat](#relay-the-kst-chat)
   - [Run the program](#run-the-program)
+  - [Relay the KST chat](#relay-the-kst-chat)
 - [Details of the design](#details-of-the-design)
   - [Multiple block handling](#multiple-block-handling)
   - [Mitigate AX.25/KISS spurious packet retransmissions](#mitigate-ax25kiss-spurious-packet-retransmissions)
@@ -286,16 +286,6 @@ Examples:
   - `./kissdown.sh`
   - `./kissup.sh 10.0.1.3 255.255.255.0`
 
-### Relay the KST chat
-As a sidenote this is the way you can relay the KST chat (that is port 23000 of a specific server) through this radio link. 
-
-On one end that has a connection to the Internet (say 10.0.1.3) do the port forwarding:
-  - `sudo /sbin/iptables -t nat -A PREROUTING -p tcp -i ax0 --dport 23000 -j DNAT --to-destination 188.165.198.144:23000`
-  - `sudo /sbin/iptables -t nat -A POSTROUTING -p tcp --dport 23000 -j MASQUERADE`
-
-On the other end (say 10.0.1.7) use a telnet chat client such as the [modified colrdx for KST](https://github.com/f4exb/colrdx) and connect using the one end's IP address and port 23000:
-  - `colrdx -c (callsign) -k 10.0.1.3 23000`
-
 ## Run the program
 This example will set the CC1101 at 9600 Baud with GFSK modulation. We raise the priority of the process (lower the priority number down to 0) with the `nice` command:
 
@@ -308,6 +298,16 @@ Other options are:
   - inter-block pause when sending multiple blocks (see next) is set for a 15 bytes transmission time approximately (-l) 
 
 Note that you have to be super user to execute the program.
+
+## Relay the KST chat
+As a sidenote this is the way you can relay the KST chat (that is port 23000 of a specific server) through this radio link. 
+
+On one end that has a connection to the Internet (say 10.0.1.3) do the port forwarding:
+  - `sudo /sbin/iptables -t nat -A PREROUTING -p tcp -i ax0 --dport 23000 -j DNAT --to-destination 188.165.198.144:23000`
+  - `sudo /sbin/iptables -t nat -A POSTROUTING -p tcp --dport 23000 -j MASQUERADE`
+
+On the other end (say 10.0.1.7) use a telnet chat client such as the [modified colrdx for KST](https://github.com/f4exb/colrdx) and connect using the one end's IP address and port 23000:
+  - `colrdx -c (callsign) -k 10.0.1.3 23000`
 
 # Details of the design
 ## Multiple block handling
