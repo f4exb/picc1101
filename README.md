@@ -91,7 +91,7 @@ This will set the priority to 0 and is the minimum you can obtain with the `nice
 You can use option -T of the program to get an even lower priority of -2 for a so called "real time" scheduling. This is not real time actually but will push the priority figure into the negative numbers. It has been implemented with the WiringPi piHiPri method and -2 is the practical lowest figure possible before entering into bad behaviour that might make a cold reboot necessary. Note that this is the same priority as the watchdog.
 
 ## Program options
-<pre><code>
+ <pre><code>
   -B, --tnc-serial-speed=SERIAL_SPEED
                              TNC Serial speed in Bauds (default : 9600)
   -d, --spi-device=SPI_DEVICE   SPI device, (default : /dev/spidev0.0)
@@ -154,8 +154,18 @@ You can use option -T of the program to get an even lower priority of -2 for a s
 Note: variable length blocks are not implemented yet.
 
 ## Detailed options
+### Verbosity level (-v)
+It ranges from 0 to 4:
+  - 0: nothing at all
+  - 1: Errors and some warnings and one line summary for each block sent or received
+  - 2: Adds details on received blocks like RSSI and LQI
+  - 3: Adds details on interrupt calls
+  - 4: Adds full hex dump of sent and received blocks
+
+Be aware that printing out to console takes time and might cause problems when transfer speeds and interactivity increase.
+
 ### Radio interfece speeds (-R)
-<pre><code>
+ <pre><code>
 Value: Rate (Baud):
  0     50 (experimental)
  1     110 (experimental)
@@ -177,7 +187,7 @@ Value: Rate (Baud):
 </code></pre>
 
 ### Modulations (-M)
-<pre><code>
+ <pre><code>
 Value: Scheme:
 0      OOK
 1      2-FSK
@@ -189,7 +199,7 @@ Value: Scheme:
 Note: MSK does not seem to work too well at least with the default radio options.
 
 ### Test routines (-t)
-<pre><code>
+ <pre><code>
 Value: Scheme:
 0      No test (KISS virtual TNC)
 1      Simple Tx with polling. Packet smaller than 64 bytes
@@ -225,17 +235,17 @@ In `/etc/ax25/axports` you have to add a line with:
   - *comment* is any descriptive comment
 
 Example:
-<pre><code>
-# /etc/ax25/axports
-#
-# The format of this file is:
-#
-# name callsign speed paclen window description
-#
-radio0  F4EXB-14           9600  224     1       Hamnet CC1101
-radio1  F4EXB-15           9600  224     1       Hamnet CC1101
-#1      OH2BNS-1           1200  255     2       144.675 MHz (1200  bps)
-#2      OH2BNS-9          38400  255     7       TNOS/Linux  (38400 bps)
+ <pre><code>
+ # /etc/ax25/axports
+ #
+ # The format of this file is:
+ #
+ # name callsign speed paclen window description
+ #
+ radio0  F4EXB-14           9600  224     1       Hamnet CC1101
+ radio1  F4EXB-15           9600  224     1       Hamnet CC1101
+ #1      OH2BNS-1           1200  255     2       144.675 MHz (1200  bps)
+ #2      OH2BNS-9          38400  255     7       TNOS/Linux  (38400 bps)
 </code></pre>
 
 ### Create a virtual serial link
@@ -255,7 +265,7 @@ AX.25/KISS engine will be attached to the `axp1` end and the program to `axp2`.
   - `sudo ifconfig ax0 netmask 255.255.255.0`
 
 This will create the `ax0` network device as shown by the `/sbin/ifconfig` command:
-<pre><code>
+ <pre><code>
 ax0       Link encap:AMPR AX.25  HWaddr F4EXB-15  
           inet addr:10.0.1.7  Bcast:10.0.1.255  Mask:255.255.255.0
           UP BROADCAST RUNNING  MTU:224  Metric:1
