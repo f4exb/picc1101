@@ -46,7 +46,9 @@ The CC1101 chip is interfaced using a SPI bus that is implemented natively on th
 The CC1101 data sheet is available [here](www.ti.com/lit/ds/symlink/cc1101.pdf).
 
 # Disclaimer
-You are supposed to use the CC1101 modules and this software sensibly. Please check your local radio spectrum regulations. For Amateur Radio use you should have a valid Amateur Radio licence with a callsign and transmit in the bands and conditions granted by your local regulations also please try to respect the IARU band plan. 
+You are supposed to use the CC1101 modules and this software sensibly. Please check your local radio spectrum regulations. 
+
+For Amateur Radio use you should have a valid Amateur Radio licence with a callsign and transmit in the bands and conditions granted by your local regulations also please try to respect the IARU band plan. In most if not all countries you are not allowed to transmit encrypted data so please do not route SSL traffic like `https` or `ssh`. Use plain `http` or `telnet` instead.
 
 # Installation and basic usage
 ## Prerequisites
