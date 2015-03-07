@@ -16,7 +16,8 @@ Connect Raspberry-Pi to CC1101 RF module and play with AX.25/KISS to transmit TC
     - [Engage the "real time" priority](#engage-the-real-time-priority)
   - [Program options](#program-options)
   - [Detailed options](#detailed-options)
-    - [Radio interfece speeds (-R)](#radio-interfece-speeds--r)
+    - [Verbosity level (-v)](#verbosity-level--v)
+    - [Radio interface speeds (-R)](#radio-interface-speeds--r)
     - [Modulations (-M)](#modulations--m)
     - [Test routines (-t)](#test-routines--t)
 - [AX.25/KISS operation](#ax25kiss-operation)
@@ -164,7 +165,7 @@ It ranges from 0 to 4:
 
 Be aware that printing out to console takes time and might cause problems when transfer speeds and interactivity increase.
 
-### Radio interfece speeds (-R)
+### Radio interface speeds (-R)
  <pre><code>
 Value: Rate (Baud):
  0     50 (experimental)
