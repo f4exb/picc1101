@@ -28,6 +28,7 @@ Connect Raspberry-Pi to CC1101 RF module and play with AX.25/KISS to transmit TC
     - [Create a virtual serial link](#create-a-virtual-serial-link)
     - [Create the network device using kissattach](#create-the-network-device-using-kissattach)
     - [Scripts that will run these commands](#scripts-that-will-run-these-commands)
+    - [Relay the KST chat](#relay-the-kst-chat)
   - [Run the program](#run-the-program)
 - [Details of the design](#details-of-the-design)
   - [Multiple block handling](#multiple-block-handling)
@@ -53,7 +54,7 @@ For Amateur Radio use you should have a valid Amateur Radio licence with a calls
 
 # Installation and basic usage
 ## Prerequisites
-This has been tested on a Raspberry Pi version 1 B with kernel 3.12.36. Raspberry Pi version 2 with 3.18 kernels using dtbs has not been working satifactorily so far. Version 2 is very new (in March 2015) and improvements are expected concerning SPI and GPIO handling and it will probably work one day on the version 2 as well. Anyway version 1 has enough computing power for our purpose.
+This has been tested successfully on a Raspberry Pi version 1 B with kernel 3.12.36. Raspberry Pi version 2 with a 3.18 kernel does not work.
 
 For best performance you will need the DMA based SPI driver for BCM2708 found [here](https://github.com/notro/spi-bcm2708.git) After successful compilation you will obtain a kernel module that is to be stored as `/lib/modules/$(uname -r)/kernel/drivers/spi/spi-bcm2708.ko` 
 
@@ -262,7 +263,7 @@ They are accessible via the symlinks specified in the command:
 AX.25/KISS engine will be attached to the `axp1` end and the program to `axp2`.
 
 ### Create the network device using kissattach
-  - `sudo kissattach /var/ax25/axp1 radio0 10.0.0.7`
+  - `sudo kissattach /var/ax25/axp1 radio0 10.0.1.7`
   - `sudo ifconfig ax0 netmask 255.255.255.0`
 
 This will create the `ax0` network device as shown by the `/sbin/ifconfig` command:
@@ -285,10 +286,20 @@ Examples:
   - `./kissdown.sh`
   - `./kissup.sh 10.0.1.3 255.255.255.0`
 
-## Run the program
-This example will set the CC1101 at 9600 Baud with GFSK modulation:
+### Relay the KST chat
+As a sidenote this is the way you can relay the KST chat (that is port 23000 of a specific server) through this radio link. 
 
-  - `sudo ./picc1101 -v1 -B 9600 -P 252 -R7 -M4 -W -l15`
+On one end that has a connection to the Internet (say 10.0.1.3) do the port forwarding:
+  - `sudo /sbin/iptables -t nat -A PREROUTING -p tcp -i ax0 --dport 23000 -j DNAT --to-destination 188.165.198.144:23000`
+  - `sudo /sbin/iptables -t nat -A POSTROUTING -p tcp --dport 23000 -j MASQUERADE`
+
+On the other end (say 10.0.1.7) use a telnet chat client such as the [modified colrdx for KST](https://github.com/f4exb/colrdx) and connect using the one end's IP address and port 23000:
+  - `colrdx -c (callsign) -k 10.0.1.3 23000`
+
+## Run the program
+This example will set the CC1101 at 9600 Baud with GFSK modulation. We raise the priority of the process (lower the priority number down to 0) with the `nice` command:
+
+  - `sudo nice -n -20 ./picc1101 -v1 -B 9600 -P 252 -R7 -M4 -W -l15`
 
 Other options are:
   - verbosity level (-v) of 1 will only display basic execution messages, errors and warnings
